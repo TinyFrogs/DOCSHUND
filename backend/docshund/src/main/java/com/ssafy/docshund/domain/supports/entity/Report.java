@@ -35,7 +35,7 @@ public class Report extends BaseTimeEntity {
 	@Column(name = "category", nullable = false)
 	private ReportCategory category;  // 신고 카테고리 (Enum)
 
-	@Column(name = "content", nullable = false)
+	@Column(name = "content", nullable = false, length = 2000)
 	private String content;  // 신고 내용
 
 	@Column(name = "origin_content", nullable = false, columnDefinition = "TEXT")

@@ -17,6 +17,7 @@ import com.ssafy.docshund.domain.supports.dto.report.ReportRequestDto;
 import com.ssafy.docshund.domain.supports.entity.Report;
 import com.ssafy.docshund.domain.supports.service.ReportService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,7 +37,7 @@ public class ReportController {
 
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> createReport(
-		@RequestPart(value = "report", required = false) ReportRequestDto reportRequestDto,
+		@Valid @RequestPart(value = "report", required = false) ReportRequestDto reportRequestDto,
 		@RequestPart(value = "file", required = false) MultipartFile file) {
 		reportService.reportUser(reportRequestDto, file);
 
