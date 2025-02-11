@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 // stroe
@@ -13,6 +14,8 @@ import ArticleItemService from "./services/articleItemService";
 
 const WriteArticle = () => {
   const navigate = useNavigate();
+
+  const MAX_TITLE_LENGTH = 50;
 
   const [title, setTitle] = useState(""); // 제목 상태
   const [mainCategory, setMainCategory] = useState(""); // 대분류 선택 상태
@@ -47,14 +50,23 @@ const WriteArticle = () => {
 
   // 파일 첨부 핸들링 함수
   const handleFileChange = async (e) => {
-    setFile(e.target.files[0]);
+    const selectedFile = e.target.files[0];
 
-    // S3에 파일 업로드 후 url 받아오기
-    const response = await ArticleItemService.uploadImageFile(
-      e.target.files[0]
-    );
+    if (selectedFile) {
+      if (selectedFile.size > 5 * 1024 * 1024) {
+        // 5MB 제한
+        toast.info("사진진 크기는 최대 5MB까지 업로드 가능합니다.");
+        return;
+      }
+      setFile(selectedFile);
 
-    setImageUrl(response.data.imageUrl); // 이미지 URL 상태 업데이트
+      // S3에 파일 업로드 후 url 받아오기
+      const response = await ArticleItemService.uploadImageFile(
+        e.target.files[0]
+      );
+
+      setImageUrl(response.data.imageUrl); // 이미지 URL 상태 업데이트
+    }
   };
 
   // 파일 첨부 취소 핸들링 함수
@@ -74,12 +86,12 @@ const WriteArticle = () => {
 
     // 제목, 대분류, 소분류, 내용, 파일이 모두 입력되었는지 확인
     if (!title || !mainCategory || !subCategory || !content) {
-      alert("모든 항목을 입력해주세요.");
+      toast.info("모든 항목을 입력해주세요.");
       return;
     } else {
       console.log(content.length);
       if (content.length > 10000) {
-        alert("글 내용은 10000자 이하로 작성해주세요.");
+        toast.info("글 내용은 10000자 이하로 작성해주세요.");
         return;
       }
 
@@ -92,7 +104,7 @@ const WriteArticle = () => {
       const data = response.data;
 
       if (response.status === 200) {
-        alert("글 작성이 완료되었습니다.");
+        toast("글 작성이 완료되었습니다.");
         navigate(`/community/article/${data.articleId}`);
       }
     }
@@ -110,16 +122,25 @@ const WriteArticle = () => {
           <div className="p-6">
             <form onSubmit={handleSubmit}>
               <div className="border-b border-[#E1E1DF] pb-4 mb-4">
-                <div className="mb-6 flex items-center">
-                  <label className="block text-lg font-medium text-black min-w-[100px]">
-                    제목 <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    className="flex-1 py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
-                    placeholder="제목을 입력하세요"
-                    onChange={handleTitleChange}
-                  />
+                <div className="mb-2">
+                  <div className="flex items-center">
+                    <label className="block text-lg font-medium text-black min-w-[100px] mb-2">
+                      제목 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={title}
+                      className="flex-1 py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
+                      placeholder="제목을 입력하세요"
+                      onChange={(e) =>
+                        e.target.value.length <= MAX_TITLE_LENGTH &&
+                        setTitle(e.target.value)
+                      }
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1 mr-2 text-right">
+                    {title.length} / {MAX_TITLE_LENGTH}
+                  </p>
                 </div>
                 <div className="flex items-center">
                   <label className="block text-lg font-medium text-black min-w-[100px]">
@@ -166,25 +187,6 @@ const WriteArticle = () => {
                   <div className="mt-1 block w-full h-100">
                     <EditorContent initialTextContent={""} />
                   </div>
-                  <div className="mt-2 flex justify-end">
-                    {contentLength > 10000 ? (
-                      <span
-                        value={contentLength}
-                        onChange={handleContentLength}
-                        className="text-sm text-red-500 bg-gray-50 px-3 py-1 rounded-md"
-                      >
-                        글자 수: {contentLength.toLocaleString()} / 10,000
-                      </span>
-                    ) : (
-                      <span
-                        value={contentLength}
-                        onChange={handleContentLength}
-                        className="text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded-md"
-                      >
-                        글자 수: {contentLength.toLocaleString()} / 10,000
-                      </span>
-                    )}
-                  </div>
                 </div>
 
                 {/* 파일 첨부 */}
@@ -203,17 +205,18 @@ const WriteArticle = () => {
                     <div className="relative">
                       <input
                         type="file"
+                        accept="image/png, image/jpeg, image/jpg"
                         // 파일 첨부 로직(s3에 업로드 후 url 받아오기)
                         onChange={handleFileChange}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
                       <div className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm text-center cursor-pointer hover:bg-[#C96442] text-sm">
-                        파일 선택
+                        사진 선택
                       </div>
                     </div>
                     {!file && (
                       <p className="ml-4 text-sm text-gray-500">
-                        첨부할 파일을 선택하세요 (1개만 가능)
+                        첨부할 사진을 선택하세요 (1개만 가능)
                       </p>
                     )}
                     {file && (

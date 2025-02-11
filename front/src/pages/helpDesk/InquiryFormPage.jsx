@@ -114,7 +114,6 @@ const InquiryFormPage = () => {
               e.target.value.length <= MAX_TITLE_LENGTH &&
               setTitle(e.target.value)
             }
-            maxLength={50}
             className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
             placeholder="제목을 입력하세요"
           />
@@ -144,7 +143,6 @@ const InquiryFormPage = () => {
               e.target.value.length <= MAX_CONTENT_LENGTH &&
               setContent(e.target.value)
             }
-            maxLength={2000}
             className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
             placeholder="내용을 입력하세요"
             style={{ height: "200px", resize: "none" }}

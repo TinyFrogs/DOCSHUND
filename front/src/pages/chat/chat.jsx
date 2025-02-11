@@ -162,8 +162,8 @@ const Chat = () => {
   };
 
   const sendMessage = () => {
-    if (inputValue.length > 255) {
-      toast.error("255자 이상 메세지는 보낼 수 없습니다.");
+    if (inputValue.length > 200) {
+      toast.error("200자 이상 메세지는 보낼 수 없습니다.");
       return;
     }
     if (stompClient.current?.connected && inputValue) {

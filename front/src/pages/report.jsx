@@ -10,7 +10,7 @@ import ReportService from "../services/reportService";
 
 import { X } from "lucide-react";
 
-const reportModal = () => {
+const ReportModal = () => {
   const navigate = useNavigate();
 
   const {
@@ -32,6 +32,8 @@ const reportModal = () => {
   const [content, setContent] = useState("");
   const [file, setFile] = useState(null);
   const [isSelected, setIsSelected] = useState(true);
+
+  const MAX_CONTENT_LENGTH = 500;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -97,7 +99,16 @@ const reportModal = () => {
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+
+    if (selectedFile) {
+      if (selectedFile.size > 5 * 1024 * 1024) {
+        // 5MB 제한
+        toast.info("파일 크기는 최대 5MB까지 업로드 가능합니다.");
+        return;
+      }
+      setFile(selectedFile);
+    }
   };
 
   const handleFileCancel = () => {
@@ -217,12 +228,17 @@ const reportModal = () => {
                   </label>
                   <textarea
                     value={content}
-                    onChange={(e) => setContent(e.target.value)}
+                    onChange={(e) =>
+                      e.target.value.length <= MAX_CONTENT_LENGTH &&
+                      setContent(e.target.value)
+                    }
                     className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
-                    rows="4"
                     placeholder="내용을 입력하세요"
                     style={{ height: "250px", resize: "none" }}
                   ></textarea>
+                  <p className="text-xs text-gray-500 mt-1 mr-2 text-right">
+                    {content.length} / {MAX_CONTENT_LENGTH}
+                  </p>
                 </div>
                 <div className="mb-6">
                   <div className="flex items-center">
@@ -274,4 +290,4 @@ const reportModal = () => {
   );
 };
 
-export default reportModal;
+export default ReportModal;
