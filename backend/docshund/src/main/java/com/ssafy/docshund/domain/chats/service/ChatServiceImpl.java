@@ -1,5 +1,8 @@
 package com.ssafy.docshund.domain.chats.service;
 
+import static com.ssafy.docshund.domain.docs.exception.DocsExceptionCode.DOCS_NOT_FOUND;
+import static com.ssafy.docshund.domain.users.exception.user.UserExceptionCode.USER_NOT_FOUND;
+
 import java.util.NoSuchElementException;
 
 import org.springframework.data.domain.Page;
@@ -14,8 +17,10 @@ import com.ssafy.docshund.domain.chats.entity.Chat;
 import com.ssafy.docshund.domain.chats.entity.Status;
 import com.ssafy.docshund.domain.chats.repository.ChatRepository;
 import com.ssafy.docshund.domain.docs.entity.Document;
+import com.ssafy.docshund.domain.docs.exception.DocsException;
 import com.ssafy.docshund.domain.docs.repository.DocumentRepository;
 import com.ssafy.docshund.domain.users.entity.User;
+import com.ssafy.docshund.domain.users.exception.user.UserException;
 import com.ssafy.docshund.domain.users.repository.UserRepository;
 import com.ssafy.docshund.global.util.user.UserUtil;
 
@@ -36,11 +41,11 @@ public class ChatServiceImpl implements ChatService {
 
 		Document document = documentRepository.findByDocsId(docsId);
 		if (document == null || document.getDocsId() != chatDto.getDocsId()) {
-			throw new AccessDeniedException("NO EXISTS DOCUMENT & CHAT");
+			throw new DocsException(DOCS_NOT_FOUND);
 		}
 
 		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new NoSuchElementException("NO EXISTS PERSONAL ID"));
+			.orElseThrow(() -> new UserException(USER_NOT_FOUND));
 
 		return chatRepository.save(new Chat(document, user, chatDto.getContent()));
 	}
@@ -48,6 +53,11 @@ public class ChatServiceImpl implements ChatService {
 	@Override
 	@Transactional(readOnly = true)
 	public Page<ChatInfoDto> getChatsByDocsId(Integer docsId, Pageable pageable) {
+
+		if(!documentRepository.existsById(docsId)){
+			throw new DocsException(DOCS_NOT_FOUND);
+		}
+
 		return chatRepository.findAllByDocsId(docsId, pageable);
 	}
 

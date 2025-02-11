@@ -6,12 +6,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.ssafy.docshund.global.exception.ExceptionResponse;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ControllerAdvice
-@RequiredArgsConstructor
 public class ForumExceptionHandler {
 
     @ExceptionHandler(ForumException.class)

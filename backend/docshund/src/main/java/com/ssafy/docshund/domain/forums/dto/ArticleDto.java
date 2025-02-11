@@ -1,6 +1,5 @@
 package com.ssafy.docshund.domain.forums.dto;
 
-import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

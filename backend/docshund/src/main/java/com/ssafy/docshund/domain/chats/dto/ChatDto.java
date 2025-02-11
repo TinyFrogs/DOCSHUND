@@ -12,11 +12,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatDto {
-    @Positive
-    @NotNull
+    @NotNull(message = "DOCS ID CANNOT BE NULL")
+    @Positive(message = "DOCS ID MUST BE A POSITIVE NUMBER")
     private Integer docsId;
 
-    @NotBlank(message = "CHAT CANNOT BE BLANK")
-    @Size(max = 200, message = "CHAT IS TOO LONG")
+    @NotBlank(message = "CHAT MESSAGE CANNOT BE BLANK")
+    @Size(max = 200, message = "CHAT MESSAGE IS TOO LONG")
     private String content;
 }

@@ -1,5 +1,7 @@
 package com.ssafy.docshund.domain.chats.controller;
 
+import static com.ssafy.docshund.domain.chats.exception.WebSocketExceptionCode.INVALID_PRINCIPAL;
+
 import java.security.Principal;
 
 import org.springframework.data.domain.Page;
@@ -20,8 +22,11 @@ import com.ssafy.docshund.domain.chats.dto.ChatDto;
 import com.ssafy.docshund.domain.chats.dto.ChatInfoDto;
 import com.ssafy.docshund.domain.chats.entity.Chat;
 import com.ssafy.docshund.domain.chats.entity.Status;
+import com.ssafy.docshund.domain.chats.exception.WebSocketException;
 import com.ssafy.docshund.domain.chats.service.ChatService;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,23 +41,21 @@ public class ChatController {
 	@SendTo("/sub/chats/{docsId}")
 	public ChatInfoDto sendChat(
 		@DestinationVariable Integer docsId,
-		@Payload ChatDto chatDto,
+		@Payload @Valid ChatDto chatDto,
 		Principal principal
 	) {
 
 		if (principal == null) {
-			log.error("WebSocket Error: Principal is NULL in ChatController!");
-			throw new IllegalArgumentException("WEBSOCKET ERROR - Principal is null");
+			throw new WebSocketException(INVALID_PRINCIPAL);
 		}
 
 		log.info("Principal received in ChatController -> {}", principal.getName());
 
 		long userId;
 		try {
-			userId = Long.parseLong(principal.getName()); // STOMP에서 자동으로 설정한 Principal 사용
+			userId = Long.parseLong(principal.getName());
 		} catch (Exception e) {
-			log.error("WebSocket Error: Invalid Principal - {}", principal, e);
-			throw new IllegalArgumentException("WEBSOCKET ERROR - INVALID PRINCIPAL");
+			throw new WebSocketException(INVALID_PRINCIPAL);
 		}
 
 		Chat savedChat = chatService.createChat(docsId, userId, chatDto);
@@ -61,11 +64,10 @@ public class ChatController {
 
 	@GetMapping("/api/v1/docshund/chats/{docsId}")
 	public ResponseEntity<Page<ChatInfoDto>> getChats(
-		@PathVariable Integer docsId,
+		@PathVariable @Positive Integer docsId,
 		@PageableDefault(page = 0, size = 50) Pageable pageable
 	) {
 		Page<ChatInfoDto> result = chatService.getChatsByDocsId(docsId, pageable);
-
 		return ResponseEntity.ok(result);
 	}
 
