@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -334,8 +333,13 @@ public class DocsServiceImpl implements DocsService {
 
 		try {
 
-			String scriptPath = new ClassPathResource("python/divide_by_tags.py").getFile().getAbsolutePath();
-			ProcessBuilder processBuilder = new ProcessBuilder("python", scriptPath);
+			log.info("scriptPath Finding");
+			String scriptPath = "/usr/src/app/python/divide_by_tags.py"; // ✅ Docker에서 Python 파일이 있는 경로
+
+			log.info("new ProcessBuilder create");
+			ProcessBuilder processBuilder = new ProcessBuilder("python3.9", scriptPath);
+
+			log.info("put processBuilder");
 			processBuilder.environment().put("PYTHONIOENCODING", "UTF-8");
 
 			log.info("Python script starting");
