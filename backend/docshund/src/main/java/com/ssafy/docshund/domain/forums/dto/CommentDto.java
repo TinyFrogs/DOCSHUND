@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CommentDto {
     @NotBlank(message = "COMMENT CANNOT BE BLANK")
-    @Size(max = 10000, message = "COMMENT IS TOO LONG")
+    @Size(max = 5000, message = "COMMENT IS TOO LONG")
     private String content;
 }

@@ -37,7 +37,7 @@ public class Article extends BaseTimeEntityWithUpdatedAt {
 	@JoinColumn(name = "docs_id", nullable = false)
 	private Document document;  // 문서 정보 (document 테이블과 연결)
 
-	@Column(name = "title", nullable = false, length = 150)
+	@Column(name = "title", nullable = false, length = 200)
 	private String title;  // 게시글 제목
 
 	@Column(name = "content", nullable = false, columnDefinition = "MEDIUMTEXT")

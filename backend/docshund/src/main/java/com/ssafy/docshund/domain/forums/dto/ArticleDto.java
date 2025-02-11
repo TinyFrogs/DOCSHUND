@@ -13,6 +13,7 @@ public class ArticleDto {
     @Size(max = 50, message = "ARTICLE TITLE IS TOO LONG")
     private String title;
 
+    @Size(max = 15000, message = "ARTICLE CONTENT IS TOO LONG")
     private String content;
     
     private String category;
