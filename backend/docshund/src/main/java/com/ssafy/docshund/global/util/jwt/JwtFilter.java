@@ -52,18 +52,17 @@ public class JwtFilter extends OncePerRequestFilter {
 		log.info("Authorization Header:  " + authorizationHeader);
 
 		if (jwtUtil.isValidAuthorization(authorizationHeader)) {
-			request.setAttribute("exception", INVALID_TOKEN.getCode());  // ✅ 예외 설정
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			filterChain.doFilter(request, response);
+			log.info("INVALID TOKEN: 잘못된 토큰");
+			request.setAttribute("exception", INVALID_TOKEN.getCode());
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");  // ✅ sendError() 추가
 			return;
 		}
 
 		String token = authorizationHeader.substring(7);
 		if (jwtUtil.isExpired(token)) {
-			log.info("Token expired");
-			request.setAttribute("exception", EXPIRED_TOKEN.getCode());  // ✅ 예외 설정
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			filterChain.doFilter(request, response);
+			log.info("EXPIRED TOKEN: 토큰 만료");
+			request.setAttribute("exception", EXPIRED_TOKEN.getCode());
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token expired");  // ✅ sendError() 추가
 			return;
 		}
 

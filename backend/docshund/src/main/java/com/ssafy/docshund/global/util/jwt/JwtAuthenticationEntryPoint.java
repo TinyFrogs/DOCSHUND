@@ -24,21 +24,11 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException authException) throws IOException, ServletException {
 		String exception = (String)request.getAttribute("exception");
+		log.info("JwtAuthenticationEntryPoint - exception 값: " + exception);  // ✅ 로그 추가
 
 		if (exception == null) {
-			log.info("잘못된 요청");
+			log.info("잘못된 요청 (exception 값이 없음)");
 			setResponse(response, BAD_REQUEST_EXCEPTION);
-			return;
-		}
-
-		if (exception.equals(REQUEST_TOKEN_NOT_FOUND.getCode())) {
-			log.info("AccessToken이 없음");
-			setResponse(response, REQUEST_TOKEN_NOT_FOUND);
-			return;
-		}
-
-		if (exception.equals(AUTH_MEMBER_NOT_FOUND.getCode())) {
-			setResponse(response, AUTH_MEMBER_NOT_FOUND);
 			return;
 		}
 
