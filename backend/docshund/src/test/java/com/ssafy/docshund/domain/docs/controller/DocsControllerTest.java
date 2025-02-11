@@ -8,6 +8,7 @@ import com.ssafy.docshund.domain.docs.dto.UserTransDocumentDto;
 import com.ssafy.docshund.domain.docs.entity.Position;
 import com.ssafy.docshund.domain.docs.entity.Status;
 import com.ssafy.docshund.domain.docs.service.DocsService;
+import com.ssafy.docshund.fixture.WithMockCustomOAuth2User;
 import com.ssafy.docshund.global.util.user.UserUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -80,6 +80,7 @@ class DocsControllerTest {
 	// 문서 생성 테스트
 	@Test
 	@DisplayName("문서 등록 API 테스트")
+	@WithMockCustomOAuth2User
 	void postDocsTest() throws Exception {
 		// given
 		DocumentDto requestDto = new DocumentDto(null, "Spring", "Spring Framework", "logo1.png", "v1.0", 0, 0,
@@ -328,21 +329,34 @@ class DocsControllerTest {
 	@DisplayName("번역 작성 API 테스트")
 	void postTransDocsTest() throws Exception {
 		// given
-		TranslatedDocumentDto createdTrans = new TranslatedDocumentDto(1L, 1, 100L, "새 번역", 0, Status.VISIBLE,
-			LocalDateTime.now(), LocalDateTime.now(), 0, List.of());
+		TranslatedDocumentDto requestDto = new TranslatedDocumentDto(
+				null,  // ID는 자동 생성되므로 null
+				1, 100L, "새 번역",
+				0, Status.VISIBLE,
+				LocalDateTime.now(), LocalDateTime.now(),
+				0, List.of()
+		);
+
+		TranslatedDocumentDto createdTrans = new TranslatedDocumentDto(
+				1L, 1, 100L, "새 번역",
+				0, Status.VISIBLE,
+				LocalDateTime.now(), LocalDateTime.now(),
+				0, List.of()
+		);
 
 		when(userUtil.getUser()).thenReturn(Mockito.mock(com.ssafy.docshund.domain.users.entity.User.class));
-		when(docsService.createTranslatedDocument(1, 1, "새 번역")).thenReturn(createdTrans);
+		when(docsService.createTranslatedDocument(1, 1, requestDto)).thenReturn(createdTrans);
 
 		// when & then
 		mockMvc.perform(post("/api/v1/docshund/docs/1/trans/1")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(Map.of("content", "새 번역"))))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data.content").value("새 번역"));
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(requestDto)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.content").value("새 번역"));
 
-		verify(docsService, times(1)).createTranslatedDocument(1, 1, "새 번역");
+		verify(docsService, times(1)).createTranslatedDocument(1, 1, requestDto);
 	}
+
 
 	// 번역 상세 조회 테스트
 	@Test
@@ -369,22 +383,29 @@ class DocsControllerTest {
 	@DisplayName("번역 수정 API 테스트")
 	void patchTransTest() throws Exception {
 		// given
+		TranslatedDocumentDto requestDto = new TranslatedDocumentDto(
+				1L, 1, 100L, "수정된 번역 내용", 0, Status.VISIBLE,
+				LocalDateTime.now(), LocalDateTime.now(), 5, List.of(1L, 2L)
+		);
+
 		TranslatedDocumentDto updatedTrans = new TranslatedDocumentDto(
-			1L, 1, 100L, "수정된 번역 내용", 0, Status.VISIBLE, LocalDateTime.now(), LocalDateTime.now(), 5, List.of(1L, 2L)
+				1L, 1, 100L, "수정된 번역 내용", 0, Status.VISIBLE,
+				LocalDateTime.now(), LocalDateTime.now(), 5, List.of(1L, 2L)
 		);
 
 		when(userUtil.getUser()).thenReturn(Mockito.mock(com.ssafy.docshund.domain.users.entity.User.class));
-		when(docsService.updateTranslatedDocument(1, 1L, "수정된 번역 내용")).thenReturn(updatedTrans);
+		when(docsService.updateTranslatedDocument(1, 1L, requestDto)).thenReturn(updatedTrans);
 
 		// when & then
 		mockMvc.perform(patch("/api/v1/docshund/docs/1/trans/paragraph/1")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(Map.of("content", "수정된 번역 내용"))))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data.content").value("수정된 번역 내용"));
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(requestDto)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.content").value("수정된 번역 내용"));
 
-		verify(docsService, times(1)).updateTranslatedDocument(1, 1L, "수정된 번역 내용");
+		verify(docsService, times(1)).updateTranslatedDocument(1, 1L, requestDto);
 	}
+
 
 	// 번역 삭제 테스트
 	@Test

@@ -1,15 +1,13 @@
 package com.ssafy.docshund.domain.docs.service;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.ssafy.docshund.domain.docs.dto.DocumentDto;
 import com.ssafy.docshund.domain.docs.dto.OriginDocumentDto;
 import com.ssafy.docshund.domain.docs.dto.TranslatedDocumentDto;
 import com.ssafy.docshund.domain.docs.dto.UserTransDocumentDto;
 import com.ssafy.docshund.domain.docs.entity.Status;
-import com.ssafy.docshund.domain.users.entity.User;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public interface DocsService {
@@ -47,7 +45,7 @@ public interface DocsService {
 	List<TranslatedDocumentDto> getTranslatedDocuments(Integer docsId, Integer originId, String sort, String order);
 
 	// 번역 작성하기
-	TranslatedDocumentDto createTranslatedDocument(Integer docsId, Integer originId, String content);
+	TranslatedDocumentDto createTranslatedDocument(Integer docsId, Integer originId, TranslatedDocumentDto translatedDocumentDto);
 
 	// 특정 유저의 번역본 조회
 	List<UserTransDocumentDto> getUserTransDocument(Long userId);
@@ -56,7 +54,7 @@ public interface DocsService {
 	TranslatedDocumentDto getTranslatedDocumentDetail(Integer docsId, Long transId);
 
 	// 번역 수정하기
-	TranslatedDocumentDto updateTranslatedDocument(Integer docsId, Long transId, String content);
+	TranslatedDocumentDto updateTranslatedDocument(Integer docsId, Long transId, TranslatedDocumentDto translatedDocumentDto);
 
 	// 번역 삭제하기
 	void deleteTranslatedDocument(Integer docsId, Long transId);

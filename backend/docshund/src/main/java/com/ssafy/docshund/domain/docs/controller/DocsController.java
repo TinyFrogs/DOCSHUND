@@ -1,29 +1,19 @@
 package com.ssafy.docshund.domain.docs.controller;
 
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.ssafy.docshund.domain.docs.dto.DocumentDto;
 import com.ssafy.docshund.domain.docs.dto.OriginDocumentDto;
 import com.ssafy.docshund.domain.docs.dto.TranslatedDocumentDto;
 import com.ssafy.docshund.domain.docs.dto.UserTransDocumentDto;
 import com.ssafy.docshund.domain.docs.entity.Status;
 import com.ssafy.docshund.domain.docs.service.DocsService;
-import com.ssafy.docshund.domain.users.entity.User;
 import com.ssafy.docshund.global.util.user.UserUtil;
-
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/docshund/docs")
@@ -46,7 +36,8 @@ public class DocsController {
 
 	// 문서 정보(Document) 등록
 	@PostMapping("")
-	public ResponseEntity<DocumentDto> postDocs(@RequestBody DocumentDto documentDto) {
+	public ResponseEntity<DocumentDto> postDocs(
+			@Valid @RequestBody DocumentDto documentDto) {
 		DocumentDto createdDocument = docsService.createDocument(documentDto);
 		return ResponseEntity.ok(createdDocument);
 	}
@@ -150,15 +141,10 @@ public class DocsController {
 	public ResponseEntity<?> postTransDocs(
 		@PathVariable Integer docsId,
 		@PathVariable Integer originId,
-		@RequestBody Map<String, String> requestBody
+		@Valid @RequestBody TranslatedDocumentDto translatedDocumentDto
 	) {
 
-		String content = requestBody.get("content");
-		if (content == null || content.trim().isEmpty()) {
-			return ResponseEntity.badRequest().body("Content cannot be empty.");
-		}
-
-		TranslatedDocumentDto createdTrans = docsService.createTranslatedDocument(docsId, originId, content);
+		TranslatedDocumentDto createdTrans = docsService.createTranslatedDocument(docsId, originId, translatedDocumentDto);
 		return ResponseEntity.ok().body(Map.of("message", "Translation created successfully.", "data", createdTrans));
 	}
 
@@ -177,14 +163,9 @@ public class DocsController {
 	public ResponseEntity<?> patchTrans(
 		@PathVariable Integer docsId,
 		@PathVariable Long transId,
-		@RequestBody Map<String, String> requestBody
+		@Valid @RequestBody TranslatedDocumentDto translatedDocumentDto
 	) {
-		String content = requestBody.get("content");
-		if (content == null || content.trim().isEmpty()) {
-			return ResponseEntity.badRequest().body("Edited content cannot be empty.");
-		}
-
-		TranslatedDocumentDto editedTrans = docsService.updateTranslatedDocument(docsId, transId, content);
+		TranslatedDocumentDto editedTrans = docsService.updateTranslatedDocument(docsId, transId, translatedDocumentDto);
 		return ResponseEntity.ok().body(Map.of("message", "Translation updated successfully.", "data", editedTrans));
 	}
 

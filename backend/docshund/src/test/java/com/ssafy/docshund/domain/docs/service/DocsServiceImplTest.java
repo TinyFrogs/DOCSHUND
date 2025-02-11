@@ -1,11 +1,17 @@
 package com.ssafy.docshund.domain.docs.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
+import com.ssafy.docshund.domain.docs.dto.DocumentDto;
+import com.ssafy.docshund.domain.docs.dto.OriginDocumentDto;
+import com.ssafy.docshund.domain.docs.dto.TranslatedDocumentDto;
+import com.ssafy.docshund.domain.docs.entity.*;
+import com.ssafy.docshund.domain.docs.repository.*;
+import com.ssafy.docshund.domain.users.entity.Provider;
+import com.ssafy.docshund.domain.users.entity.User;
+import com.ssafy.docshund.domain.users.repository.UserRepository;
+import com.ssafy.docshund.fixture.UserTestHelper;
+import com.ssafy.docshund.fixture.WithMockCustomOAuth2User;
+import com.ssafy.docshund.global.util.user.UserUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,30 +22,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.docshund.domain.docs.dto.DocumentDto;
-import com.ssafy.docshund.domain.docs.dto.OriginDocumentDto;
-import com.ssafy.docshund.domain.docs.dto.TranslatedDocumentDto;
-import com.ssafy.docshund.domain.docs.entity.Document;
-import com.ssafy.docshund.domain.docs.entity.DocumentLike;
-import com.ssafy.docshund.domain.docs.entity.OriginDocument;
-import com.ssafy.docshund.domain.docs.entity.Position;
-import com.ssafy.docshund.domain.docs.entity.Status;
-import com.ssafy.docshund.domain.docs.entity.TranslatedDocument;
-import com.ssafy.docshund.domain.docs.entity.TranslatedDocumentLike;
-import com.ssafy.docshund.domain.docs.repository.CustomDocumentRepository;
-import com.ssafy.docshund.domain.docs.repository.DocumentLikeRepository;
-import com.ssafy.docshund.domain.docs.repository.DocumentRepository;
-import com.ssafy.docshund.domain.docs.repository.OriginDocumentRepository;
-import com.ssafy.docshund.domain.docs.repository.TranslatedDocumentLikeRepository;
-import com.ssafy.docshund.domain.docs.repository.TranslatedDocumentRepository;
-import com.ssafy.docshund.domain.users.entity.Provider;
-import com.ssafy.docshund.domain.users.entity.User;
-import com.ssafy.docshund.domain.users.repository.UserRepository;
-import com.ssafy.docshund.fixture.UserTestHelper;
-import com.ssafy.docshund.fixture.WithMockCustomOAuth2User;
-import com.ssafy.docshund.global.util.user.UserUtil;
+import java.time.LocalDateTime;
+import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 @Slf4j
 @SpringBootTest
@@ -273,13 +260,13 @@ class DocsServiceImplTest {
 	@DisplayName("번역 작성 테스트")
 	void createTranslatedDocument() {
 		// given
-		String content = "새 번역 내용";
+		TranslatedDocumentDto createdTrans = new TranslatedDocumentDto(1L, 1, 100L, "새 번역", 0, Status.VISIBLE,
+				LocalDateTime.now(), LocalDateTime.now(), 0, List.of());
 
 		Mockito.when(userUtil.getUser()).thenReturn(user2);
 
 		// when
-		TranslatedDocumentDto result = docsService.createTranslatedDocument(doc1.getDocsId(), originDoc2.getOriginId(),
-			content);
+		TranslatedDocumentDto result = docsService.createTranslatedDocument(doc1.getDocsId(), originDoc2.getOriginId(), createdTrans);
 
 		// then
 		assertThat(result).isNotNull();
@@ -291,12 +278,13 @@ class DocsServiceImplTest {
 	@DisplayName("번역 수정 테스트")
 	void updateTranslatedDocument() {
 		String content = "수정된 번역 내용";
-
+		TranslatedDocumentDto updateTrans = new TranslatedDocumentDto(1L, 1, user2.getUserId(), "새 번역", 0, Status.VISIBLE,
+				LocalDateTime.now(), LocalDateTime.now(), 0, List.of());
 		Mockito.when(userUtil.getUser()).thenReturn(user2);
 
 		// when
 		TranslatedDocumentDto result = docsService.updateTranslatedDocument(doc1.getDocsId(),
-			(long)Math.toIntExact(transDoc1.getTransId()), content);
+			(long)Math.toIntExact(transDoc1.getTransId()), updateTrans);
 
 		// then
 		assertThat(result).isNotNull();
