@@ -1,14 +1,14 @@
 import { Outlet, useNavigate, useParams } from "react-router-dom";
-import { Languages } from "lucide-react";
 import { useState, useEffect } from "react";
+import ChatBotBtn from "../chatBot/chatBotBtn.jsx";
 import AlertModal from "../../components/alertModal/alertModal.jsx";
 import useAlertStore from "../../store/alertStore.jsx";
 import warning from "../../assets/icon/warning.png";
 const ViewerMainPage = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { docsId } = useParams();
 
-  const [isBtnClicked, setIsBtnClicked] = useState(false);
+  // const [isBtnClicked, setIsBtnClicked] = useState(false);
   const { isAlertOpen, toggleAlert } = useAlertStore();
 
   useEffect(() => {
@@ -16,7 +16,14 @@ const ViewerMainPage = () => {
   }, []);
 
   return (
-    <div className="min-w-[768px] flex">
+    <div
+      onContextMenu={(e) => {
+        show(e);
+        e.preventDefault();
+      }}
+      className="min-w-[768px] flex"
+    >
+      <ChatBotBtn />
       <AlertModal
         imgSrc={warning}
         alertTitle={"알림"}
@@ -28,17 +35,6 @@ const ViewerMainPage = () => {
         }
         isVisible={isAlertOpen}
       />
-      <button
-        onClick={async () => {
-          setIsBtnClicked(!isBtnClicked);
-          !isBtnClicked
-            ? navigate(`/translate/main/viewer/${docsId}/best`)
-            : navigate(`/translate/main/viewer/${docsId}`);
-        }}
-        className="fixed flex items-center justify-center h-12 w-12 top-2 right-36 cursor-pointer rounded-full bg-[#BC5B39] hover:bg-[#C96442] z-[1100]"
-      >
-        <Languages />
-      </button>
       <Outlet className="min-w-[768px] pr-16" />
     </div>
   );

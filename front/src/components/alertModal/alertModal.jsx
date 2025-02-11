@@ -47,7 +47,7 @@ const AlertModal = ({ imgSrc, alertTitle, alertText }) => {
                 onClick={toggleAlert}
                 style={{
                   padding: "10px 20px",
-                  backgroundColor: "#007bff",
+                  backgroundColor: "#BC5B39",
                   color: "#fff",
                   border: "none",
                   borderRadius: "5px",

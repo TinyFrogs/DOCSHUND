@@ -12,15 +12,6 @@ const reportStore = create((set) => ({
   openReport: () => {
     set({ isReportOpen: true });
   },
-  closeReport: () => {
-    set({ isReportOpen: false });
-    clearReportContent();
-  },
-  toggleReport: () => {
-    set((state) => ({
-      isReportVisible: !state.isReportVisible,
-    }));
-  },
   clearReportContent: () => {
     set({
       originContent: "",
@@ -30,6 +21,15 @@ const reportStore = create((set) => ({
       transId: "",
       commentId: "",
     });
+  },
+  closeReport: () => {
+    set({ isReportOpen: false });
+    clearReportContent();
+  },
+  toggleReport: () => {
+    set((state) => ({
+      isReportVisible: !state.isReportVisible,
+    }));
   },
 }));
 

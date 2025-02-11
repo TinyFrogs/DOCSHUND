@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   initDB,
   addData,
@@ -14,16 +14,16 @@ import {
 import TranslateEditor from "./translateEditor.jsx";
 import TranslateArchive from "./translateArchive.jsx";
 import ToastViewer from "./components/toastViewer.jsx";
-
-//상태 import
-import useEditorStore from "../../store/translateStore/editorStore.jsx";
-import useArchiveStore from "../../store/translateStore/archiveStore.jsx";
+import ChatBotBtn from "../chatBot/chatBotBtn.jsx";
 
 //이미지 import
 import loadingGif from "../../assets/loading.gif";
 import { Trophy } from "lucide-react";
+import { Languages } from "lucide-react";
+import English from "../../assets/icon/english.png";
 
 const BestTransViewer = () => {
+  const navigate = useNavigate();
   const { docsId } = useParams();
   const [docParts, setDocParts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -38,16 +38,12 @@ const BestTransViewer = () => {
   const loadingRef = useRef(null);
   const chunk_size = 20;
 
+  //번역 전체보기 관련
+
   //indexedDB 관련 변수
   const dbName = "docs";
   const objectStoreName = docsId;
   const [isDbInitialized, setIsDbInitialized] = useState(false);
-  //번역 관련 상태
-  const { transList, setTransList } = useArchiveStore();
-  const { bestTrans, setBestTrans, setDocsId, setOriginId, setDocsPart } =
-    useEditorStore();
-  // const { openEditor, openArchive, toggleArchive, toggleEditor } =
-  //   useModalStore();
 
   // 문서 내용 전부 가져오기
   const loadMore = async () => {
@@ -188,6 +184,14 @@ const BestTransViewer = () => {
 
   return (
     <div className="h-[99%] min-w-[800px] w-[70%] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto">
+      <button
+        onClick={async () => {
+          navigate(`/translate/main/viewer/${docsId}`);
+        }}
+        className="fixed top-2 right-2 z-[1900] group rounded-full w-12 h-12 bg-gradient-to-r from-[#BC5B39] to-[#ff835a] flex justify-center items-center cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 border-2 border-white"
+      >
+        <img className="w-7 h-6" src={English} alt="전체 번역 보기" />
+      </button>
       <div className="flex flex-col gap-2">
         {docParts.map((part, index) => (
           <div key={index} className="paragraph flex flex-row gap-4 relative">

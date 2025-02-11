@@ -1,5 +1,6 @@
+import "react-contexify/dist/ReactContexify.css";
 import { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   initDB,
   addData,
@@ -11,67 +12,73 @@ import {
   fetchBestTranslate,
 } from "./hooks/translateGetService.jsx";
 import * as motion from "motion/react-client";
+
 // 컴포넌트 import
 import TranslateEditor from "./translateEditor.jsx";
 import TranslateArchive from "./translateArchive.jsx";
 import ToastViewer from "./components/toastViewer.jsx";
-
+import ChatBotBtn from "../chatBot/chatBotBtn.jsx";
 import RectBtn from "../../components/button/rectBtn.jsx";
+import { Menu, Item, useContextMenu } from "react-contexify";
+import "react-contexify/dist/ReactContexify.css";
 
-//상태 import
-import useTestStore from "../../store/translateStore/testStore.jsx";
+// 상태 import
 import useModalStore from "../../store/translateStore/translateModalStore.jsx";
-
 import useEditorStore from "../../store/translateStore/editorStore.jsx";
 import useArchiveStore from "../../store/translateStore/archiveStore.jsx";
 
-//이미지 import
+// 이미지 import
 import loadingGif from "../../assets/loading.gif";
 import { Trophy } from "lucide-react";
+import Korean from "../../assets/icon/korean.png";
+import { createPortal } from "react-dom";
 
 const TranslateViewer = () => {
+  const navigate = useNavigate();
   const { docsId } = useParams();
   const [docParts, setDocParts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [processedCount, setProcessedCount] = useState(0);
-  //각 문단 별 상태 저장 및 추적
+  // 각 문단 별 상태 저장 및 추적
   const [buttonStates, setButtonStates] = useState({});
   const [docpartStates, setDocpartStates] = useState({});
   const [heightStates, setHeightStates] = useState({});
-  //
-  const [mousePositions, setMousePositions] = useState({}); // 마우스 위치를 저장할 state 추가
+  // 마우스 위치 저장 (컨텍스트 메뉴 위치 조정용)
+  const [mousePositions, setMousePositions] = useState({});
   const [checkComplete, setCheckComplete] = useState(false);
   const docData = useRef([]);
   const loadingRef = useRef(null);
   const chunk_size = 20;
-  //문단 높이 조절
-  const initialHeights = useRef({}); // 초기 높이를 저장할 ref
+  // 문단 높이 조절을 위한 초기 높이 저장 ref
+  const initialHeights = useRef({});
+  //우클릭메뉴 커스텀을 위한 상태
+  const [contextMenuDocsName, setContextMenuDocsName] = useState("");
+  const [contextMenuOriginId, setContextMenuOriginId] = useState(0);
 
-  //indexedDB 관련 변수
+  // indexedDB 관련 변수
   const dbName = "docs";
   const objectStoreName = docsId;
   const [isDbInitialized, setIsDbInitialized] = useState(false);
-  //번역 관련 상태
+
+  // 번역 관련 상태
   const { transList, setTransList } = useArchiveStore();
   const { bestTrans, setBestTrans, setDocsId, setOriginId, setDocsPart } =
     useEditorStore();
-  //모달 관련 상태
+  // 모달 관련 상태
   const { openEditor, openArchive, toggleArchive, toggleEditor } =
     useModalStore();
 
-  //ui 관련
+  // 우클릭 또는 버튼 클릭 시 UI 상태 토글
   const toggleButton = (partId, e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const mouseY = e.clientY - rect.top;
-
-    // 버튼 컨테이너의 높이 (두 버튼의 높이 + 간격)
-    const buttonContainerHeight = 100; // 대략적인 높이값
-
-    // y 위치 제한
+    // 버튼 컨테이너의 높이 (대략적인 높이값)
+    const buttonContainerHeight = 100;
+    // y 위치 제한 (컨테이너 내부에서 적절한 위치 조정)
     const limitedY = Math.min(
       Math.max(buttonContainerHeight / 2, mouseY),
-      rect.height - buttonContainerHeight / 2
+      rect.height - buttonContainerHeight / 5
     );
 
     setMousePositions((prev) => ({
@@ -105,7 +112,7 @@ const TranslateViewer = () => {
     }));
   };
 
-  // 문서 내용 전부 가져오기
+  // 문서 내용을 청크 단위로 불러오기
   const loadMore = async () => {
     if (loading || !hasMore) return;
     try {
@@ -122,12 +129,11 @@ const TranslateViewer = () => {
         setHasMore(false);
         return;
       }
-      //element.content가 null이나 undefined일 경우 ""로 대체 ==> React의 불변성 패턴
+      // element.content가 null 또는 undefined일 경우 ""로 대체
       const processedChunk = newChunk.map((element) => ({
         ...element,
         content: element.content || "",
       }));
-      //전개 연산자 사용 : 두 객체들을 쉽게 합칠 수 있음.
       setDocParts((prev) => [...prev, ...processedChunk]);
       setProcessedCount((prev) => prev + chunk_size);
     } catch (error) {
@@ -138,40 +144,40 @@ const TranslateViewer = () => {
   };
 
   useEffect(() => {
-    let isMounted = true; // 컴포넌트 마운트 상태 추적
+    let isMounted = true; // 마운트 여부 추적
     closeAllConnections();
     // 상태 초기화
     setDocParts([]);
     setProcessedCount(0);
     setHasMore(true);
     setCheckComplete(false);
-    setIsDbInitialized(false); // 여기로 이동
+    setIsDbInitialized(false);
     docData.current = [];
 
     async function checkDB() {
-      if (!isMounted) return; // 컴포넌트가 언마운트되었다면 중단
+      if (!isMounted) return;
       setLoading(true);
 
       try {
-        console.log("Initializing DB for docsId:", docsId); // 디버깅용
+        console.log("Initializing DB for docsId:", docsId);
         await initDB(dbName, objectStoreName);
         const loadedData = await loadData(objectStoreName);
-        console.log("Loaded data from DB:", loadedData.length); // 디버깅용
+        console.log("Loaded data from DB:", loadedData.length);
 
-        if (!isMounted) return; // 비동기 작업 후 마운트 상태 다시 확인
+        if (!isMounted) return;
 
         if (!loadedData || loadedData.length === 0) {
-          console.log("Fetching data from server for docsId:", docsId); // 디버깅용
+          console.log("Fetching data from server for docsId:", docsId);
           try {
-            const data = await fetchTranslateData(docsId, false);
+            const data = await fetchTranslateData(docsId, null);
             if (!isMounted) return;
             if (data && Array.isArray(data)) {
               docData.current = data;
               await addData(data, objectStoreName);
-              console.log("Server data saved, length:", data.length); // 디버깅용
+              console.log("Server data saved, length:", data.length);
               if (isMounted) {
                 setIsDbInitialized(true);
-                await loadMore(); // 여기서 바로 loadMore 실행
+                await loadMore();
                 setCheckComplete(true);
               }
             } else {
@@ -181,11 +187,11 @@ const TranslateViewer = () => {
             console.error("Failed to fetch data from server:", error);
           }
         } else {
-          console.log("Using cached data from IndexedDB"); // 디버깅용
+          console.log("Using cached data from IndexedDB");
           if (isMounted) {
             docData.current = loadedData;
             setIsDbInitialized(true);
-            await loadMore(); // 여기서도 바로 loadMore 실행
+            await loadMore();
             setCheckComplete(true);
           }
         }
@@ -200,7 +206,6 @@ const TranslateViewer = () => {
 
     checkDB();
 
-    // 클린업 함수
     return () => {
       isMounted = false;
     };
@@ -221,13 +226,81 @@ const TranslateViewer = () => {
     return () => observer.disconnect();
   }, [hasMore, loading, processedCount]);
 
-  // Race Condition Prevention Pattern : useEffect에서 함수가 동시 실행되는 것을 방지
+  const { show } = useContextMenu({
+    id: "translate-menu",
+  });
+
+  // 우클릭 시 컨텍스트 메뉴 실행
+  const handleContextMenu = (e, part) => {
+    e.preventDefault();
+    show({ event: e, props: { part } });
+  };
+
+  // 메뉴 항목: 번역하기
+  const handleTranslate = async ({ props }) => {
+    const { part } = props;
+    useEditorStore.setState({
+      docsPart: part.content,
+      porder: part.porder,
+      docsId: part.docsId,
+      originId: part.originId,
+    });
+    await openEditor();
+    toggleEditor();
+  };
+
+  // 메뉴 항목: 번역 기록
+  const handleArchive = async ({ props }) => {
+    const { part } = props;
+    setDocsPart(part.content);
+    setDocsId(part.docsId);
+    console.log("현재docsId", part.docsId);
+    setOriginId(part.originId);
+    await fetchBestTranslate(part.docsId, "");
+    await openArchive();
+    toggleArchive();
+  };
 
   return (
-    <div className="h-[99%] min-w-[800px] w-[70%] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto">
+    <div className="h-[99%] min-w-[800px] max-w-[70%] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto">
+      <button
+        onClick={async () => {
+          navigate(`/translate/main/viewer/${docsId}/best`);
+        }}
+        className="fixed top-2 right-2 z-[1900] group rounded-full w-12 h-12 bg-gradient-to-r from-[#BC5B39] to-[#ff835a] flex justify-center items-center cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 border-2 border-white"
+      >
+        <img className="w-7 h-6" src={Korean} alt="전체 번역 보기" />
+      </button>
+
       <div className="flex flex-col gap-2">
         {docParts.map((part, index) => (
-          <div key={index} className="paragraph flex flex-row gap-4 relative">
+          <div
+            key={index}
+            onContextMenu={async (e) => {
+              setContextMenuDocsName(part.documentName);
+              setContextMenuOriginId(part.originId);
+              handleContextMenu(e, part);
+              const tmpTransList = await fetchBestTranslate(
+                part.docsId,
+                "best"
+              );
+              setTransList(tmpTransList);
+              if (tmpTransList !== undefined) {
+                const filteredTranslations = tmpTransList.filter(
+                  (item) => item.originId === part.originId
+                );
+                if (filteredTranslations.length > 0) {
+                  setBestTrans(filteredTranslations[0].content);
+                } else {
+                  setBestTrans("");
+                }
+              } else {
+                setBestTrans("");
+              }
+              toggleDocpart(part.id);
+            }}
+            className="paragraph flex flex-row gap-4 relative"
+          >
             <div
               onClick={async (e) => {
                 e.stopPropagation();
@@ -258,7 +331,7 @@ const TranslateViewer = () => {
               <div
                 ref={(element) => {
                   if (element && !initialHeights.current[part.id]) {
-                    // ToastViewer가 렌더링된 후 약간의 지연을 주고 높이를 측정
+                    // ToastViewer 렌더 후 높이 측정
                     setTimeout(() => {
                       const height = element.offsetHeight;
                       initialHeights.current[part.id] = height + "px";
@@ -283,57 +356,6 @@ const TranslateViewer = () => {
                 )}
               </div>
             </div>
-            {buttonStates[part.id] && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{
-                  duration: 0.3,
-                  scale: {
-                    type: "spring",
-                    visualDuration: 0.2,
-                    bounce: 0.25,
-                  },
-                }}
-              >
-                <div
-                  className="flex flex-col min-w-fit h-fit z-95 items-center gap-4"
-                  style={{
-                    position: "relative",
-                    top: mousePositions[part.id]?.y || 0,
-                    transform: "translate(0px,-50%)",
-                  }}
-                >
-                  <RectBtn
-                    onClick={async () => {
-                      useEditorStore.setState({
-                        docsPart: part.content,
-                        porder: part.porder,
-                        docsId: part.docsId,
-                        originId: part.originId,
-                      });
-                      await openEditor();
-                      toggleEditor();
-                    }}
-                    text="번역하기"
-                    className="opacity-90 hover:opacity-100 transition-opacity duration-200 shadow-sm hover:shadow-md w-full"
-                  />
-                  <RectBtn
-                    onClick={async () => {
-                      setDocsPart(part.content);
-                      setDocsId(part.docsId);
-                      console.log("현재docsId", part.docsId);
-                      setOriginId(part.originId);
-                      await fetchBestTranslate(part.docsId, "");
-                      await openArchive();
-                      toggleArchive();
-                    }}
-                    text="번역기록"
-                    className="opacity-90 hover:opacity-100 transition-opacity duration-200 shadow-sm hover:shadow-md"
-                  />
-                </div>
-              </motion.div>
-            )}
           </div>
         ))}
       </div>
@@ -356,6 +378,18 @@ const TranslateViewer = () => {
       </div>
       <TranslateEditor className="z-auto" />
       <TranslateArchive className="z-auto" />
+
+      {/* Menu를 Portal로 document.body에 렌더링하고 z-index를 높게 지정 */}
+      {createPortal(
+        <Menu id="translate-menu" style={{ zIndex: 1900 }}>
+          <Item>
+            {contextMenuDocsName}문서 {contextMenuOriginId}번째 문단
+          </Item>
+          <Item onClick={handleTranslate}>번역하기</Item>
+          <Item onClick={handleArchive}>번역 기록</Item>
+        </Menu>,
+        document.body
+      )}
     </div>
   );
 };

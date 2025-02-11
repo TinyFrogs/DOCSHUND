@@ -34,16 +34,15 @@ export const fetchDocsList = async () => {
 };
 
 // 영어 원문 조회
-export const fetchTranslateData = async (docsId, test) => {
+export const fetchTranslateData = async (docsId, originId) => {
   try {
-    console.log(docsId, test);
-    if (!test) {
-      const response = await axiosJsonInstance.get(
-        `${baseUrl}/${docsId}/origin`
-      );
-      const data = response.data;
-      return data;
-    }
+    console.log(docsId, originId);
+
+    const response = await axiosJsonInstance.get(
+      `${baseUrl}/${docsId}/origin?originId=${originId}`
+    );
+    const data = response.data;
+    return data;
   } catch (error) {
     console.log(error);
     return null;

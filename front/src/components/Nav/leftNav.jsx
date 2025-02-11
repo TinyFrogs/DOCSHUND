@@ -123,7 +123,7 @@ const LeftNav = () => {
                     <div
                       onClick={() =>
                         window.location.replace(
-                          `/translate/viewer/${doc.docsId}`
+                          `/translate/main/viewer/${doc.docsId}`
                         )
                       }
                       key={index}
