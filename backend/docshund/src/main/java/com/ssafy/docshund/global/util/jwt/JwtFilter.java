@@ -30,15 +30,7 @@ public class JwtFilter extends OncePerRequestFilter {
 	private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
 	private static final List<String> NO_CHECK_URLS = Arrays.asList(
-		"/ws/**",
-		"/api/v1/docshund/docs",                          // 문서 목록
-		"/api/v1/docshund/docs/*/origin",                 // 원문 보기
-		"/api/v1/docshund/docs/*/trans",                  // 번역 보기 (베스트 - 전체)
-		"/api/v1/docshund/forums",                        // 게시글 목록 보기
-		"/api/v1/docshund/forums/*",                      // 게시글 상세 보기
-		"/api/v1/docshund/forums/*/comments",            // 게시글 댓글 목록
-		"/api/v1/docshund/supports/notice",              // 공지사항 목록
-		"/api/v1/docshund/supports/notice/*"             // 공지사항 상세
+		"/ws/**"
 	);
 
 	@Override
@@ -65,6 +57,7 @@ public class JwtFilter extends OncePerRequestFilter {
 		if (jwtUtil.isExpired(token)) {
 			log.info("Token expired");
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.sendRedirect("localhost:5173/");
 			filterChain.doFilter(request, response);
 			return;
 		}
