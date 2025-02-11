@@ -34,7 +34,7 @@ public class Inquiry extends BaseTimeEntity {
 	@Column(name = "email", nullable = false, length = 100)
 	private String email;  // 비회원인 경우 이메일로 처리
 
-	@Column(name = "title", nullable = false, length = 100)
+	@Column(name = "title", nullable = false, length = 200)
 	private String title;  // 문의 제목
 
 	@Enumerated(EnumType.STRING)

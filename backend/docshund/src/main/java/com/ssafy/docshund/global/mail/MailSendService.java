@@ -1,5 +1,8 @@
 package com.ssafy.docshund.global.mail;
 
+import static com.ssafy.docshund.global.mail.exception.MailExceptionCode.IMAGE_NOT_DOWNLOAD;
+import static com.ssafy.docshund.global.mail.exception.MailExceptionCode.MAIL_NOT_SEND;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -7,6 +10,8 @@ import java.net.URL;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import com.ssafy.docshund.global.mail.exception.MailException;
 
 import jakarta.activation.DataSource;
 import jakarta.mail.MessagingException;
@@ -42,7 +47,7 @@ public class MailSendService {
 
 			mailSender.send(message);
 		} catch (MessagingException e) {
-			throw new RuntimeException("메일을 보낼 수 없습니다.");
+			throw new MailException(MAIL_NOT_SEND);
 		}
 	}
 
@@ -50,7 +55,7 @@ public class MailSendService {
 		try (InputStream in = new URL(imageUrl).openStream()) {
 			return in.readAllBytes();
 		} catch (IOException e) {
-			throw new RuntimeException("이미지를 다운로드할 수 없습니다.", e);
+			throw new MailException(IMAGE_NOT_DOWNLOAD);
 		}
 	}
 }

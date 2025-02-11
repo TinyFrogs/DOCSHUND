@@ -36,7 +36,7 @@ public class UserInfo extends BaseTimeEntityWithUpdatedAt {
 	@Column(name = "hobby", length = 30)
 	private Hobby hobby;
 
-	@Column(name = "introduce")
+	@Column(name = "introduce", length = 800)
 	private String introduce;
 
 	@Column(name = "report_count", nullable = false, columnDefinition = "INT DEFAULT 0")

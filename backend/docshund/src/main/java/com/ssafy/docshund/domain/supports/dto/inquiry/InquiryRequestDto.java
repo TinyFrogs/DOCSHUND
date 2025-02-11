@@ -1,5 +1,10 @@
 package com.ssafy.docshund.domain.supports.dto.inquiry;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,9 +16,21 @@ import lombok.Setter;
 @NoArgsConstructor
 public class InquiryRequestDto {
 
+	@Email(message = "올바른 이메일 형식이 아닙니다.")
+	@NotBlank(message = "이메일은 필수 입력 값입니다.")
+	@Size(max = 80, message = "이메일은 80자를 넘을 수 없습니다.")
+	@Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", message = "이메일에 한글을 포함할 수 없습니다.")
 	private String email;
+
+	@NotNull(message = "제목은 필수 입력 값입니다.")
+	@Size(max = 50, message = "제목은 50자를 넘을 수 없습니다.")
 	private String title;
+
+	@NotBlank
 	private String category;
+
+	@NotNull(message = "내용은 필수 입력 값입니다.")
+	@Size(max = 2000, message = "내용은 2000자를 넘을 수 없습니다.")
 	private String content;
 
 	public void emailTextGenerator() {
