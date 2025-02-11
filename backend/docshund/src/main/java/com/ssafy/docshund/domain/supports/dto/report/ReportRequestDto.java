@@ -1,6 +1,5 @@
 package com.ssafy.docshund.domain.supports.dto.report;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -26,6 +25,5 @@ public class ReportRequestDto {
 
 	private String originContent;
 
-	@NotBlank(message = "신고할 유저는 필수입니다.")
 	private Long reportedUser;
 }
