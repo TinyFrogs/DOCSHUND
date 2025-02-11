@@ -72,22 +72,14 @@ public class AlertsServiceImpl implements AlertsService {
 	 ☆ SSE 연결 관련 로직 ☆
 	 */
 	@Override
-	@Transactional
 	public SseEmitter subscribe(Long userId) {
-		if (emitters.containsKey(userId)) {
-			emitters.remove(userId);
-			sendToClient(userId, "이미 연결된 SSE가 있습니다. 연결 해제 후 재연결합니다.");
-		}
+		emitters.remove(userId);
 		SseEmitter emitter = new SseEmitter(10 * 60 * 1000L);    // 10분 적용
 		emitters.put(userId, emitter);
 		emitter.onCompletion(() -> emitters.remove(userId));
 		emitter.onTimeout(() -> {
 			emitters.remove(userId);
-			// 타임아웃 시 재연결
-			sendToClient(userId, "SSE 타임아웃! 다시 연결하세요.");
 		});
-		System.out.println("SSE 연결 완료!");
-		sendToClient(userId, "SSE 연결 완료!");
 		return emitter;
 	}
 
