@@ -10,13 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ArticleDto {
-    @Null
     @Size(max = 50, message = "ARTICLE TITLE IS TOO LONG")
     private String title;
 
-    @Null
     private String content;
-
-    @Null
+    
     private String category;
 }
