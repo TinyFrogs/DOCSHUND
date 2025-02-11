@@ -79,9 +79,9 @@ public class DocsController {
 	@PostMapping("/{docsId}/origin")
 	public ResponseEntity<List<OriginDocumentDto>> postOriginDocs(
 		@PathVariable Integer docsId,
-		@RequestBody String content
+		@RequestBody Map<String, String> requestData
 	) {
-		List<OriginDocumentDto> createdDocs = docsService.createOriginDocuments(docsId, content);
+		List<OriginDocumentDto> createdDocs = docsService.createOriginDocuments(docsId, requestData.get("content"));
 		return ResponseEntity.ok(createdDocs);
 	}
 
