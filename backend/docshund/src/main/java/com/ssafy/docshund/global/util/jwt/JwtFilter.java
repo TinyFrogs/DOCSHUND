@@ -29,7 +29,17 @@ public class JwtFilter extends OncePerRequestFilter {
 	private final UserRepository userRepository;
 	private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-	private static final List<String> NO_CHECK_URLS = Arrays.asList("/ws/**");
+	private static final List<String> NO_CHECK_URLS = Arrays.asList(
+		"/ws/**",
+		"/api/v1/docshund/docs",                          // 문서 목록
+		"/api/v1/docshund/docs/*/origin",                 // 원문 보기
+		"/api/v1/docshund/docs/*/trans",                  // 번역 보기 (베스트 - 전체)
+		"/api/v1/docshund/forums",                        // 게시글 목록 보기
+		"/api/v1/docshund/forums/*",                      // 게시글 상세 보기
+		"/api/v1/docshund/forums/*/comments",            // 게시글 댓글 목록
+		"/api/v1/docshund/supports/notice",              // 공지사항 목록
+		"/api/v1/docshund/supports/notice/*"             // 공지사항 상세
+	);
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -44,15 +54,14 @@ public class JwtFilter extends OncePerRequestFilter {
 		}
 
 		String authorizationHeader = request.getHeader("Authorization");
-
 		log.info("Authorization Header: " + authorizationHeader);
+
 		if (jwtUtil.isValidAuthorization(authorizationHeader)) {
 			filterChain.doFilter(request, response);
 			return;
 		}
-		
-		String token = authorizationHeader.substring(7);
 
+		String token = authorizationHeader.substring(7);
 		if (jwtUtil.isExpired(token)) {
 			log.info("Token expired");
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

@@ -20,7 +20,7 @@ import java.io.IOException;
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
 	private final JwtUtil jwtUtil;
-	private static final long TOKEN_EXPIRATION = 60L * 60L * 24L * 30L;
+	private static final long TOKEN_EXPIRATION = 60L * 10L;
 
 	private final AlertsService alertsService;
 

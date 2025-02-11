@@ -26,4 +26,4 @@ COPY ${JAR_PATH}/${JAR_NAME} app.jar
 COPY src/main/resources/python /usr/src/app/python
 
 # Spring Boot 실행 (환경에 따라 프로파일 변경 가능)
-CMD ["java", "-jar", "-Dspring.profiles.active=local", "app.jar"]
+CMD ["java", "-jar", "-Dspring.profiles.active=prod", "app.jar"]
