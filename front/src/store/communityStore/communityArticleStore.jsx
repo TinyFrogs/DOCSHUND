@@ -1,4 +1,3 @@
-import { title } from "framer-motion/client";
 import { create } from "zustand";
 
 // communityArticleStore 생성
@@ -29,11 +28,13 @@ const communityArticleStore = create((set) => ({
   articleId: 0,
   articleItems: {},
   likeCount: 0,
+  contentLength: 0,
 
   // article item의 메소드 설정
   setArticleId: (articleId) => set({ articleId }),
   setArticleItems: (articleItems) => set({ articleItems }),
   setLikeCount: (likeCount) => set({ likeCount }),
+  setContentLength: (contentLength) => set({ contentLength }),
 
   // 좋아요한 article list의 초기값 설정
   likeArticles: [],
@@ -62,12 +63,14 @@ const communityArticleStore = create((set) => ({
   commentCount: 0, // 댓글 개수
   isReplied: false, // 댓글 작성 후 댓글 리스트 리렌더링을 위한 flag
   replyId: 0, // 대댓글 작성 시 대댓글을 작성하는 원댓글의 id
+  replySortType: "regist", // 대댓글 정렬
 
   // reply list의 메소드 설정
   setReplies: (replies) => set({ replies }),
   setCommentCount: (commentCount) => set({ commentCount }),
   setIsReplied: (isReplied) => set({ isReplied }),
   setReplyId: (replyId) => set({ replyId }),
+  setReplySortType: (replySortType) => set({ replySortType }),
 }));
 
 export default communityArticleStore;

@@ -21,6 +21,11 @@ const WriteArticle = () => {
   const [imageUrl, setImageUrl] = useState(""); // 이미지 URL 상태
 
   const documentNames = docsCategoryStore((state) => state.documentNames);
+  const currentUserText = useEditorStore((state) => state.currentUserText);
+  const contentLength = communityArticleStore((state) => state.contentLength);
+  const setContentLength = communityArticleStore(
+    (state) => state.setContentLength
+  );
   const setFileUrl = communityArticleStore((state) => state.setFileUrl);
 
   // 제목 입력 핸들러
@@ -57,17 +62,27 @@ const WriteArticle = () => {
     setFile(null);
   };
 
+  const handleContentLength = () => {
+    setContentLength(currentUserText.length);
+  };
+
   // 글 작성 요청
   const handleSubmit = async (e) => {
     e.preventDefault(); // 기본 동작 방지
 
-    const content = useEditorStore.getState().currentUserText; // 에디터 내용
+    const content = currentUserText; // 에디터 내용
 
     // 제목, 대분류, 소분류, 내용, 파일이 모두 입력되었는지 확인
     if (!title || !mainCategory || !subCategory || !content) {
       alert("모든 항목을 입력해주세요.");
       return;
     } else {
+      console.log(content.length);
+      if (content.length > 10000) {
+        alert("글 내용은 10000자 이하로 작성해주세요.");
+        return;
+      }
+
       const response = await ArticleItemService.postArticleItem(
         title,
         subCategory,
@@ -150,6 +165,25 @@ const WriteArticle = () => {
                   </label>
                   <div className="mt-1 block w-full h-100">
                     <EditorContent initialTextContent={""} />
+                  </div>
+                  <div className="mt-2 flex justify-end">
+                    {contentLength > 10000 ? (
+                      <span
+                        value={contentLength}
+                        onChange={handleContentLength}
+                        className="text-sm text-red-500 bg-gray-50 px-3 py-1 rounded-md"
+                      >
+                        글자 수: {contentLength.toLocaleString()} / 10,000
+                      </span>
+                    ) : (
+                      <span
+                        value={contentLength}
+                        onChange={handleContentLength}
+                        className="text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded-md"
+                      >
+                        글자 수: {contentLength.toLocaleString()} / 10,000
+                      </span>
+                    )}
                   </div>
                 </div>
 

@@ -5,6 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import communityArticleStore from "../../../store/communityStore/communityArticleStore";
 import ReplyTextarea from "./replyTextarea";
 import ReplyItemService from "../services/replyItemService";
+import { format, isSameDay } from "date-fns";
 
 const ReplyRenderItem = ({
   item,
@@ -13,7 +14,6 @@ const ReplyRenderItem = ({
   setReCommentFlag,
 }) => {
   const token = localStorage.getItem("token");
-  const decoded = jwtDecode(token);
 
   const setIsReplied = communityArticleStore((state) => state.setIsReplied);
   const replyId = communityArticleStore((state) => state.replyId);
@@ -33,7 +33,13 @@ const ReplyRenderItem = ({
         <div className="flex-1 min-w-0">
           <div className="flex justify-between items-center mb-2">
             <p className="font-semibold text-gray-800">{item.nickname}</p>
-            <p className="text-sm text-gray-500">{item.createdAt}</p>
+            <p className="text-sm text-gray-500">
+              {item?.createdAt
+                ? isSameDay(new Date(item.createdAt), new Date())
+                  ? format(new Date(item.createdAt), "HH:mm")
+                  : format(new Date(item.createdAt), "yyyy-MM-dd HH:mm")
+                : "표시할 수 없는 날짜입니다."}
+            </p>
           </div>
           {/*  콘텐츠 */}
           <p className="text-gray-700 break-words">{item.content}</p>
@@ -41,28 +47,32 @@ const ReplyRenderItem = ({
           {/* util */}
           <div className="flex justify-end space-x-4 mt-2">
             {/* NOTE: 자신이 쓴 댓글에 대해서만 삭제 버튼 보이게 */}
-            {decoded?.userId === item.userId && (
-              <button
-                className="hover:text-gray-700 cursor-pointer"
-                onClick={async () => {
-                  await ReplyItemService.deleteReplyItem(
-                    item.articleId,
-                    item.commentId
-                  );
+            {token
+              ? jwtDecode(token)?.userId === item.userId && (
+                  <button
+                    className="hover:text-gray-700 cursor-pointer"
+                    onClick={async () => {
+                      await ReplyItemService.deleteReplyItem(
+                        item.articleId,
+                        item.commentId
+                      );
 
-                  //  삭제 후 댓글 리스트 리렌더링
-                  setIsReplied((prev) => !prev);
-                }}
-              >
-                삭제
-              </button>
-            )}
+                      //  삭제 후 댓글 리스트 리렌더링
+                      setIsReplied((prev) => !prev);
+                    }}
+                  >
+                    삭제
+                  </button>
+                )
+              : null}
 
-            {decoded?.userId != item.userId && (
-              <button className="hover:text-gray-700 cursor-pointer">
-                신고
-              </button>
-            )}
+            {token
+              ? jwtDecode(token)?.userId != item.userId && (
+                  <button className="hover:text-gray-700 cursor-pointer">
+                    신고
+                  </button>
+                )
+              : null}
 
             <button
               className="hover:text-gray-700 cursor-pointer"

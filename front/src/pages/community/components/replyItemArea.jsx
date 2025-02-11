@@ -14,6 +14,7 @@ const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
   const [replyList, setReplyList] = useState([]);
 
   const isReplied = communityArticleStore((state) => state.isReplied);
+  const replySortType = communityArticleStore((state) => state.replySortType);
 
   // store의 메소드를 가져오기 위해 정의
   const setArticleId = communityArticleStore((state) => state.setArticleId);
@@ -22,6 +23,16 @@ const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
   const setCommentCount = communityArticleStore(
     (state) => state.setCommentCount
   );
+  const setReplySortType = communityArticleStore(
+    (state) => state.setReplySortType
+  );
+
+  // 댓글 정렬 방식을 default인 등록순으로 변경
+  useEffect(() => {
+    if (replySortType === "latest") {
+      setReplySortType("regist");
+    }
+  }, []);
 
   useEffect(() => {
     // 댓글 아이템을 가져오는 함수
@@ -34,8 +45,15 @@ const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
         const data = await ReplyItemService.fetchReplyItem(articleId);
 
         if (data?.length > 0) {
+          // NOTE: 정렬 방법에 따라 다르게 정렬
+          if (replySortType === "latest") {
+            setReplyList(data.reverse());
+          } else {
+            // default는 등록순
+            setReplyList(data); // 댓글 리스트 데이터를 state에 저장
+          }
+
           setArticleId(articleId); // articleId를 state에 저장
-          setReplyList(data); // 댓글 리스트 데이터를 state에 저장
           setCommentCount(data.length); // 댓글 개수를 state에 저장
         }
       } catch (error) {
@@ -47,7 +65,7 @@ const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
 
     // 댓글 아이템을 가져오는 fetchReplyItems 함수 호출
     fetchReplyItems(articleId);
-  }, [articleId, isReplied]);
+  }, [articleId, isReplied, replySortType]);
 
   const renderItem = (item) => (
     <div className="w-full">

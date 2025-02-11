@@ -5,6 +5,22 @@ import communityArticleStore from "../../../store/communityStore/communityArticl
 const ReplyHeader = ({ replyCount }) => {
   const commentCount = communityArticleStore((state) => state.commentCount);
 
+  // NOTE: 댓글 정렬 방식을 변경하기 위한 store의 메소드
+  const setReplySortType = communityArticleStore(
+    (state) => state.setReplySortType
+  );
+
+  // 등록순 정렬
+  const handleSortByRegist = () => {
+    //NOTE: default가 등록순이므로 다시 등록순으로 정렬
+    setReplySortType("regist");
+  };
+
+  const handleSortByLatest = () => {
+    //NOTE: map으로 거꾸로 뒤집으면 최신순
+    setReplySortType("latest");
+  };
+
   return (
     <div className="flex justify-between items-center mb-6">
       <h2 className="text-xl font-bold mb-4 inline-flex items-center gap-3">
@@ -25,9 +41,19 @@ const ReplyHeader = ({ replyCount }) => {
         </span>
       </h2>
       <div className="flex gap-2 mb-4 text-gray-600">
-        <button className="hover:text-[#C65D21] cursor-pointer">등록순</button>
+        <button
+          className="hover:text-[#C65D21] cursor-pointer"
+          onClick={handleSortByRegist}
+        >
+          등록순
+        </button>
         <span>|</span>
-        <button className="hover:text-[#C65D21] cursor-pointer">최신순</button>
+        <button
+          className="hover:text-[#C65D21] cursor-pointer"
+          onClick={handleSortByLatest}
+        >
+          최신순
+        </button>
       </div>
     </div>
   );

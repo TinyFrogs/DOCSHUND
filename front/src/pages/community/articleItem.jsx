@@ -17,7 +17,6 @@ const ArticleItem = () => {
   const [isLiked, setIsLiked] = useState(false);
 
   const token = localStorage.getItem("token");
-  const decoded = jwtDecode(token);
 
   const articles = communityArticleStore((state) => state.articles);
   const articleData = communityArticleStore((state) => state.articleItems);
@@ -97,22 +96,25 @@ const ArticleItem = () => {
                   <span>|</span>
                   <button
                     className="hover:text-gray-700 cursor-pointer"
-                    onClick={() =>
-                      ArticleItemService.deleteArticleItem(articleId)
-                    }
+                    onClick={async () => {
+                      const response =
+                        await ArticleItemService.deleteArticleItem(articleId);
+                    }}
                   >
                     삭제
                   </button>
 
                   {/* TODO: 신고 기능 추가: 모달 or 페이지 or 그냥 바로? */}
-                  {decoded?.userId != articleData.userId && (
-                    <div className="flex gap-2 text-sm text-gray-500">
-                      <span>|</span>
-                      <button className="hover:text-gray-700 cursor-pointer">
-                        신고
-                      </button>
-                    </div>
-                  )}
+                  {token
+                    ? jwtDecode(token)?.userId != articleData.userId && (
+                        <div className="flex gap-2 text-sm text-gray-500">
+                          <span>|</span>
+                          <button className="hover:text-gray-700 cursor-pointer">
+                            신고
+                          </button>
+                        </div>
+                      )
+                    : null}
                 </div>
               </div>
               <div className="flex justify-between items-center text-[#7d7c77]">

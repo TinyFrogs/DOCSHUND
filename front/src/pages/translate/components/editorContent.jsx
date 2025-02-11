@@ -9,23 +9,31 @@ import communityArticleStore from "../../../store/communityStore/communityArticl
 const EditorContent = ({ initialTextContent }) => {
   // initialTextContent가 없으면 에디터 초기화
   useEffect(() => {
+    // contentLength 초기화
+    setContentLength(initialTextContent.length);
+
     if (!initialTextContent) {
       editorRef.current.getInstance().setMarkdown(""); // 에디터 초기화
+      setContentLength(0); // contentLength 초기화
       console.log("initialTextContent: ", initialTextContent);
     }
   }, [initialTextContent]);
 
   const editorRef = useRef(null);
-  const { docsPart, bestTrans, setCurrentUserText } = useEditorStore();
+  const { docsPart, setCurrentUserText } = useEditorStore();
 
   const fileUrl = communityArticleStore((state) => state.fileUrl);
   const setFileUrl = communityArticleStore((state) => state.setFileUrl);
+  const setContentLength = communityArticleStore(
+    (state) => state.setContentLength
+  );
 
   const handleEditorChange = () => {
     if (editorRef.current) {
       const editorInstance = editorRef.current.getInstance();
       const markdownContent = editorInstance.getMarkdown();
       setCurrentUserText(markdownContent);
+      setContentLength(markdownContent.length);
     }
   };
 
