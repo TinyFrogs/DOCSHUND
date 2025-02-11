@@ -1,14 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import useDocsStore from "../../store/translateStore/docsStore";
 import { fetchDocsList } from "./hooks/translateGetService";
 import { likeDocs } from "./hooks/translatePostService";
 import { motion } from "framer-motion";
 
 const TransLatePage = () => {
-  const [docsCategories, setDocsCategories] = useState(["1", "2"]);
+  const userId = useRef(0);
 
-  const { docsList, setDocsList } = useDocsStore();
+  if (localStorage.getItem("token")) {
+    const decodedToken = jwtDecode(localStorage.getItem("token"));
+    userId.current = decodedToken.userId;
+  }
+
+  //포지션 필터 버튼 관련
+  const docsCategories = ["ALL", "FRONTEND", "BACKEND", "DB"];
+  const [selectedCategory, setSelectedCategory] = useState("ALL");
+
+  const { docsList, setDocsList, setDocumentName } = useDocsStore();
 
   const navigate = useNavigate();
 
@@ -23,6 +33,17 @@ const TransLatePage = () => {
   const handleLike = async (docsId) => {
     await likeDocs(docsId);
     const tmpDocsList = await fetchDocsList();
+    setDocsList(tmpDocsList);
+  };
+
+  const handleFilter = async (position) => {
+    let tmpDocsList = await fetchDocsList();
+    if (position !== "ALL") {
+      tmpDocsList = await tmpDocsList.filter(
+        (docs) => docs.position === position
+      );
+      tmpDocsList.sort((a, b) => b.likeCount - a.likeCount);
+    }
     setDocsList(tmpDocsList);
   };
 
@@ -86,7 +107,15 @@ const TransLatePage = () => {
           <div className="flex flex-wrap gap-3 justify-center my-16">
             {docsCategories.map((docsCategory, index) => (
               <button
-                className="cursor-pointer px-6 py-2 rounded-full bg-white text-gray-700 hover:text-white hover:bg-[rgba(188,91,57,0.8)] transition-all duration-200 shadow-sm border border-gray-200 font-medium"
+                onClick={() => {
+                  handleFilter(docsCategory);
+                  setSelectedCategory(docsCategory);
+                }}
+                className={`cursor-pointer px-6 py-2 rounded-full ${
+                  selectedCategory === docsCategory
+                    ? "bg-[rgba(188,91,57,0.8)] text-white"
+                    : "bg-white text-black"
+                } text-gray-700 transition-all duration-200 shadow-sm border border-gray-200 font-medium`}
                 key={index}
               >
                 {docsCategory}
@@ -105,9 +134,7 @@ const TransLatePage = () => {
                   <button
                     onClick={() => handleLike(docs.docsId)}
                     className={`absolute right-2 top-2 p-2 rounded-full transition-all duration-300 cursor-pointer ${
-                      docs.likeUserIds.includes(
-                        Number(localStorage.getItem("userId"))
-                      )
+                      docs.likeUserIds.includes(Number(userId.current))
                         ? "bg-[#BC5B39] text-white"
                         : "bg-gray-300"
                     }`}
@@ -115,9 +142,7 @@ const TransLatePage = () => {
                     <svg
                       className="h-6 w-6"
                       fill={
-                        docs.likeUserIds.includes(
-                          Number(localStorage.getItem("userId"))
-                        )
+                        docs.likeUserIds.includes(Number(userId.current))
                           ? "white"
                           : "currentColor"
                       }

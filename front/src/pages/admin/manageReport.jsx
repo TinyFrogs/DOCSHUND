@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { fetchReportList, fetchUserList } from "../admin/Hooks/adminGetService";
+import { withdrawReport } from "../admin/Hooks/adminPostService";
 import { MoveRight, Download } from "lucide-react";
 import useUserManagerStore from "../../store/adminStore/userManagerStore";
+import { toast } from "react-toastify";
 
 const ManageReport = () => {
   const reportListData = useRef([]);
@@ -35,6 +37,17 @@ const ManageReport = () => {
       );
       setReportList(tmpReportList);
     }
+  };
+
+  const handleReportStatus = async (reportId) => {
+    const response = await withdrawReport(reportId);
+    if (response === 200) {
+      toast.success("신고 철회 완료");
+    } else {
+      toast.error("공개 처리 실패");
+    }
+    const data = await fetchReportList();
+    setReportList(data);
   };
 
   const processUserList = (userListContent) => {
@@ -166,15 +179,20 @@ const ManageReport = () => {
                       new Date(report.createdAt).toISOString()
                     ).toLocaleString()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-3 py-4 whitespace-nowrap w-28 flex items-center gap-2">
                     <span
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        console.log(report.reportId);
+                        handleReportStatus(report.reportId);
+                      }}
                       className={`px-3 py-1 text-xs font-medium rounded-full ${
                         report.status === "active"
                           ? "bg-green-100 text-green-800"
                           : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {report.status === "active" ? "공개" : "비공개"}
+                      {report.status === "active" ? "공개" : "철회"}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">

@@ -42,6 +42,7 @@ export const fetchTranslateData = async (docsId, originId) => {
       `${baseUrl}/${docsId}/origin?originId=${originId}`
     );
     const data = response.data;
+    console.log(data);
     return data;
   } catch (error) {
     console.log(error);

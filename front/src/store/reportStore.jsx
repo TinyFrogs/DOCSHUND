@@ -12,7 +12,8 @@ const reportStore = create((set) => ({
   openReport: () => {
     set({ isReportOpen: true });
   },
-  clearReportContent: () => {
+  closeReport: () => {
+    set({ isReportOpen: false });
     set({
       originContent: "",
       reportedUser: "",
@@ -21,10 +22,6 @@ const reportStore = create((set) => ({
       transId: "",
       commentId: "",
     });
-  },
-  closeReport: () => {
-    set({ isReportOpen: false });
-    clearReportContent();
   },
   toggleReport: () => {
     set((state) => ({

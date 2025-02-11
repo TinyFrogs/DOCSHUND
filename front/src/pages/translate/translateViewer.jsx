@@ -17,10 +17,13 @@ import * as motion from "motion/react-client";
 import TranslateEditor from "./translateEditor.jsx";
 import TranslateArchive from "./translateArchive.jsx";
 import ToastViewer from "./components/toastViewer.jsx";
-import ChatBotBtn from "../chatBot/chatBotBtn.jsx";
-import RectBtn from "../../components/button/rectBtn.jsx";
-import { Menu, Item, useContextMenu } from "react-contexify";
-import "react-contexify/dist/ReactContexify.css";
+import {
+  Menu,
+  Item,
+  Separator,
+  Submenu,
+  useContextMenu,
+} from "react-contexify";
 
 // 상태 import
 import useModalStore from "../../store/translateStore/translateModalStore.jsx";
@@ -169,7 +172,7 @@ const TranslateViewer = () => {
         if (!loadedData || loadedData.length === 0) {
           console.log("Fetching data from server for docsId:", docsId);
           try {
-            const data = await fetchTranslateData(docsId, null);
+            const data = await fetchTranslateData(docsId, "");
             if (!isMounted) return;
             if (data && Array.isArray(data)) {
               docData.current = data;
@@ -277,6 +280,10 @@ const TranslateViewer = () => {
           <div
             key={index}
             onContextMenu={async (e) => {
+              if (!localStorage.getItem("token")) {
+                e.preventDefault();
+                return;
+              }
               setContextMenuDocsName(part.documentName);
               setContextMenuOriginId(part.originId);
               handleContextMenu(e, part);
@@ -381,11 +388,19 @@ const TranslateViewer = () => {
 
       {/* Menu를 Portal로 document.body에 렌더링하고 z-index를 높게 지정 */}
       {createPortal(
-        <Menu id="translate-menu" style={{ zIndex: 1900 }}>
-          <Item>
+        <Menu
+          id="translate-menu"
+          theme="none"
+          animation="scale"
+          style={{ zIndex: 1900 }}
+        >
+          <Item disabled>
             {contextMenuDocsName}문서 {contextMenuOriginId}번째 문단
           </Item>
-          <Item onClick={handleTranslate}>번역하기</Item>
+          <Separator />
+          <Item className="hover:bg-gray-100" onClick={handleTranslate}>
+            번역하기
+          </Item>
           <Item onClick={handleArchive}>번역 기록</Item>
         </Menu>,
         document.body

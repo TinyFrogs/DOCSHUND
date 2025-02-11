@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { fetchBestTranslate } from "./hooks/translateGetService.jsx";
 import { likeTranslate } from "./hooks/translatePostService.jsx";
+import { jwtDecode } from "jwt-decode";
 import * as motion from "motion/react-client";
 import { AnimatePresence } from "motion/react";
 import Modal from "react-modal";
@@ -14,6 +15,9 @@ import ReportModal from "../report.jsx";
 import useReportStore from "../../store/reportStore.jsx";
 
 const TranslateArchive = () => {
+  const decodedToken = jwtDecode(localStorage.getItem("token"));
+  const userId = decodedToken.userId;
+
   const [transStates, setTransStates] = useState({});
   const [status, setStatus] = useState(0);
 
@@ -102,12 +106,12 @@ const TranslateArchive = () => {
       const tmpTransList = await fetchBestTranslate(docsId, "");
       console.log(docsId, "번역 전체", tmpTransList);
       setTransList(tmpTransList);
-      changeOrderBy(orderBy, tmpTransList);
+      changeOrderBy("like", tmpTransList);
     };
 
     setStatus(0);
     fetchData();
-  }, [isArchiveOpen, status, orderBy]);
+  }, [isArchiveOpen, status]);
 
   return (
     <Modal
@@ -135,7 +139,7 @@ const TranslateArchive = () => {
             className="fixed inset-0 flex items-center justify-center min-w-full min-h-full "
           >
             <ReportModal />
-            <div className="relative m-5 p-6 w-1/2 h-[95%] min-w-[768px] min-h-[80%] max-w-full max-h-full rounded-2xl bg-white shadow-lg overflow-y-scroll transition-all duration-300 ease-in-out">
+            <div className="relative m-5 p-6 w-1/2 h-[95%] min-w-[768px] min-h-[80%] max-w-full max-h-full rounded-2xl bg-white shadow-lg transition-all duration-300 ease-in-out">
               <div className="flex shrink-0 pb-6 text-2xl font-semibold text-slate-800 justify-between items-center">
                 <img
                   src={GoBack}
@@ -152,31 +156,33 @@ const TranslateArchive = () => {
                 </span>
                 <div className="w-[40px]"></div>
               </div>
-              <div className="relative border-t border-slate-200 py-6 leading-normal text-slate-600 font-light h-9/10 flex flex-col gap-4">
-                <div className="flex justify-end gap-4 mb-2">
-                  <div
-                    onClick={() => {
-                      setOrderByUpdatedAt();
-                      setOrderBy("newest");
-                    }}
-                    className={`${
-                      orderByUpdatedAt ? toggledStyle : defaultStyle
-                    } transition-all duration-200 hover:shadow-md`}
-                  >
-                    최신순
-                  </div>
-                  <div
-                    onClick={() => {
-                      setOrderByLike();
-                      setOrderBy("like");
-                    }}
-                    className={`${
-                      orderByLike ? toggledStyle : defaultStyle
-                    } transition-all duration-200 hover:shadow-md`}
-                  >
-                    좋아요순
-                  </div>
+              <div className="flex justify-end gap-4 mb-2">
+                <div
+                  onClick={() => {
+                    setOrderByUpdatedAt();
+                    setOrderBy("newest");
+                    changeOrderBy("newest", transList);
+                  }}
+                  className={`${
+                    orderByUpdatedAt ? toggledStyle : defaultStyle
+                  } transition-all duration-200 hover:shadow-md`}
+                >
+                  최신순
                 </div>
+                <div
+                  onClick={() => {
+                    setOrderByLike();
+                    setOrderBy("like");
+                    changeOrderBy("like", transList);
+                  }}
+                  className={`${
+                    orderByLike ? toggledStyle : defaultStyle
+                  } transition-all duration-200 hover:shadow-md`}
+                >
+                  좋아요순
+                </div>
+              </div>
+              <div className="relative border-t border-slate-200 py-6 leading-normal text-slate-600 font-light h-9/11 flex flex-col gap-4 overflow-y-scroll">
                 <div>
                   {transList.filter((trans) => trans.originId === originId)
                     .length === 0 && (
@@ -234,18 +240,14 @@ const TranslateArchive = () => {
                                 handleLike(docsId, trans.transId);
                               }}
                               className={`flex w-fititems-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 cursor-pointer right-5 top-1/2  ${
-                                trans.likeUserIds.includes(
-                                  Number(localStorage.getItem("userId"))
-                                )
+                                trans.likeUserIds.includes(Number(userId))
                                   ? "bg-red-600 text-white"
                                   : "bg-gray-300"
                               }`}
                             >
                               <span
                                 className={
-                                  trans.likeUserIds.includes(
-                                    Number(localStorage.getItem("userId"))
-                                  )
+                                  trans.likeUserIds.includes(Number(userId))
                                     ? "text-white"
                                     : "text-slate-700"
                                 }
@@ -254,9 +256,7 @@ const TranslateArchive = () => {
                               </span>
                               <span
                                 className={`font-semibold ${
-                                  trans.likeUserIds.includes(
-                                    Number(localStorage.getItem("userId"))
-                                  )
+                                  trans.likeUserIds.includes(Number(userId))
                                     ? "text-white"
                                     : "text-slate-900"
                                 }`}

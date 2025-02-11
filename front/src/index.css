@@ -22,3 +22,26 @@
 ::-webkit-scrollbar-track {
   background: rgba(220, 20, 60, 0);
 }
+
+/* 예: src/index.css 또는 src/App.css */
+:root {
+  --contexify-bg-color: #e4dcd4;
+  --contexify-separator-bg: #4c4c4c;
+  --contexify-item-color: #424242;
+  --contexify-activeItem-bgColor: #bc5b39;
+  --contexify-hover-bg: #bc5b39;
+  --contexify-hover-text: #fff;
+  --contexify-submenu-arrow-color: #773131;
+}
+
+.contexify {
+  background-color: var(--contexify-bg-color) !important;
+  text-color: var(--contexify-item-color) !important;
+}
+
+.contexify_submenu-isOpen,
+.contexify_submenu-isOpen > .contexify_itemContent {
+  color: var(--contexify-activeItem-color);
+  background-color: var(--contexify-activeItem-bgColor);
+  border-radius: var(--contexify-activeItem-radius);
+}

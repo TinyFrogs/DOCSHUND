@@ -1,130 +1,154 @@
+import { useNavigate } from "react-router-dom";
+import modalStore from "../../store/myPageStore/myPageModalStore";
+import inquiryStore from "../../store/myPageStore/inquiryStore";
+import InquiryModal from "../myPage/components/InquiryModal";
+import ListRender from "../../components/pagination/listRender";
+import InquiryService from "../../services/helpDeskServices/inquiryService";
+
+import { useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
+import { format, isSameDay } from "date-fns";
+import { ChevronUp, ChevronDown } from "lucide-react";
+
 const ManageInquiry = () => {
-  const dummyUsers = [
-    {
-      id: 1,
-      email: "user1@example.com",
-      name: "사용자1",
-      createdAt: "2024-02-09",
-      status: "active",
-    },
-    {
-      id: 2,
-      email: "user2@example.com",
-      name: "사용자2",
-      createdAt: "2024-02-08",
-      status: "inactive",
-    },
-    {
-      id: 3,
-      email: "user3@example.com",
-      name: "사용자3",
-      createdAt: "2024-02-07",
-      status: "active",
-    },
-    {
-      id: 4,
-      email: "user4@example.com",
-      name: "사용자4",
-      createdAt: "2024-02-06",
-      status: "active",
-    },
-    {
-      id: 5,
-      email: "user5@example.com",
-      name: "사용자5",
-      createdAt: "2024-02-05",
-      status: "inactive",
-    },
-  ];
-  return (
-    <div className="p-6 max-w-[1200px] mx-auto">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-800">회원 관리</h1>
-        <div className="relative w-64">
-          <input
-            type="text"
-            placeholder="이메일로 검색"
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#bc5b39] focus:ring-1 focus:ring-[#bc5b39] transition-colors duration-200"
-          />
-          <svg
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+
+  // inquiryStore에서 inquiries와 setInquiries를 가져온다.
+  const inquiries = inquiryStore((state) => state.inquiries);
+  const setInquiries = inquiryStore((state) => state.setInquiries);
+
+  const totalPages = inquiryStore((state) => state.totalPages);
+  const setTotalPages = inquiryStore((state) => state.setTotalPages);
+  const currentPage = inquiryStore((state) => state.currentPage);
+  const setCurrentPage = inquiryStore((state) => state.setCurrentPage);
+
+  const setLoading = inquiryStore((state) => state.setLoading);
+  const setError = inquiryStore((state) => state.setError);
+
+  const { setOpenId, openId, closeModal } = modalStore();
+
+  const [itemsPerPage, setItmesPerPage] = useState(15); // 페이지당 보여줄 게시글 수
+
+  useEffect(() => {
+    setLoading(true);
+
+    // inquiries 데이터를 가져오는 함수
+    const fetchInquiries = async () => {
+      try {
+        // 토큰이 존재하면 userId 추출
+
+        // inquiryService의 fetchInquiries 함수를 호출한다.
+        const data = await InquiryService.fetchInquiries(
+          currentPage,
+          itemsPerPage,
+          ""
+        );
+
+        // data가 존재하면 setInquiries로 데이터를 저장한다.
+        if (data) {
+          setInquiries(data.content);
+          setCurrentPage(data.pageable.pageNumber);
+          setTotalPages(data.totalPages);
+          setItmesPerPage(data.size);
+        }
+      } catch (error) {
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // fetchInquiries 함수를 호출한다.
+    fetchInquiries();
+  }, [currentPage, itemsPerPage, token]);
+
+  useEffect(() => {
+    return () => {
+      setOpenId(null);
+    };
+  }, [setOpenId]);
+
+  const renderInquiry = (item) => {
+    return (
+      <div key={item.inquiryId} className="flex-col">
+        <div className="flex justify-between px-3">
+          <div
+            className={`flex-1 min-w-0 break-all mr-3 ${
+              openId === item.inquiryId ? "" : "line-clamp-1"
+            }`}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
+            <h3
+              onClick={() => {
+                setOpenId(item.inquiryId === openId ? null : item.inquiryId);
+              }}
+              className="sm:text-base md:text-lg font-semibold text-[#7d7c77] hover:text-[#bc5b39] cursor-pointer"
+            >
+              {item.inquiryTitle}
+            </h3>
+          </div>
+          <div className="flex space-x-6 items-center">
+            <p className="sm:text-sm md:text-base">
+              {item.inquiryCreatedAt
+                ? isSameDay(new Date(item.inquiryCreatedAt), new Date())
+                  ? format(new Date(item.inquiryCreatedAt), "HH:mm")
+                  : format(new Date(item.inquiryCreatedAt), "yyyy-MM-dd")
+                : "표시할 수 없는 날짜입니다."}
+            </p>
+            <p
+              className={`text-sm ${
+                item.answered ? "text-green-500" : "text-red-500"
+              }`}
+            >
+              {item.answered ? "답변 완료" : "답변 대기"}
+            </p>
+
+            <button
+              onClick={() => {
+                setOpenId(item.inquiryId === openId ? null : item.inquiryId);
+              }}
+              className="cursor-pointer"
+            >
+              <span>
+                {openId === item.inquiryId ? (
+                  <ChevronUp size={20} />
+                ) : (
+                  <ChevronDown size={20} />
+                )}
+              </span>
+            </button>
+          </div>
         </div>
+        {item.inquiryId === openId && (
+          <InquiryModal item={item} closeModal={closeModal} />
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between mt-5 mb-5">
+        <h1 className="font-bold text-2xl">나의 문의</h1>
+        <button
+          onClick={() => navigate("/helpDesk/inquiryForm")}
+          className="border-box bg-[#bc5b39] rounded-[12px] px-[20px] w-fit h-10 relative flex items-center justify-center text-[#ffffff] hover:bg-[#C96442]"
+        >
+          + 문의작성
+        </button>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
-              <tr className="bg-gray-50">
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  이메일
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  이름
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  가입일
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  상태
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  관리
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {dummyUsers.map((user) => (
-                <tr
-                  key={user.id}
-                  className="hover:bg-gray-50 transition-colors duration-150"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {user.email}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {user.name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.createdAt}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-3 py-1 text-xs font-medium rounded-full ${
-                        user.status === "active"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {user.status === "active" ? "활성" : "비활성"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                    <button className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150">
-                      수정
-                    </button>
-                    <button className="text-red-600 hover:text-red-700 transition-colors duration-150">
-                      삭제
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div className="pt-4 pl-6 bg-white rounded-tl-xl rounded-tr-xl border-t border-l border-r border-[#E1E1DF]"></div>
+      <div className="p-10 bg-white rounded-bl-xl rounded-br-xl border-b border-l border-r border-[#E1E1DF] text-[#7D7C77]">
+        <ListRender
+          data={inquiries}
+          renderItem={renderInquiry}
+          totalPages={totalPages}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          itemCategory="inquiry"
+        />
       </div>
     </div>
   );

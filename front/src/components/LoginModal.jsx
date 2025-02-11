@@ -24,11 +24,6 @@ const LoginModal = () => {
     if (urlToken) {
       setToken(urlToken);
       localStorage.setItem("token", urlToken);
-
-      const decodedToken = jwtDecode(urlToken);
-      const userId = decodedToken.userId;
-      localStorage.setItem("userId", userId);
-
       closeModal();
       navigate("/");
     }
