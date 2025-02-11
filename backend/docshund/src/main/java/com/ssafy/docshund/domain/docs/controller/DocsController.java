@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -79,9 +80,10 @@ public class DocsController {
 	@PostMapping("/{docsId}/origin")
 	public ResponseEntity<List<OriginDocumentDto>> postOriginDocs(
 		@PathVariable Integer docsId,
-		@RequestBody Map<String, String> requestData
+		@RequestBody MultiValueMap<String, String> requestData
 	) {
-		List<OriginDocumentDto> createdDocs = docsService.createOriginDocuments(docsId, requestData.get("content"));
+		List<OriginDocumentDto> createdDocs = docsService.createOriginDocuments(docsId,
+			requestData.getFirst("content"));
 		return ResponseEntity.ok(createdDocs);
 	}
 
