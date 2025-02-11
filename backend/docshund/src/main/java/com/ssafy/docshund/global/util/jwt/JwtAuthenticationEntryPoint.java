@@ -1,6 +1,7 @@
 package com.ssafy.docshund.global.util.jwt;
 
-import static com.ssafy.docshund.domain.users.exception.auth.AuthExceptionCode.*;
+import static com.ssafy.docshund.domain.users.exception.auth.AuthExceptionCode.EXPIRED_TOKEN;
+import static com.ssafy.docshund.domain.users.exception.auth.AuthExceptionCode.INVALID_TOKEN;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -28,13 +29,13 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
 		if (exception == null) {
 			log.info("잘못된 요청 (exception 값이 없음)");
-			setResponse(response, BAD_REQUEST_EXCEPTION);
+			setResponse(response, INVALID_TOKEN);
 			return;
 		}
 
 		if (exception.equals(EXPIRED_TOKEN.getCode())) {
-			log.info("토큰 만료됨, http://localhost:5173로 리다이렉트");
-			response.sendRedirect("http://localhost:5173"); // ✅ 만료된 토큰이면 리다이렉트
+			log.info("토큰 만료됨");
+			setResponse(response, INVALID_TOKEN);
 			return;
 		}
 
