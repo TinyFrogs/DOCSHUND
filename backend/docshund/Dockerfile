@@ -1,18 +1,13 @@
-FROM openjdk:21
+FROM openjdk:21-slim
 
 WORKDIR /usr/src/app
 
-# apt 패키지 관리자 설치 (필수)
-RUN apt-get update || true
-RUN apt-get install -y apt || true
-
 # Python 3.9.13 설치
-RUN apt-get update && apt-get install -y wget && \
+RUN apt-get update && apt-get install -y wget build-essential zlib1g-dev \
+    libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev && \
     wget https://www.python.org/ftp/python/3.9.13/Python-3.9.13.tgz && \
     tar xzf Python-3.9.13.tgz && \
     cd Python-3.9.13 && \
-    apt-get install -y build-essential zlib1g-dev libncurses5-dev \
-        libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev && \
     ./configure --enable-optimizations && \
     make -j$(nproc) && \
     make altinstall && \
