@@ -13,9 +13,8 @@ const InquiryFormPage = () => {
   const [file, setFile] = useState(null);
   const navigate = useNavigate();
 
-  const getByteLength = (str) => new Blob([str]).size;
-  const MAX_TITLE_BYTES = 150;
-  const MAX_CONTENT_BYTES = 5000;
+  const MAX_TITLE_LENGTH = 50;
+  const MAX_CONTENT_LENGTH = 2000;
 
   //폼제출
   const handleSubmit = async (e) => {
@@ -112,15 +111,15 @@ const InquiryFormPage = () => {
             type="text"
             value={title}
             onChange={(e) =>
-              getByteLength(e.target.value) <= MAX_TITLE_BYTES &&
+              e.target.value.length <= MAX_TITLE_LENGTH &&
               setTitle(e.target.value)
             }
-            maxLength={150}
+            maxLength={50}
             className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
             placeholder="제목을 입력하세요"
           />
           <p className="text-xs text-gray-500 mt-1 mr-2 text-right">
-            {getByteLength(title)} / {MAX_TITLE_BYTES} byte
+            {title.length} / {MAX_TITLE_LENGTH}
           </p>
         </div>
         <div className="mb-6">
@@ -142,16 +141,16 @@ const InquiryFormPage = () => {
           <textarea
             value={content}
             onChange={(e) =>
-              getByteLength(e.target.value) <= MAX_CONTENT_BYTES &&
+              e.target.value.length <= MAX_CONTENT_LENGTH &&
               setContent(e.target.value)
             }
-            maxLength={5000}
+            maxLength={2000}
             className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
             placeholder="내용을 입력하세요"
             style={{ height: "200px", resize: "none" }}
           ></textarea>
           <p className="text-xs text-gray-500 mt-1 mr-2 text-right">
-            {getByteLength(content)} / {MAX_CONTENT_BYTES} byte
+            {content.length} / {MAX_CONTENT_LENGTH}
           </p>
         </div>
         <div className="mb-6">

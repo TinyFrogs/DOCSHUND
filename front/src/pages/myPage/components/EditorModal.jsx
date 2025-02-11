@@ -5,8 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import "@toast-ui/editor/dist/toastui-editor.css";
 import back from "../../../assets/icon/goBack.png";
 
-const MAX_TITLE_BYTES = 150;
-const getByteLength = (str) => new Blob([str]).size;
+const MAX_TITLE_LENGTH = 50;
 
 const EditorModal = ({
   title,
@@ -38,7 +37,7 @@ const EditorModal = ({
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "title" && getByteLength(value) <= MAX_TITLE_BYTES) {
+    if (name === "title" && value.length <= MAX_TITLE_LENGTH) {
       setFormData({ ...formData, [name]: value });
     }
   };
@@ -103,7 +102,7 @@ const EditorModal = ({
                   required
                 />
                 <p className="text-xs text-gray-500 mt-1 mr-2 text-right">
-                  {getByteLength(formData.title)} / {MAX_TITLE_BYTES} byte
+                  {formData.title.length} / {MAX_TITLE_LENGTH}
                 </p>
               </div>
               <Editor

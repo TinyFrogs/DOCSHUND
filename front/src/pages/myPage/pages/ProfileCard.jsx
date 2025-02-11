@@ -10,9 +10,8 @@ const ProfileCard = ({
 }) => {
   // editedProfile가 props로 전달되므로 profile 변수에 할당
   const profile = editedProfile || {};
-  const getByteLength = (str) => new Blob([str]).size;
-  const MAX_NICKNAME_BYTES = 20;
-  const MAX_CONTENT_BYTES = 225;
+  const MAX_NICKNAME_LENGTH = 10;
+  const MAX_INTRODUCE_LENGTH = 200;
 
   // 이미지 미리보기를 위한 state: 부모의 editedProfile.profileImage가 바뀌면 갱신됨
   const [previewImage, setPreviewImage] = useState(profile.profileImage);
@@ -26,19 +25,24 @@ const ProfileCard = ({
     setNickname(profile.nickname || "");
   }, [profile.nickname]);
 
-  // 닉네임 입력 시 최대 바이트 수 체크 후 부모의 handleChange 호출
+  // 닉네임 입력 시 최대 글자 수 체크 후 부모의 handleChange 호출
   const handleNicknameInputChange = (e) => {
     const { value } = e.target;
-    if (getByteLength(value) <= MAX_NICKNAME_BYTES) {
+    const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/u;
+    if (
+      value.length <= MAX_NICKNAME_LENGTH &&
+      !/\s/.test(value) && // 공백 불가
+      !emojiRegex.test(value) // 이모지 불가
+    ) {
       setNickname(value);
       if (handleChange) handleChange(e);
     }
   };
 
-  // 자기소개 입력 시 최대 바이트 수 체크 후 부모의 handleChange 호출
+  // 자기소개 입력 시 최대 글자 수 체크 후 부모의 handleChange 호출
   const handleIntroduceInputChange = (e) => {
     const { value } = e.target;
-    if (getByteLength(value) <= MAX_CONTENT_BYTES) {
+    if (value.length <= MAX_INTRODUCE_LENGTH) {
       if (handleChange) handleChange(e);
     }
   };
@@ -113,7 +117,7 @@ const ProfileCard = ({
               </button>
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              • 한글 6자, 영어 20자 이내 (최대 20byte)
+              • 최대 10글자, 공백 및 이모지 불가
             </p>
           </div>
         ) : (
@@ -149,7 +153,7 @@ const ProfileCard = ({
             style={{ height: "100px", resize: "none" }}
           />
           <p className="text-xs text-gray-500 mt-1 mr-2 text-right">
-            {getByteLength(profile.introduce || "")} / {MAX_CONTENT_BYTES} byte
+            {profile.introduce?.length || 0} / {MAX_INTRODUCE_LENGTH}
           </p>
         </>
       ) : (

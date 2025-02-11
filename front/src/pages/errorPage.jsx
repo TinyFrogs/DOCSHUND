@@ -1,10 +1,11 @@
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import errorImage400 from "../assets/error400.png";
 import errorImage500 from "../assets/error500.png";
 import { ArrowLeft } from "lucide-react";
 
 const ErrorPage = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const statusCode = parseInt(searchParams.get("status"), 10) || 500;
   const message =
     searchParams.get("message") || "알 수 없는 오류가 발생했습니다.";
@@ -53,10 +54,10 @@ const ErrorPage = () => {
         <p className="lg:text-xl sm:text-lg mb-7">{description}</p>
         <button
           className="bg-[#bc5b39] text-white flex items-center px-5 py-2 rounded-sm"
-          onClick={() => window.history.back()}
+          onClick={() => navigate("/")}
         >
           <ArrowLeft className="mr-2" />
-          <span className="lg:text-md sm:text-sm">이전 페이지로 돌아가기</span>
+          <span className="lg:text-md sm:text-sm">홈으로 가기</span>
         </button>
       </div>
       <img src={image} alt="에러 이미지" className="w-1/3" />

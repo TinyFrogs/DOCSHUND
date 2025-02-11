@@ -38,21 +38,56 @@ const Chat = () => {
 
   // 웹소켓 연결 (실시간 채팅)
   const connect = () => {
+    // 이미 연결되어 있다면 재연결 방지
     if (stompClient.current && stompClient.current.connected) return;
-    const socketFactory = () =>
-      new WebSocket("ws://i12a703.p.ssafy.io:8081/ws-connect");
+
+    // socketFactory 내부에서 웹소켓 에러 이벤트를 처리
+    const socketFactory = () => {
+      const socket = new WebSocket("ws://i12a703.p.ssafy.io:8081/ws-connect");
+
+      // 웹소켓 자체 에러 처리
+      socket.onerror = (event) => {
+        console.error("WebSocket Error:", event);
+        toast.error("웹소켓 연결 오류가 발생했습니다.");
+      };
+
+      socket.onclose = (event) => {
+        console.warn("WebSocket Closed:", event);
+        toast.error("웹소켓 연결이 종료되었습니다.");
+      };
+
+      return socket;
+    };
+
+    // STOMP 클라이언트 생성 (웹소켓 에러 핸들러는 위에서 정의됨)
     stompClient.current = Stomp.over(socketFactory);
+
+    // 연결 시 인증 헤더 전송
     stompClient.current.connect(
       { Authorization: `Bearer ${token}` },
-      () => {
+      (frame) => {
+        console.log("STOMP Connected:", frame);
+
+        // 채팅 메시지 구독
         stompClient.current.subscribe(`/sub/chats/${docsId}`, (message) => {
           const newMessage = JSON.parse(message.body);
-          // 실시간 채팅: 새로운 메시지는 배열 맨 뒤(최신)에 추가
           setMessages((prev) => [...prev, newMessage]);
+        });
+
+        // STOMP 에러 구독 (구독 채널을 통해 전달되는 에러)
+        stompClient.current.subscribe("/user/queue/errors", (message) => {
+          const errorData = JSON.parse(message.body);
+          console.error("STOMP 구독 에러:", errorData);
+          toast.error(`${errorData.errorType}: ${errorData.message}`);
         });
       },
       (error) => {
-        console.error("WebSocket connection error:", error);
+        console.error("STOMP Error:", error);
+        // error.headers.message가 없을 수도 있으므로 fallback 메시지 처리
+        const errorMessage =
+          (error && error.headers && error.headers.message) ||
+          "알 수 없는 STOMP 오류가 발생했습니다.";
+        toast.error(errorMessage);
       }
     );
   };
@@ -77,6 +112,7 @@ const Chat = () => {
       setMessages(initialMessages);
       setCurrentPage(0);
       setHasMore(!last); // last가 false면 더 불러올 메시지가 있음
+
       // 스크롤을 맨 아래로 이동
       setTimeout(() => {
         if (containerRef.current) {
@@ -93,7 +129,6 @@ const Chat = () => {
   const loadPreviousMessages = async () => {
     if (!hasMore) return; // 더 불러올 메시지가 없으면 종료
     const container = containerRef.current;
-    // 스크롤 저장
     const prevScrollHeight = container.scrollHeight;
     const prevScrollTop = container.scrollTop;
     try {
@@ -103,11 +138,9 @@ const Chat = () => {
       );
       const { content, last } = response.data;
       const newMessages = content.reverse();
-      // 기존 메시지 목록 앞쪽에 추가
       setMessages((prev) => [...newMessages, ...prev]);
       setCurrentPage(nextPage);
       setHasMore(!last);
-      // 새 메시지 추가 후 스크롤 위치 보정
       setTimeout(() => {
         const newScrollHeight = container.scrollHeight;
         container.scrollTop =
@@ -118,7 +151,12 @@ const Chat = () => {
     }
   };
 
-  const handleInputChange = (event) => setInputValue(event.target.value);
+  const handleInputChange = (event) => {
+    if (event.target.value.length <= 255) {
+      setInputValue(event.target.value);
+    }
+  };
+
   const handleKeyDown = (event) => {
     if (event.key === "Enter") sendMessage();
   };
@@ -136,7 +174,6 @@ const Chat = () => {
         JSON.stringify(body)
       );
       setInputValue("");
-      // 스크롤을 맨 아래로 이동
       setTimeout(() => {
         if (containerRef.current) {
           containerRef.current.scrollTop = containerRef.current.scrollHeight;
@@ -149,6 +186,7 @@ const Chat = () => {
     connect();
     loadInitialMessages();
     return () => disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -179,7 +217,6 @@ const Chat = () => {
               ref={containerRef}
               className="flex-1 overflow-y-auto p-4 space-y-4"
             >
-              {/* 이전 채팅 더 불러오기 영역 */}
               {!loadingInitialMessages && (
                 <div className="text-center mb-2">
                   {hasMore ? (
@@ -197,7 +234,6 @@ const Chat = () => {
                 </div>
               )}
 
-              {/* 메시지 목록 */}
               {loadingInitialMessages ? (
                 <div className="text-center text-gray-500">
                   메시지를 불러오는 중...
