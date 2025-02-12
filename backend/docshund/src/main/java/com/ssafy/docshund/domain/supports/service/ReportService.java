@@ -5,11 +5,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ssafy.docshund.domain.supports.dto.report.ReportRequestDto;
-import com.ssafy.docshund.domain.supports.entity.Report;
+import com.ssafy.docshund.domain.supports.dto.report.ReportResponseDto;
 
 public interface ReportService {
 
-	public Page<Report> searchReportUsers(Long userId, Pageable pageable);
+	public Page<ReportResponseDto> searchReportUsers(Long userId, Pageable pageable);
 
 	public void reportUser(ReportRequestDto reportRequestDto, MultipartFile file);
 

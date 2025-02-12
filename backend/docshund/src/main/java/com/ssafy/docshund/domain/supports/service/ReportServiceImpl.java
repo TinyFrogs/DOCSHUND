@@ -26,6 +26,7 @@ import com.ssafy.docshund.domain.forums.exception.ForumException;
 import com.ssafy.docshund.domain.forums.repository.ArticleRepository;
 import com.ssafy.docshund.domain.forums.repository.CommentRepository;
 import com.ssafy.docshund.domain.supports.dto.report.ReportRequestDto;
+import com.ssafy.docshund.domain.supports.dto.report.ReportResponseDto;
 import com.ssafy.docshund.domain.supports.entity.Report;
 import com.ssafy.docshund.domain.supports.exception.report.ReportException;
 import com.ssafy.docshund.domain.supports.repository.ReportRepository;
@@ -60,7 +61,7 @@ public class ReportServiceImpl implements ReportService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<Report> searchReportUsers(Long userId, Pageable pageable) {
+	public Page<ReportResponseDto> searchReportUsers(Long userId, Pageable pageable) {
 		isAdminByReport();
 		return reportRepositroy.searchReportUsers(userId, pageable);
 	}

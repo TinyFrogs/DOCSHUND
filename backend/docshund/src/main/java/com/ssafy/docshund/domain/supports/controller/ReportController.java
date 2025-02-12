@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ssafy.docshund.domain.supports.dto.report.ReportRequestDto;
-import com.ssafy.docshund.domain.supports.entity.Report;
+import com.ssafy.docshund.domain.supports.dto.report.ReportResponseDto;
 import com.ssafy.docshund.domain.supports.service.ReportService;
 
 import jakarta.validation.Valid;
@@ -30,7 +30,7 @@ public class ReportController {
 	private final ReportService reportService;
 
 	@GetMapping
-	public ResponseEntity<Page<Report>> searchReportUsers(@RequestParam(required = false) Long userId,
+	public ResponseEntity<Page<ReportResponseDto>> searchReportUsers(@RequestParam(required = false) Long userId,
 		Pageable pageable) {
 		return ResponseEntity.ok(reportService.searchReportUsers(userId, pageable));
 	}
