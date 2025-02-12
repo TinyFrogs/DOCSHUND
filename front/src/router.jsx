@@ -5,7 +5,7 @@ import LandingPage from "./pages/landingPage.jsx";
 import ProtectedRoute from "./utils/protectedRoute.jsx";
 
 // 마이페이지 관련 페이지
-import MyPage from "./pages/myPage/MyPage.jsx";
+import MyPage from "./pages/myPage/myPage.jsx";
 import MyProfilePage from "./pages/myPage/pages/MyProfilePage.jsx";
 import ArchivePage from "./pages/myPage/pages/ArchivePage.jsx";
 import LikeArticlePage from "./pages/myPage/pages/archive/LikeArticlePage.jsx";
@@ -28,8 +28,10 @@ import TermsPage from "./pages/helpDesk/TermsPage.jsx";
 import PrivacyPage from "./pages/helpDesk/PrivacyPage.jsx";
 
 // 번역 관련 페이지
+import ViewerMainPage from "./pages/translate/viewerMainPage.jsx";
 import TranslatePage from "./pages/translate/translate.jsx";
 import TranslateViewer from "./pages/translate/translateViewer.jsx";
+import BestTransViewer from "./pages/translate/bestTransViewer.jsx";
 
 // Community 관련 페이지
 import CommunityPage from "./pages/community/community.jsx";
@@ -38,19 +40,38 @@ import WriteArticle from "./pages/community/writeArticle.jsx";
 import ModifyArticle from "./pages/community/modifyArticle.jsx";
 import ArticleItem from "./pages/community/articleItem.jsx";
 
+//admin 관련 페이지
+import Admin from "./pages/admin/admin.jsx";
+import ManageUser from "./pages/admin/manageUser.jsx";
+import ManageInquiry from "./pages/admin/manageInquiry.jsx";
+import ManageDocs from "./pages/admin/manageDocs.jsx";
+import ManageReport from "./pages/admin/manageReport.jsx";
+import ManageNotification from "./pages/admin/manageNotification.jsx";
+
+// error 페이지
+import ErrorPage from "./pages/errorPage.jsx";
+
+// 유어마이페이지
+import UserPage from "./pages/userPage.jsx";
+
 function AppRoutes() {
   return (
     <Routes>
       {/* UpperNav 바로가기 주소 */}
       <Route path="/" element={<LandingPage />} />
       {/* 번역 관련 주소 */}
-      <Route path="/translate" element={<TranslatePage />}></Route>
+      <Route path="/translate" element={<TranslatePage />} />
+      <Route path="/translate/main" element={<ViewerMainPage />}>
+        <Route path="viewer/:docsId" element={<TranslateViewer />} />
+        <Route path="viewer/:docsId/best" element={<BestTransViewer />} />
+      </Route>
+
       {/* 커뮤니티 관련 주소 */}
       <Route path="/community" element={<CommunityPage />}>
         <Route index element={<Navigate to="list" replace />} />
         <Route path="list" element={<ArticleList />} />
         <Route path="article/:articleId" element={<ArticleItem />} />
-        <Route path="modify" element={<ModifyArticle />} />
+        <Route path="modify/:articleId" element={<ModifyArticle />} />
         <Route path="write" element={<WriteArticle />} />
       </Route>
 
@@ -65,19 +86,34 @@ function AppRoutes() {
       <Route path="/terms" element={<TermsPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
 
-      {/* 번역뷰어 */}
-      <Route
-        path="translate/viewer/:docsId"
-        element={<TranslateViewer />}
-      ></Route>
+      {/* 관리자 관련 주소 */}
+      <Route element={<ProtectedRoute isAdminRoute={true} />}>
+        <Route path="/admin" element={<Admin />}>
+          <Route path="manageUser" element={<ManageUser />} />
+          <Route path="manageInquiry" element={<ManageInquiry />} />
+          <Route path="manageDocs" element={<ManageDocs />} />
+          <Route path="manageReport" element={<ManageReport />} />
+          <Route path="manageNotification" element={<ManageNotification />} />
+        </Route>
+      </Route>
 
-      {/* 번역뷰어 */}
+      {/* 유어마이페이지 */}
+      <Route path="/userPage/:userId" element={<UserPage />}></Route>
+
+      {/* 에러페이지 */}
+      <Route path="/error" element={<ErrorPage />} />
       <Route
-        path="translate/viewer/:docsId"
-        element={<TranslateViewer key={window.location.pathname} />}
-      ></Route>
+        path="*"
+        element={
+          <Navigate
+            to="/error?status=404&message=페이지를 찾을 수 없습니다."
+            replace
+          />
+        }
+      />
+
       {/* 비로그인 접근 불가 */}
-      <Route element={<ProtectedRoute />}>
+      <Route element={<ProtectedRoute isAdminRoute={false} />}>
         {/* 마이페이지 관련 주소 */}
         <Route path="/myPage" element={<MyPage />}>
           <Route index element={<Navigate to="profile" replace />} />

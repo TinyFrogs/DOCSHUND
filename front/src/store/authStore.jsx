@@ -11,9 +11,6 @@ const useAuthStore = create((set, get) => ({
   },
 
   loginWithGoogle: () => {
-    // Google 로그인 페이지로 리다이렉트
-    // window.location.href = "http://localhost:8080/oauth2/authorization/google";
-
     window.location.href =
       "http://i12a703.p.ssafy.io:8081/oauth2/authorization/google";
   },

@@ -1,50 +1,64 @@
 import axios from "axios";
 
+const BASE_URL = "http://i12a703.p.ssafy.io:8081/api/v1/docshund/";
+
+// JSON 요청용 Axios 인스턴스
 const axiosJsonInstance = axios.create({
-  baseURL: "http://i12a703.p.ssafy.io:8081/api/v1/docshund/", // API 기본 URL
+  baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Multipart form data axios instance
+// Multipart 요청용 Axios 인스턴스
 const axiosMultipartInstance = axios.create({
-  baseURL: "http://i12a703.p.ssafy.io:8081/api/v1/docshund/", // API 기본 URL
+  baseURL: BASE_URL,
   headers: {
     "Content-Type": "multipart/form-data",
   },
 });
 
-// 모든 요청 전에 실행되는 인터셉터
-axiosJsonInstance.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token"); // 로컬스토리지에서 토큰 읽기
-    if (token) {
-      // 토큰이 있으면 Authorization 헤더에 추가
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    // 토큰이 없으면 헤더에 추가하지 않고 그대로 요청 진행 (비회원도 요청 가능)
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+// 요청 인터셉터 (토큰 추가)
+const requestInterceptor = (config) => {
+  const token = localStorage.getItem("token"); // 로컬스토리지에서 토큰 가져오기
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
+  return config;
+};
+
+// // 응답 인터셉터 (에러 처리)
+const responseInterceptor = (error) => {
+  if (error.response) {
+    const status = error.response.status;
+    const message =
+      error.response.data?.message || "알 수 없는 오류가 발생했습니다.";
+
+    // 현재 경로가 /error가 아닐 때만 이동
+    if (window.location.pathname !== "/error") {
+      window.location.href = `/error?status=${status}&message=${encodeURIComponent(
+        message
+      )}`;
+    }
+  }
+  return Promise.reject(error);
+};
+
+// 인터셉터 적용
+axiosJsonInstance.interceptors.request.use(requestInterceptor, (error) =>
+  Promise.reject(error)
+);
+axiosMultipartInstance.interceptors.request.use(requestInterceptor, (error) =>
+  Promise.reject(error)
 );
 
-// 모든 요청 전에 실행되는 인터셉터 (multipart)
-axiosMultipartInstance.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token"); // 로컬스토리지에서 토큰 읽기
-    if (token) {
-      // 토큰이 있으면 Authorization 헤더에 추가
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    // 토큰이 없으면 헤더에 추가하지 않고 그대로 요청 진행 (비회원도 요청 가능)
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+// axiosJsonInstance.interceptors.response.use(
+//   (response) => response,
+//   responseInterceptor
+// );
+// axiosMultipartInstance.interceptors.response.use(
+//   (response) => response,
+//   responseInterceptor
+// );
 
 export { axiosJsonInstance, axiosMultipartInstance };

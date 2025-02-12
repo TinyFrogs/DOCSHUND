@@ -11,6 +11,7 @@ const ArticleListService = {
     page,
     itemsPerPage
   ) {
+    console.log(sortType, filter, keyword, searchType, page, itemsPerPage);
     try {
       // TODO: 데이터 axios로 변경 필요
       const response = await axiosJsonInstance.get(

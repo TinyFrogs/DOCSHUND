@@ -2,20 +2,19 @@ import { axiosJsonInstance } from "../../../utils/axiosInstance";
 
 const memoService = {
   // 메모 목록 가져오기
-  async fetchMemos(userId, page = 0, size = 10) {
+  async fetchMemos(userId, page = 0, size = 9) {
     try {
       const response = await axiosJsonInstance.get(
         `users/${userId}/memo?page=${page}&size=${size}`
       );
       return response.data;
     } catch (error) {
-      //TODO: error handling -> 에러 페이지 제작후 연결까지 구현
       console.error("메모 목록을 가져오는 중 오류 발생:", error);
       return null;
     }
   },
 
-  // 특정 메모 가져오기
+  // 특정 메모 가져오기 (상세 조회)
   async fetchMemo(userId, memoId) {
     try {
       const response = await axiosJsonInstance.get(
@@ -23,7 +22,6 @@ const memoService = {
       );
       return response.data;
     } catch (error) {
-      //TODO: error handling -> 에러 페이지 제작후 연결까지 구현
       console.error("메모를 가져오는 중 오류 발생:", error);
       return null;
     }
@@ -38,7 +36,6 @@ const memoService = {
       );
       return response.data;
     } catch (error) {
-      //TODO: error handling -> 에러 페이지 제작후 연결까지 구현
       console.error("메모를 생성하는 중 오류 발생:", error);
       return null;
     }
@@ -53,7 +50,6 @@ const memoService = {
       );
       return response.data;
     } catch (error) {
-      //TODO: error handling -> 에러 페이지 제작후 연결까지 구현
       console.error("메모를 업데이트하는 중 오류 발생:", error);
       return null;
     }
@@ -64,7 +60,6 @@ const memoService = {
     try {
       await axiosJsonInstance.delete(`users/${userId}/memo/${memoId}`);
     } catch (error) {
-      //TODO: error handling -> 에러 페이지 제작후 연결까지 구현
       console.error("메모를 삭제하는 중 오류 발생:", error);
     }
   },

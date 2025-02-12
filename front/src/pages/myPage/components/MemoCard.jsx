@@ -1,22 +1,25 @@
 import PropTypes from "prop-types";
+import { format, isSameDay } from "date-fns";
 
 const MemoCard = ({ memo, onEditMemo }) => {
-  const formattedDate = new Date(memo.createdAt).toLocaleDateString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-
   return (
     <div className="bg-white rounded-xl p-4 border border-[#E1E1DF]">
-      <h2 className="text-lg line-clamp-1 font-bold mb-2">{memo.title}</h2>
-      <p className="text-sm h-20 line-clamp-4 text-gray-600 mb-4 overflow-hidden text-ellipsis">
+      <h2 className="text-lg line-clamp-1 break-all font-bold mb-2">
+        {memo.title}
+      </h2>
+      <p className="text-sm h-20 line-clamp-4 text-gray-600 mb-4 break-all overflow-hidden text-ellipsis">
         {memo.content}
       </p>
       <div className="flex text-sm justify-between items-center text-gray-400">
-        <span>{formattedDate}</span>
+        <span>
+          {memo.createdAt
+            ? isSameDay(new Date(memo.createdAt), new Date())
+              ? format(new Date(memo.createdAt), "HH:mm")
+              : format(new Date(memo.createdAt), "yyyy-MM-dd")
+            : "표시할 수 없는 날짜입니다."}
+        </span>
         <button
-          onClick={() => onEditMemo(memo.memo_id, memo)}
+          onClick={() => onEditMemo(memo.memoId, memo)}
           className="bg-[#bc5b39] rounded-xl px-4 h-10 text-white hover:bg-[#C96442] transition"
         >
           메모 보기
@@ -28,7 +31,7 @@ const MemoCard = ({ memo, onEditMemo }) => {
 
 MemoCard.propTypes = {
   memo: PropTypes.shape({
-    memo_id: PropTypes.number.isRequired, // 추가된 부분
+    memoId: PropTypes.number.isRequired, // 추가된 부분
     title: PropTypes.string.isRequired,
     content: PropTypes.string.isRequired,
     createdAt: PropTypes.string.isRequired,

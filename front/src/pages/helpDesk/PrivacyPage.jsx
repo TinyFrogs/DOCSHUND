@@ -1,9 +1,9 @@
 const PrivacyPage = () => {
   return (
     <div className="flex justify-center w-full">
-      <main className="flex-1 p-8 max-w-[1280px]">
-        <div className="flex justify-between mt-5 mb-5">
-          <h1 className="font-bold text-2xl">개인정보처리방침</h1>
+      <main className="flex-1 px-12 py-8 max-w-[1280px]">
+        <div className="flex justify-between mt-1 mb-5">
+          <h1 className="pl-4 font-bold text-2xl">개인정보처리방침</h1>
         </div>
         <div className="bg-white rounded-tl-xl rounded-tr-xl border-t rounded-bl-xl rounded-br-xl border-b border-l border-r border-[#E1E1DF]">
           <div className="p-15">

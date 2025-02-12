@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import RectBtn from "../components/button/rectBtn";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Users, BookOpen, MessageSquare } from "lucide-react";
+import { Users, BookOpen, Edit } from "lucide-react";
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -37,6 +37,10 @@ const LandingPage = () => {
 
   const faqs = [
     {
+      q: "Q: Docshund는 어떤 서비스인가요?",
+      a: "Docshund는 공식문서를 더 쉽게 읽고 이해할 수 있도록 돕는 서비스입니다.\n번역본과 원문을 함께 제공하며, 사용자가 직접 번역을 수정하고 피드백할 수도 있습니다.",
+    },
+    {
       q: "Q: 서비스 이용료는 얼마인가요?",
       a: "Docshund는 회원가입만 하면 누구나 무료로 이용할 수 있습니다.",
     },
@@ -44,12 +48,17 @@ const LandingPage = () => {
       q: "Q: 어떤 프로그래밍 언어를 지원하나요?",
       a: "Spring, Kubernetes, Android, TensorFlow 등 다양한 기술 문서를 지원하며, 점차 늘려가고 있습니다.\n문서 요청을 주시면 검토 후, 더 빠르게 업로드할 수 있으니 [헬프데스크 > 문의하기]를 이용해주시면 됩니다.",
     },
+    {
+      q: "Q: 번역 수정에 참여하려면 어떻게 해야 하나요?",
+      a: "문서를 열람한 후, 수정하고 싶은 문단을 선택하면 '번역하기' 버튼이 나타납니다. 클릭하면 직접 번역을 수정하거나 제안할 수 있습니다.",
+    },
   ];
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlogan((prev) => (prev + 1) % slogans.length);
     }, 5000);
+
     return () => clearInterval(interval);
   }, []);
 
@@ -94,9 +103,6 @@ const LandingPage = () => {
             onClick={() => navigate("/translate")}
             text="🎉 지금 바로 시작하기"
           />
-          <p className="mt-4 text-sm text-[#7d7c77]">
-            지금 가입하면 1분 안에 시작할 수 있습니다!
-          </p>
         </div>
       </motion.section>
 
@@ -154,7 +160,7 @@ const LandingPage = () => {
                 step: "1",
                 title: "문서 선택",
                 description:
-                  "JavaScript부터 Python, React까지 원하는 기술 문서를 골라보세요",
+                  "Spring부터 Docker, Android까지 원하는 기술 문서를 골라보세요",
                 image:
                   "https://i.pinimg.com/736x/73/cc/eb/73ccebda620a66cc7e0d57edaaf92418.jpg",
               },
@@ -170,7 +176,7 @@ const LandingPage = () => {
                 step: "3",
                 title: "함께 개선",
                 description:
-                  "커뮤니티와 함께 토론하며 최고의 번역을 만들어 갑니다",
+                  "문서별 실시간 토론, 번역봇, 커뮤니티와 함께 토론하며 최고의 번역을 만들어 갑니다",
                 image:
                   "https://i.pinimg.com/736x/b1/ef/95/b1ef956e67434f44cdd2b8bba3438f50.jpg",
               },
@@ -218,18 +224,18 @@ const LandingPage = () => {
             {[
               {
                 icon: <BookOpen className="w-8 h-8 text-[#bc5b39]" />,
-                title: "스마트 번역",
-                desc: "AI 기반 문맥 이해로 빠르고 정확한 번역",
+                title: "공식문서 번역본 보기",
+                desc: "원문과 다양한 번역을 비교하며 학습하고, 최적의 번역을 선택",
+              },
+              {
+                icon: <Edit className="w-8 h-8 text-[#bc5b39]" />,
+                title: "번역 제안 & 투표 시스템",
+                desc: "개발자들이 직접 번역을 제안하고 투표하여 최적의 번역을 개선",
               },
               {
                 icon: <Users className="w-8 h-8 text-[#bc5b39]" />,
-                title: "실시간 커뮤니티",
-                desc: "토론, 투표, Q&A 등 함께 만들어가는 번역",
-              },
-              {
-                icon: <MessageSquare className="w-8 h-8 text-[#bc5b39]" />,
-                title: "전문가 헬프데스크",
-                desc: "난해한 기술 문서는 전문가가 지원",
+                title: "기술 문서 커뮤니티",
+                desc: "공식문서와 연계된 Q&A, 토론 공간 제공",
               },
             ].map((item, index) => (
               <motion.div
@@ -381,6 +387,17 @@ const LandingPage = () => {
                 <p className="text-[#7d7c77] sm:text-sm md:text-lg">{faq.a}</p>
               </motion.div>
             ))}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              transition={{ delay: faqs.length * 0.2 }}
+              className="flex justify-center"
+            >
+              <RectBtn
+                onClick={() => navigate("/helpDesk/faq")}
+                text="FAQ 더보기 +"
+              />
+            </motion.div>
           </div>
         </div>
       </motion.section>
@@ -404,7 +421,7 @@ const LandingPage = () => {
               text="🔍 번역문서 보기"
             />
             <RectBtn
-              onClick={() => navigate("/helpDesk/inquiry")}
+              onClick={() => navigate("/helpDesk/inquiryForm")}
               text="🚀 문서 제안하기"
             />
           </div>

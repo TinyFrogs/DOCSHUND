@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import useTabs from "../../../hooks/useTabs";
+import useTabs from "../../../utils/useTabs";
 import Tabs from "../../../components/Tabs";
 
 const ActivityPage = () => {

@@ -22,7 +22,7 @@ const ListRender = ({
     <div>
       {/* 데이터가 있을 때 */}
       {data.length > 0 ? (
-        data.map((item, index) => (
+        data.map((item) => (
           <div
             // 게시글, 문의글, 댓글 등의 리스트를 렌더링할 때 key 값이 중복되지 않도록
             // itemCategory를 통해 key 값에 해당하는 아이템의 id를 구분
@@ -35,7 +35,7 @@ const ListRender = ({
         ))
       ) : (
         // 데이터가 없을 때
-        <p className="text-gray-500 text-center">데이터가 없습니다.</p>
+        <p className="text-gray-500 text-center mt-6">데이터가 없습니다.</p>
       )}
       {/* 페이지네이션 */}
       {totalPages > 0 && (

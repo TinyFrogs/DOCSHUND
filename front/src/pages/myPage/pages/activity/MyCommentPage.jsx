@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 
 import MyCommentService from "../../services/myCommentService";
-import myCommentStore from "../../store/myCommentStore";
+import myCommentStore from "../../../../store/myPageStore/myCommentStore";
 import ListRender from "../../../../components/pagination/listRender";
 
 const MyCommentPage = () => {
@@ -65,7 +65,7 @@ const MyCommentPage = () => {
     <div className="flex justify-between text-lg px-3">
       <div className="flex-1 min-w-0 mr-3 font-semibold line-clamp-1 break-all">
         <Link
-          to={`community/article/${item.articleId}`}
+          to={`/community/article/${item.articleId}`}
           className="text-[#7d7c77] hover:text-[#bc5b39]"
         >
           {item.content}

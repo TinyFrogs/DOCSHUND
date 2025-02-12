@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 import ListRender from "../../../../components/pagination/listRender";
-import communityArticleStore from "../../../../store/communityStore/communityArticleStore";
+import MyArticleStore from "../../../../store/myPageStore/myArticleStore";
 import MyArticleService from "../../services/myArticleService";
 import like from "../../../../assets/icon/heartFilled24.png";
 import view from "../../../../assets/icon/viewCnt.png";
@@ -13,16 +13,16 @@ const MyArticlePage = () => {
   const token = localStorage.getItem("token");
 
   //  store에서 데이터를 가져오기 위해 store의 상태 정의
-  const myArticles = communityArticleStore((state) => state.myArticles);
-  const totalPages = communityArticleStore((state) => state.totalPages);
-  const currentPage = communityArticleStore((state) => state.currentPage);
+  const myArticles = MyArticleStore((state) => state.myArticles);
+  const totalPages = MyArticleStore((state) => state.totalPages);
+  const currentPage = MyArticleStore((state) => state.currentPage);
 
   // set(메소드) 정의
-  const setMyArticles = communityArticleStore((state) => state.setMyArticles);
-  const setTotalPages = communityArticleStore((state) => state.setTotalPages);
-  const setCurrentPage = communityArticleStore((state) => state.setCurrentPage);
-  const setLoading = communityArticleStore((state) => state.setLoading);
-  const setError = communityArticleStore((state) => state.setError);
+  const setMyArticles = MyArticleStore((state) => state.setMyArticles);
+  const setTotalPages = MyArticleStore((state) => state.setTotalPages);
+  const setCurrentPage = MyArticleStore((state) => state.setCurrentPage);
+  const setLoading = MyArticleStore((state) => state.setLoading);
+  const setError = MyArticleStore((state) => state.setError);
 
   // TODO: 로그인 상태 확인 로직 필요, 토큰 실어 보내는 로직 추가
   const [itemsPerPage, setItmesPerPage] = useState(15); // 페이지당 보여줄 게시글 수
@@ -72,7 +72,7 @@ const MyArticlePage = () => {
       <div className="flex-1 min-w-0 mr-3 flex flex-col justify-between">
         {/* // Link 컴포넌트를 사용하여 글 제목을 클릭하면 해당 글로 이동하도록 설정 */}
         <Link
-          to={`community/article/${item.articleId}`}
+          to={`/community/article/${item.articleId}`}
           className="font-semibold line-clamp-1 break-all text-[#7d7c77] hover:text-[#bc5b39]"
         >
           {item.title}

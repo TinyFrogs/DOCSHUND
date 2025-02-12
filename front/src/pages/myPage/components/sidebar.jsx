@@ -27,7 +27,7 @@ const Sidebar = () => {
   const location = useLocation();
 
   return (
-    <div className="w-auto p-4 text-[#7D7C77] text-sm">
+    <div className="w-auto p-4 text-[#7D7C77] sm:text-sm md:text-base">
       <div className="border-1 border-[#E1E1DF] rounded-xl p-3 bg-[#FFFFFF]">
         {/* 상위 메뉴 항목 */}
         {mainMenuItems.map((item) => {
@@ -62,6 +62,9 @@ const Sidebar = () => {
                             : "text-[#7D7C77]"
                         } hover:text-[#bc5b39]`
                       }
+                      onClick={() => {
+                        // 하위 메뉴에 따라서 store 값 초기화
+                      }}
                     >
                       {subItem.name}
                     </NavLink>

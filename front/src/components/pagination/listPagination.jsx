@@ -44,7 +44,7 @@ const ListPagination = ({ totalPages, currentPage, setCurrentPage }) => {
         className={`text-gray-500 hover:text-gray-800 ${
           currentPage === 1 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
         }`}
-        onClick={() => setCurrentPage(currentPage - 1)}
+        onClick={() => setCurrentPage(currentPage - 2)} // 이전 페이지로 이동(원래 페이지는 currentPage-1)
         disabled={currentPage === 1}
       >
         &lt;
@@ -59,7 +59,7 @@ const ListPagination = ({ totalPages, currentPage, setCurrentPage }) => {
               ? "bg-[#bc5b39] text-white font-bold"
               : "text-gray-500 hover:text-[#bc5b39]"
           }`}
-          onClick={() => setCurrentPage(page)}
+          onClick={() => setCurrentPage(page - 1)}
         >
           {page}
         </button>
@@ -72,7 +72,7 @@ const ListPagination = ({ totalPages, currentPage, setCurrentPage }) => {
             ? "opacity-50 cursor-not-allowed"
             : "cursor-pointer"
         }`}
-        onClick={() => setCurrentPage(currentPage + 1)}
+        onClick={() => setCurrentPage(currentPage)} // 다음 페이지로 이동(원래 페이지는 currentPage-1)
         disabled={currentPage === totalPages}
       >
         &gt;

@@ -1,13 +1,15 @@
 import { useNavigate } from "react-router-dom";
 
-import modalStore from "../store/modalStore";
-import inquiryStore from "../store/inquiryStore";
+import modalStore from "../../../store/myPageStore/myPageModalStore";
+import inquiryStore from "../../../store/myPageStore/inquiryStore";
 import InquiryModal from "../components/InquiryModal";
 import ListRender from "../../../components/pagination/listRender";
 import InquiryService from "../services/inquiryService";
 
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+import { format, isSameDay } from "date-fns";
+import { ChevronUp, ChevronDown } from "lucide-react";
 
 const InquiryPage = () => {
   const navigate = useNavigate();
@@ -50,7 +52,11 @@ const InquiryPage = () => {
 
           // data가 존재하면 setInquiries로 데이터를 저장한다.
           if (data) {
-            setInquiries(data.content);
+            const sortedInquiries = data.content.sort(
+              (a, b) =>
+                new Date(b.inquiryCreatedAt) - new Date(a.inquiryCreatedAt)
+            );
+            setInquiries(sortedInquiries);
             setCurrentPage(data.pageable.pageNumber);
             setTotalPages(data.totalPages);
             setItmesPerPage(data.size);
@@ -67,17 +73,38 @@ const InquiryPage = () => {
     fetchInquiries();
   }, [currentPage, itemsPerPage, token]);
 
+  useEffect(() => {
+    return () => {
+      setOpenId(null);
+    };
+  }, [setOpenId]);
+
   const renderInquiry = (item) => {
     return (
       <div key={item.inquiryId} className="flex-col">
-        <div className="flex justify-between text-lg px-3">
-          <div className="flex-1 min-w-0 line-clamp-1 break-all mr-3">
-            <h3 className="font-semibold text-[#7d7c77]">
+        <div className="flex justify-between px-3">
+          <div
+            className={`flex-1 min-w-0 break-all mr-3 ${
+              openId === item.inquiryId ? "" : "line-clamp-1"
+            }`}
+          >
+            <h3
+              onClick={() => {
+                setOpenId(item.inquiryId === openId ? null : item.inquiryId);
+              }}
+              className="sm:text-base md:text-lg font-semibold text-[#7d7c77] hover:text-[#bc5b39] cursor-pointer"
+            >
               {item.inquiryTitle}
             </h3>
           </div>
           <div className="flex space-x-6 items-center">
-            <p>{item.inquiryCreatedAt}</p>
+            <p className="sm:text-sm md:text-base">
+              {item.inquiryCreatedAt
+                ? isSameDay(new Date(item.inquiryCreatedAt), new Date())
+                  ? format(new Date(item.inquiryCreatedAt), "HH:mm")
+                  : format(new Date(item.inquiryCreatedAt), "yyyy-MM-dd")
+                : "표시할 수 없는 날짜입니다."}
+            </p>
             <p
               className={`text-sm ${
                 item.answered ? "text-green-500" : "text-red-500"
@@ -92,7 +119,13 @@ const InquiryPage = () => {
               }}
               className="cursor-pointer"
             >
-              <span>{openId === item.inquiryId ? "⋏" : "⋎"}</span>
+              <span>
+                {openId === item.inquiryId ? (
+                  <ChevronUp size={20} />
+                ) : (
+                  <ChevronDown size={20} />
+                )}
+              </span>
             </button>
           </div>
         </div>

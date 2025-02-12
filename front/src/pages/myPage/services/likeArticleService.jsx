@@ -6,7 +6,7 @@ const LikeArticleService = {
     try {
       // 좋아요한 게시글을 가져오는 api 호출
       const response = await axiosJsonInstance.get(
-        `forums/liikes?page=${currentPage}&size=${itemsPerPage}`
+        `forums/likes?page=${currentPage}&size=${itemsPerPage}`
       );
 
       const data = response.data;

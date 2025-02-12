@@ -1,63 +1,89 @@
-import axios from "axios";
+import { axiosJsonInstance } from "../../../utils/axiosInstance";
 import PropTypes from "prop-types";
-import TmpBestData from "../store/tmpBestData";
-import TmpTranslateData from "../store/tmpTranslateData";
-import TmpDocsList from "../store/tmpDocsList";
-import useArchiveStore from "../store/archiveStore";
-import useDocsStore from "../store/docsStore";
 
-// const baseUrl = "http://localhost:8080/api/v1/docshund/docs";
+import TmpBestData from "../../../store/translateStore/tmpBestData";
+import TmpTranslateData from "../../../store/translateStore/tmpTranslateData";
+import TmpDocsList from "../../../store/translateStore/tmpDocsList";
+import useArchiveStore from "../../../store/translateStore/archiveStore";
+import useDocsStore from "../../../store/translateStore/docsStore";
+import useEditorStore from "../../../store/translateStore/editorStore";
+
+// import DocsStore from "../../../store/translateStore/docsStore";
 const baseUrl = "http://i12a703.p.ssafy.io:8081/api/v1/docshund/docs";
 
-export const fetchDocsList = async (test) => {
+// 좋아요한 문서 조회
+export const fetchLikedList = async (docsId) => {
   try {
-    if (!test) {
-      const response = await axios.get(`${baseUrl}`);
-      const data = response.data;
-      useDocsStore.setState({ docsList: data });
-    } else {
-      const data = TmpDocsList.docsList;
-      useDocsStore.setState({ docsList: data });
-    }
+    const response = await axiosJsonInstance.get(`${baseUrl}/${docsId}/likes`);
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.log("좋아요한 문서 조회 실패", error);
+  }
+};
+
+// 문서 리스트 조회
+export const fetchDocsList = async () => {
+  try {
+    const response = await axiosJsonInstance.get(`${baseUrl}`);
+    const data = response.data;
+    return data;
   } catch (error) {
     console.log(error);
   }
 };
 
-export const fetchTranslateData = async (docsId, test) => {
+// 영어 원문 조회
+export const fetchTranslateData = async (docsId, originId) => {
   try {
-    if (!test) {
-      const response = await axios.get(`${baseUrl}/${docsId}/origin`);
-      const data = response.data;
-      return data;
-    } else {
-      const tempContent = TmpTranslateData.transData;
-      return tempContent;
-    }
+    console.log(docsId, originId);
+
+    const response = await axiosJsonInstance.get(
+      `${baseUrl}/${docsId}/origin?originId=${originId}`
+    );
+    const data = response.data;
+    console.log(data);
+    return data;
   } catch (error) {
     console.log(error);
     return null;
   }
 };
 
-export const fetchBestTranslate = async (docsId, isBest, test) => {
+// 베스트 번역본 조회
+export const fetchBestTranslate = async (docsId, isBest) => {
   const status = isBest ? "best" : "";
   try {
-    if (!test) {
-      // console.log("번역데이터 가져오기 시작");
-      const response = await axios.get(
+    if (isBest === "best") {
+      const response = await axiosJsonInstance.get(
         `${baseUrl}/${docsId}/trans?status=${status}`
       );
       const data = response.data;
-      // console.log(data);
-      useArchiveStore.setState({ transList: data });
-      // console.log(useArchiveStore.getState().transList[0]);
+      console.log(data);
+      return data;
     } else {
-      return TmpBestData.transList;
+      const response = await axiosJsonInstance.get(
+        `${baseUrl}/${docsId}/trans?status=${status}`
+      );
+      const data = response.data;
+      return data;
     }
   } catch (error) {
     console.log(error);
     return null;
+  }
+};
+
+// 좋아요한 번역본 조회
+export const fetchLikedTranslateList = async (userId) => {
+  try {
+    const response = await axiosJsonInstance.get(`${baseUrl}/trans/votes`, {
+      params: { userId: userId },
+    });
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.log("좋아요 번역 조회 실패", error);
   }
 };
 

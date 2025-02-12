@@ -1,22 +1,29 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 import InquiryService from "../../services/helpDeskServices/inquiryService";
+import LodingImage from "../../assets/loading.gif";
 
 const InquiryFormPage = () => {
-  const navigate = useNavigate();
-
   const [category, setCategory] = useState("");
   const [title, setTitle] = useState("");
   const [email, setEmail] = useState("");
   const [content, setContent] = useState("");
   const [file, setFile] = useState(null);
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
+  const MAX_TITLE_LENGTH = 50;
+  const MAX_CONTENT_LENGTH = 2000;
+
+  //폼제출
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     if (!category || !title || !email || !content) {
-      alert("문의 카테고리, 제목, 이메일, 내용을 모두 입력해주세요.");
+      toast.info("문의 카테고리, 제목, 이메일, 내용을 모두 입력해주세요.");
       return;
     }
 
@@ -47,31 +54,36 @@ const InquiryFormPage = () => {
       formData.append("file", file);
     }
 
-    // Log FormData content
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ": " + pair[1]);
-    }
-
     try {
       // 문의 제출 API 호출
       await InquiryService.submitInquiry(formData);
-      alert("문의가 성공적으로 제출되었습니다.");
+      toast.success("문의가 성공적으로 제출되었습니다.");
       setCategory("");
       setTitle("");
       setEmail("");
       setContent("");
       setFile(null);
-
-      // 문의 제출 후 마이페이지로 이동
-      navigate("/mypage/inquiry");
+      navigate("/");
     } catch (error) {
-      alert("문의 제출 중 오류가 발생했습니다.");
+      toast.error("문의 제출 중 오류가 발생했습니다.");
       console.log("문의 등록 실패", error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  //파일용량 제한
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+
+    if (selectedFile) {
+      if (selectedFile.size > 5 * 1024 * 1024) {
+        // 5MB 제한
+        toast.info("파일 크기는 최대 5MB까지 업로드 가능합니다.");
+        return;
+      }
+      setFile(selectedFile);
+    }
   };
 
   const handleFileCancel = () => {
@@ -96,17 +108,23 @@ const InquiryFormPage = () => {
             <option value="REPORT">신고관련</option>
           </select>
         </div>
-        <div className="mb-6">
+        <div className="mb-2">
           <label className="block text-lg font-medium text-black mb-2">
             제목 <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) =>
+              e.target.value.length <= MAX_TITLE_LENGTH &&
+              setTitle(e.target.value)
+            }
             className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
             placeholder="제목을 입력하세요"
           />
+          <p className="text-xs text-gray-500 mt-1 mr-2 text-right">
+            {title.length} / {MAX_TITLE_LENGTH}
+          </p>
         </div>
         <div className="mb-6">
           <label className="block text-lg font-medium text-black mb-2">
@@ -120,22 +138,27 @@ const InquiryFormPage = () => {
             placeholder="이메일을 입력하세요"
           />
         </div>
-        <div className="mb-6">
+        <div className="mb-3">
           <label className="block text-lg font-medium text-black mb-2">
             내용 <span className="text-red-500">*</span>
           </label>
           <textarea
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={(e) =>
+              e.target.value.length <= MAX_CONTENT_LENGTH &&
+              setContent(e.target.value)
+            }
             className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
-            rows="4"
             placeholder="내용을 입력하세요"
-            style={{ height: "200px" }}
+            style={{ height: "200px", resize: "none" }}
           ></textarea>
+          <p className="text-xs text-gray-500 mt-1 mr-2 text-right">
+            {content.length} / {MAX_CONTENT_LENGTH}
+          </p>
         </div>
         <div className="mb-6">
           <label className="block text-lg font-medium text-black mb-2">
-            파일 첨부
+            파일 첨부 (1개만 가능)
           </label>
           <div className="flex items-center">
             <div className="relative">
@@ -144,13 +167,13 @@ const InquiryFormPage = () => {
                 onChange={handleFileChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
-              <div className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm text-center cursor-pointer hover:bg-[#C96442] text-sm">
+              <div className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm text-center hover:bg-[#C96442] text-sm cursor-pointer">
                 파일 선택
               </div>
             </div>
             {!file && (
               <p className="ml-4 text-sm text-gray-500">
-                첨부할 파일을 선택하세요 (1개만 가능)
+                첨부할 파일을 선택하세요
               </p>
             )}
             {file && (
@@ -172,12 +195,19 @@ const InquiryFormPage = () => {
         <div className="text-center">
           <button
             type="submit"
+            disabled={loading}
             className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm hover:bg-[#C96442]"
           >
             보내기
           </button>
         </div>
       </form>
+
+      {loading && (
+        <div className="fixed inset-0 bg-opacity-50 flex flex-col justify-center items-center z-50 backdrop-brightness-80">
+          <img src={LodingImage} alt="로딩중" />
+        </div>
+      )}
     </div>
   );
 };

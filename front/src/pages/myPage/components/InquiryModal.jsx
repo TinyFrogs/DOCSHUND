@@ -8,6 +8,17 @@ const InquiryModal = ({ item }) => {
         <p className="mb-2 p-4 bg-white rounded-xl border border-[#E1E1DF]">
           {item.inquiryContent}
         </p>
+        {item.inquiryImageUrl && (
+          <a
+            href={item.inquiryImageUrl}
+            download
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block mt-2 px-3 py-1 underline text-gray-500 cursor-pointer"
+          >
+            첨부파일 보기
+          </a>
+        )}
       </div>
       <div className="w-1/2">
         <h4 className="text-[#7D7C77] mb-2">[관리자 답변]</h4>
@@ -24,6 +35,7 @@ InquiryModal.propTypes = {
     inquiryContent: PropTypes.string.isRequired,
     answered: PropTypes.bool.isRequired,
     answerContent: PropTypes.string,
+    inquiryImageUrl: PropTypes.string,
   }).isRequired,
 };
 
