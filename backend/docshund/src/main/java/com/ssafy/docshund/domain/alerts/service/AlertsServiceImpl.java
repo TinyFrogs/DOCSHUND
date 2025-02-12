@@ -43,11 +43,8 @@ public class AlertsServiceImpl implements AlertsService {
 			throw new AlertsException(AlertsExceptionCode.USER_NOT_AUTHORIZED);
 		}
 		Long userId = currentUser.getUserId();
-		
+
 		List<Alert> alerts = alertRepository.findByUserUserId(userId);
-		if (alerts.isEmpty()) {
-			throw new AlertsException(AlertsExceptionCode.ALERT_NOT_FOUND);
-		}
 		return alerts.stream().map(this::convertToOutputDto).collect(Collectors.toList());
 	}
 
