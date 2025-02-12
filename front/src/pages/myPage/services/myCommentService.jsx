@@ -10,6 +10,8 @@ const MyCommentService = {
 
       const data = response.data;
 
+      console.log("myCommentService -> ", data);
+
       return data;
     } catch (error) {
       //TODO: error handling -> 에러 페이지 제작후 연결까지 구현

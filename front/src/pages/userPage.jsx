@@ -16,6 +16,7 @@ const UserPage = () => {
     articles,
     comments,
     translations,
+    setUserId,
     setUserProfile,
     setArticles,
     setComments,
@@ -35,6 +36,8 @@ const UserPage = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
+        setUserId(userId);
+
         // 유저 프로필 가져오기
         const profileData = await userProfileService.fetchProfile(userId);
         setUserProfile(profileData);
@@ -50,6 +53,7 @@ const UserPage = () => {
         setComments(commentsData || []);
         setTranslations(translationsData || []);
       } catch (error) {
+        console.log(error);
         setError("데이터를 가져오는 중 오류가 발생했습니다.");
       } finally {
         setLoading(false);

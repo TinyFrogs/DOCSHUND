@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { axiosJsonInstance } from "./utils/axiosInstance.jsx";
+
 import UseSSE from "./hooks/useSSE.jsx";
 
 //네비게이션 바
@@ -55,15 +55,23 @@ function App() {
 
   useEffect(() => {
     // NOTE: 로그인 성공 시, 기존에 밀려있던 알림을 불러옴
+    const fetchNotifications = async () => {
+      try {
+        if (token) {
+          // 로그인 or 로그인 상태의 접속시 알림 불러오기
+          const data = await NotificationService.fetchNotifications();
 
-    if (token) {
-      // 로그인 or 로그인 상태의 접속시 알림 불러오기
-      const data = NotificationService.fetchNotifications();
-
-      if (data) {
-        setNotifications(data);
+          if (data) {
+            // NOTE: 알림 데이터가 id 오름차순으로 들어오므로 최신순으로 정렬하기 위해서 reverse() 적용
+            setNotifications(data.reverse());
+          }
+        }
+      } catch (error) {
+        console.error(error);
       }
-    }
+    };
+
+    fetchNotifications();
   }, [token, location]);
 
   // 유저 ID가 없으면 알림을 불러올 수 없음

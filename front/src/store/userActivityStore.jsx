@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 const useUserActivityStore = create((set) => ({
+  userId: 0,
   userProfile: null,
   articles: [],
   comments: [],
@@ -8,6 +9,7 @@ const useUserActivityStore = create((set) => ({
   loading: false,
   error: null,
 
+  setUserId: (userId) => set({ userId }),
   setUserProfile: (profileData) => set({ userProfile: profileData }),
   setArticles: (articles) => set({ articles }),
   setComments: (comments) => set({ comments }),

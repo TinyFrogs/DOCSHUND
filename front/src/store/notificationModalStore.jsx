@@ -18,7 +18,7 @@ const notificationModalStore = create((set) => ({
   notifications: [],
   addNotification: (notification) =>
     set((state) => ({
-      notifications: [...state.notifications, notification],
+      notifications: [notification, ...state.notifications],
     })),
   clearNotifications: () => set({ notifications: [] }),
   setNotifications: (notifications) => set({ notifications }),
