@@ -14,25 +14,18 @@ const MemoPage = () => {
 
   const { isOpen, openId, openModal, closeModal, setOpenId } = modalStore();
   const { isAlertOpen, toggleAlert } = useAlertStore();
-  const {
-    memos,
-    setMemos,
-    setIsLoading,
-    setError,
-    addMemo,
-    updateMemo,
-    deleteMemo,
-  } = useMemoStore();
+  const { memos, setMemos, setIsLoading, setError, updateMemo, deleteMemo } =
+    useMemoStore();
   const [userId, setUserId] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [currentData, setCurrentData] = useState([]);
   const [memoToDelete, setMemoToDelete] = useState(null);
+  const [hasFetched, setHasFetched] = useState(false);
   const pageSize = 15;
 
   useEffect(() => {
     const fetchMemos = async (userId) => {
-      setIsLoading(true);
       try {
         const data = await memoService.fetchMemos(userId);
         if (data) {
@@ -45,7 +38,7 @@ const MemoPage = () => {
         setError(error.message);
         console.error("Error fetching memos:", error);
       } finally {
-        setIsLoading(false);
+        setHasFetched(true);
       }
     };
 
@@ -158,6 +151,7 @@ const MemoPage = () => {
         memos={currentData || []}
         onEditMemo={handleOpenModal}
         onDeleteMemo={handleDeleteMemo}
+        hasFetched={hasFetched}
       />
       {totalPages > 0 && (
         <ListPagination

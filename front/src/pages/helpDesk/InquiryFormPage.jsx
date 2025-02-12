@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 import InquiryService from "../../services/helpDeskServices/inquiryService";
+import LodingImage from "../../assets/loading.gif";
 
 const InquiryFormPage = () => {
   const [category, setCategory] = useState("");
@@ -12,6 +13,7 @@ const InquiryFormPage = () => {
   const [content, setContent] = useState("");
   const [file, setFile] = useState(null);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const MAX_TITLE_LENGTH = 50;
   const MAX_CONTENT_LENGTH = 2000;
@@ -19,6 +21,7 @@ const InquiryFormPage = () => {
   //폼제출
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     if (!category || !title || !email || !content) {
       toast.info("문의 카테고리, 제목, 이메일, 내용을 모두 입력해주세요.");
       return;
@@ -64,6 +67,8 @@ const InquiryFormPage = () => {
     } catch (error) {
       toast.error("문의 제출 중 오류가 발생했습니다.");
       console.log("문의 등록 실패", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -190,12 +195,19 @@ const InquiryFormPage = () => {
         <div className="text-center">
           <button
             type="submit"
+            disabled={loading}
             className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm hover:bg-[#C96442]"
           >
             보내기
           </button>
         </div>
       </form>
+
+      {loading && (
+        <div className="fixed inset-0 bg-opacity-50 flex flex-col justify-center items-center z-50 backdrop-brightness-80">
+          <img src={LodingImage} alt="로딩중" />
+        </div>
+      )}
     </div>
   );
 };

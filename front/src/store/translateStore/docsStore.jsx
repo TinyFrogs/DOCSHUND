@@ -2,6 +2,7 @@ import { create } from "zustand";
 
 const docsStore = create((set) => ({
   docsList: [],
+  bestDocsList: [],
   currentDocsId: 0,
   documentName: "",
   documentCategory: "",
@@ -16,6 +17,9 @@ const docsStore = create((set) => ({
   },
   setDocumentName: (name) => {
     set({ documentName: name });
+  },
+  setBestDocsList: (docs) => {
+    set({ bestDocsList: docs });
   },
 }));
 

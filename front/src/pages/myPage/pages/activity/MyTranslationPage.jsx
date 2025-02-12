@@ -124,14 +124,13 @@ const MyTranslationPage = () => {
           </h3>
         </div>
         <div className="flex space-x-6 items-center">
-          <p className="sm:text-sm md:text-base">
+          <p className="sm:text-base md:text-lg">
             {item.createdAt
               ? isSameDay(new Date(item.createdAt), new Date())
                 ? format(new Date(item.createdAt), "HH:mm")
-                : format(new Date(item.createdAt), "yyyy-MM-dd hh:mm")
+                : format(new Date(item.createdAt), "yyyy-MM-dd")
               : "표시할 수 없는 날짜입니다."}
           </p>
-
           <button
             onClick={() => {
               setOpenId(item.transId === openId ? null : item.transId);

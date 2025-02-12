@@ -14,9 +14,14 @@ import modalStore from "../../store/myPageStore/myPageModalStore.jsx";
 import Logo from "../../assets/logo.png";
 import menuDown from "../../assets/icon/menu-down.png";
 import menuUp from "../../assets/icon/menu-up.png";
-import { Bell } from "lucide-react";
-import { ScrollText } from "lucide-react";
-import { StickyNote } from "lucide-react";
+import {
+  Bell,
+  ScrollText,
+  ChevronDown,
+  ChevronUp,
+  StickyNote,
+  Plus,
+} from "lucide-react";
 import navToggle2 from "../../assets/icon/navToggle2.png";
 //
 
@@ -29,7 +34,7 @@ const LeftNav = () => {
     "absolute top-15 -right-6 transform"
   );
   const [showNav, setShowNav] = useState(
-    "max-w-[15%] min-w-fit w-60 h-[80%] bg-[#F8F7F3] flex flex-col border-box border-2 border-[#E0DED9] absolute top-1/2 -translate-y-1/2 rounded-br-4xl rounded-tr-4xl transform transition-all duration-400 -translate-x-[90%] z-[1500]"
+    "max-w-[15%] min-w-fit w-60 h-[80%] bg-[#F0EEE5] shadow-lg flex flex-col border-box border-1 border-[#E0DED9] absolute top-1/2 -translate-y-1/2 rounded-br-4xl rounded-tr-4xl transform transition-all duration-400 -translate-x-[90%] z-[1500]"
   ); // 배경색 및 테두리 색상 변경, 애니메이션 효과 조정
   const { isOpen, openModal, closeModal } = modalStore();
   //메모 관련 상태
@@ -65,7 +70,7 @@ const LeftNav = () => {
         "absolute top-15 -right-6 transform transition-transform duration-300 "
       );
       setShowNav(
-        "max-w-[15%] min-w-fit w-60 h-[80%] bg-[#F8F7F3] flex flex-col border-box border-2 border-[#E0DED9] absolute top-1/2 -translate-y-1/2 rounded-br-4xl rounded-tr-4xl transform transition-all duration-400 -translate-x-[90%] z-[1500]"
+        "max-w-[15%] min-w-fit w-60 h-[80%] bg-[#F0EEE5] shadow-lg flex flex-col border-box border-1 border-[#E0DED9] absolute top-1/2 -translate-y-1/2 rounded-br-4xl rounded-tr-4xl transform transition-all duration-400 -translate-x-[90%] z-[1500]"
       );
     } else if (isNavOpen === false) {
       setIsNavOpen(true);
@@ -73,7 +78,7 @@ const LeftNav = () => {
         "absolute top-15 -right-6 transform transition-transform duration-300 rotate-180"
       );
       setShowNav(
-        "max-w-[15%] min-w-fit w-60 h-[80%] bg-[#F8F7F3] flex flex-col border-box border-2 border-[#E0DED9] absolute top-1/2 -translate-y-1/2 rounded-br-4xl rounded-tr-4xl transform transition-all duration-400 z-[1500]"
+        "max-w-[15%] min-w-fit w-60 h-[80%] bg-[#F0EEE5] shadow-lg flex flex-col border-box border-1 border-[#E0DED9] absolute top-1/2 -translate-y-1/2 rounded-br-4xl rounded-tr-4xl transform transition-all duration-400 z-[1500]"
       );
     }
   }
@@ -83,13 +88,13 @@ const LeftNav = () => {
       <div className={showNav}>
         <button className={btnToggled}>
           <img
-            className="w-[48px] h-[48px] cursor-pointer"
+            className="w-[36px] h-[36px] cursor-pointer"
             src={navToggle2}
             alt="nav 토글 버튼"
             onClick={() => toggleNav()}
           />
         </button>
-        <div className="p-5 text-center">
+        <div className="p-5 flex justify-center">
           <NavLink to="/translate">
             <img
               className="w-[clamp(120px,10vw,148px)] h-auto hover:opacity-80 transition-opacity duration-200"
@@ -100,21 +105,20 @@ const LeftNav = () => {
         </div>
         {/* 문서목록 토글 */}
         <div className="flex-1 overflow-y-scroll">
-          <div className="mb-5">
+          <div>
             <div
-              className="px-5 py-2.5 flex flex-row items-center  cursor-pointer hover:bg-[#F5F4F0] transition-colors duration-200"
+              className="px-5 py-2.5 mb-2 flex flex-row items-center cursor-pointer hover:bg-[#F5F4F0] transition-colors duration-200"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              <ScrollText className="w-5 h-5" />
-              <span className="ml-5 font-medium text-[#4A4A4A]">문서목록</span>
-              <div className="flex w-1/5 justify-end items-center">
-                {" "}
-                {isMenuOpen ? (
-                  <img src={menuUp} className="w-4 h-4 right-0" />
-                ) : (
-                  <img src={menuDown} className="w-4 h-4 right-0" />
-                )}
-              </div>
+              <ScrollText className="w-6 h-6 text-[#7E7C77]" />
+              <span className="ml-5 font-medium text-[#7E7C77]">
+                문서목록
+              </span>{" "}
+              {isMenuOpen ? (
+                <ChevronUp className="w-6 h-6 text-[#7E7C77] ml-auto" />
+              ) : (
+                <ChevronDown className="w-6 h-6 text-[#7E7C77] ml-auto" />
+              )}
             </div>
             {isMenuOpen && (
               <div className="h-[200px] overflow-y-scroll ">
@@ -129,7 +133,7 @@ const LeftNav = () => {
                       key={index}
                       className="cursor-pointer py-2.5 flex justify-between items-center border-b border-[#E0DED9] hover:bg-[#F5F4F0] transition-colors duration-200"
                     >
-                      <span className="text-[#4A4A4A]">{doc.documentName}</span>
+                      <span className="text-[#7E7C77]">{doc.documentName}</span>
                     </div>
                   ))}
                 </div>
@@ -138,25 +142,23 @@ const LeftNav = () => {
           </div>
           {/* 알림 리스트 */}
           {localStorage.getItem("token") && (
-            <div className="mb-5 flex items-center">
-              <Bell className="w-5 h-5 ml-5" />
-              <div className="px-5 py-2.5 flex items-center gap-2.5 hover:bg-[#F5F4F0] transition-colors duration-200">
-                <span className="font-medium text-[#4A4A4A]">알림</span>
+            <div className="flex-1 overflow-y-auto">
+              <div className="px-5 py-2.5 mb-2 flex items-center hover:bg-[#F5F4F0] transition-colors duration-200">
+                <Bell className="w-6 h-6 text-[#7E7C77]" />
+                <span className="ml-5 font-medium text-[#7E7C77]">알림</span>
               </div>
             </div>
           )}
           {/* 메모 리스트 */}
           {localStorage.getItem("token") && (
             <div className="flex-1 overflow-y-auto">
-              <div className="px-5 py-2.5 w-full flex items-center hover:bg-[#F5F4F0] transition-colors duration-200">
-                <StickyNote className="w-13 h-13" />
-                <span className="ml-5 font-medium text-[#4A4A4A]">MEMO</span>
-                <div className="flex w-full right-0 justify-end items-center">
-                  <FaPlus
-                    onClick={openModal}
-                    className="cursor-pointer hover:text-[#BC5B39]"
-                  />
-                </div>
+              <div className="px-5 py-2.5 mb-2 w-full flex items-center hover:bg-[#F5F4F0] transition-colors duration-200">
+                <StickyNote className="w-6 h-6 text-[#7E7C77]" />
+                <span className="ml-5 font-medium text-[#7E7C77]">메모장</span>
+                <Plus
+                  onClick={openModal}
+                  className="cursor-pointer w-6 h-6 text-[#7E7C77] hover:text-[#4A4A4A] ml-auto"
+                />
               </div>
               <div className="px-5">
                 {memos.map((memo, index) => (
@@ -164,8 +166,8 @@ const LeftNav = () => {
                     key={index}
                     className="py-2.5 flex justify-between items-center border-b border-[#E0DED9] hover:bg-[#F5F4F0] transition-colors duration-200"
                   >
-                    <span className="text-[#4A4A4A]">{memo}</span>
-                    <button className="text-[#6B6B6B] hover:text-[#4A4A4A] cursor-pointer text-sm transition-colors duration-200">
+                    <span className="text-[#7E7C77]">{memo}</span>
+                    <button className="text-[#7E7C77] hover:text-[#4A4A4A] underline cursor-pointer text-sm transition-colors duration-200">
                       보기
                     </button>
                   </div>

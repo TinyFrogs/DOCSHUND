@@ -18,7 +18,13 @@ const TransLatePage = () => {
   const docsCategories = ["ALL", "FRONTEND", "BACKEND", "DB"];
   const [selectedCategory, setSelectedCategory] = useState("ALL");
 
-  const { docsList, setDocsList, setDocumentName } = useDocsStore();
+  const {
+    docsList,
+    setDocsList,
+    bestDocsList,
+    setBestDocsList,
+    setDocumentName,
+  } = useDocsStore();
 
   const navigate = useNavigate();
 
@@ -26,6 +32,7 @@ const TransLatePage = () => {
     const fetchData = async () => {
       const tmpDocsList = await fetchDocsList();
       setDocsList(tmpDocsList);
+      setBestDocsList(tmpDocsList);
     };
     fetchData();
   }, []);
@@ -72,7 +79,7 @@ const TransLatePage = () => {
               인기 번역 문서
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-12">
-              {docsList.slice(0, 4).map((items, index) => (
+              {bestDocsList.slice(0, 4).map((items, index) => (
                 <motion.div
                   key={items.docsId}
                   className="relative w-48 h-64 bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transform transition-transform hover:scale-105 border border-[#E8E5E1]"
@@ -189,11 +196,11 @@ const TransLatePage = () => {
             원하는 문서를 찾을 수 없나요?
           </h2>
           <p className="text-md text-[#7C543F] mt-2">
-            새로운 문서를 신청하면 빠르게 추가해드립니다.
+            새로운 문서를 신청하면 검토후 추가해드립니다.
           </p>
           <button
             onClick={() => navigate("/helpDesk/inquiryForm")}
-            className="mt-6 px-6 py-3 bg-[#BC5B39] text-white rounded-lg hover:bg-[#9E482E] font-semibold text-lg shadow-md transition-all duration-300"
+            className="mt-6 px-6 py-3 bg-[#BC5B39] text-white rounded-lg hover:bg-[rgba(188,91,57,0.8)] font-semibold text-lg shadow-md transition-all duration-300"
           >
             문서 신청하기
           </button>

@@ -183,7 +183,7 @@ const BestTransViewer = () => {
   // Race Condition Prevention Pattern : useEffect에서 함수가 동시 실행되는 것을 방지
 
   return (
-    <div className="h-[99%] min-w-[800px] w-[70%] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto">
+    <div className="h-[99%] min-w-[800px] bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto shadow-xl">
       <button
         onClick={async () => {
           navigate(`/translate/main/viewer/${docsId}`);
@@ -195,7 +195,7 @@ const BestTransViewer = () => {
       <div className="flex flex-col gap-2">
         {docParts.map((part, index) => (
           <div key={index} className="paragraph flex flex-row gap-4 relative">
-            <div className="p-4 rounded-xl text-[#424242] bg-gray-200 hover:bg-[#cfccc9] hover:shadow-lg flex flex-col w-full transition-all duration-200 shadow-md">
+            <div className="flex flex-col w-full p-1 rounded-sm text-[#424242]">
               <div className="flex justify-between">
                 {tmpBestTransList.current[part.id] ? (
                   <ToastViewer
@@ -205,9 +205,9 @@ const BestTransViewer = () => {
                   <ToastViewer content={""} />
                 )}
 
-                {tmpBestTransList.current[part.id] && (
+                {/* {tmpBestTransList.current[part.id] && (
                   <Trophy className="w-6 h-6 shrink-0 m-2 text-yellow-500" />
-                )}
+                )} */}
               </div>
             </div>
           </div>

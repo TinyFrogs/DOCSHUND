@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 
@@ -11,6 +11,7 @@ import likeCancel from "../../../../assets/icon/heartEmpty24.png";
 
 const LikeDocsPage = () => {
   const token = localStorage.getItem("token");
+  const { handleLikeToggle } = useOutletContext();
 
   const docs = likeDocsStore((state) => state.docs);
   const setDocs = likeDocsStore((state) => state.setDocs);
@@ -22,6 +23,7 @@ const LikeDocsPage = () => {
   const [itemsPerPage] = useState(15);
   const [totalPages, setTotalPages] = useState(1);
   const [currentData, setCurrentData] = useState([]);
+  const [likedItems, setLikedItems] = useState({});
 
   useEffect(() => {
     setLoading(true);
@@ -46,7 +48,6 @@ const LikeDocsPage = () => {
     fetchTranslations();
   }, [token]);
 
-  // 페이지네이션 관련 상태들을 하나의 useEffect로 통합
   useEffect(() => {
     if (docs.length > 0) {
       const startIndex = currentPage * itemsPerPage;
@@ -58,11 +59,18 @@ const LikeDocsPage = () => {
     }
   }, [docs, currentPage, itemsPerPage]);
 
+  const handleLikeClick = async (item) => {
+    await handleLikeToggle("docs", item.docsId);
+    setLikedItems((prev) => ({
+      ...prev,
+      [item.docsId]: !prev[item.docsId],
+    }));
+  };
+
   const renderDocs = (item) => (
     <div className="flex justify-between text-lg px-3">
       <div className="flex-1 min-w-0 mr-3 font-semibold line-clamp-1 break-all">
         <Link
-          // TODO: Link 경로 수정 필요
           to={`/translation/${item.docsId}`}
           className="text-[#7d7c77] hover:text-[#bc5b39]"
         >
@@ -71,9 +79,9 @@ const LikeDocsPage = () => {
       </div>
       <div className="flex space-x-6">
         <p className="whitespace-nowrap">{item.position}</p>
-        <button>
+        <button onClick={() => handleLikeClick(item)}>
           <img
-            src={like} // TODO: 좋아요 취소 시 likeCancel 아이콘으로 변경 가능한 로직 필요
+            src={likedItems[item.docsId] ? likeCancel : like}
             alt="좋아요 아이콘"
             className="w-6 h-6 cursor-pointer"
           />
@@ -95,4 +103,5 @@ const LikeDocsPage = () => {
     </div>
   );
 };
+
 export default LikeDocsPage;

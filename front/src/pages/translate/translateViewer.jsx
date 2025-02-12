@@ -265,7 +265,7 @@ const TranslateViewer = () => {
   };
 
   return (
-    <div className="h-[99%] min-w-[800px] max-w-[70%] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto">
+    <div className="h-[99%] min-w-[800px] bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto shadow-xl">
       <button
         onClick={async () => {
           navigate(`/translate/main/viewer/${docsId}/best`);
@@ -333,7 +333,7 @@ const TranslateViewer = () => {
                 }
                 toggleDocpart(part.id);
               }}
-              className="cursor-pointer p-4 rounded-xl text-[#424242] bg-gray-200 hover:bg-[#cfccc9] hover:shadow-lg flex flex-col w-full transition-all duration-200 shadow-md"
+              className="flex flex-col w-full p-1 rounded-sm text-[#424242] hover:shadow-lg hover:border hover:border-gray-200 cursor-pointer"
             >
               <div
                 ref={(element) => {
@@ -354,11 +354,16 @@ const TranslateViewer = () => {
                 {!docpartStates[part.id] ? (
                   <ToastViewer content={part.content} />
                 ) : (
-                  <div className="flex justify-between">
-                    <ToastViewer content={bestTrans} />
+                  <div className="flex flex-col">
                     {bestTrans !== "" && (
-                      <Trophy className="w-6 h-6 shrink-0 m-2 text-yellow-500" />
+                      <div className="flex justify-end">
+                        <p className="font-extrabold mr-2">BEST</p>
+                        <Trophy className="w-6 h-6 text-yellow-500" />
+                      </div>
                     )}
+                    <ToastViewer
+                      content={`<span style="background-color: #fbebd2">${bestTrans}</span>`}
+                    />
                   </div>
                 )}
               </div>
