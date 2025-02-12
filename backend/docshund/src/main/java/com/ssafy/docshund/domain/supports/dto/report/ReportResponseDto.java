@@ -8,9 +8,11 @@ import com.ssafy.docshund.domain.supports.entity.ReportCategory;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 public class ReportResponseDto {
 
@@ -45,6 +47,13 @@ public class ReportResponseDto {
 		this.reportId = reportId;
 		this.userId = userId;
 		this.category = category;
+		this.originContent = originContent;
+		this.reportedUser = reportedUser;
+		this.reportFile = reportFile;
+		this.commentId = commentId;
+		this.articleId = articleId;
+		this.transId = transId;
+		this.chatId = chatId;
 		this.content = content;
 		this.createdAt = createdAt;
 	}
