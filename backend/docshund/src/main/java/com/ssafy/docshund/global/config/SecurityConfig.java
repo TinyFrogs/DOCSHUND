@@ -58,6 +58,7 @@ public class SecurityConfig {
 					"/api/v1/docshund/forums",
 					"/api/v1/docshund/forums/*",
 					"/api/v1/docshund/forums/*/comments",
+					"/api/v1/docshund/supports/inquiry",
 					"/api/v1/docshund/supports/notice",
 					"/api/v1/docshund/supports/notice/*",
 					"/api/v1/docshund/users/profile/*"
