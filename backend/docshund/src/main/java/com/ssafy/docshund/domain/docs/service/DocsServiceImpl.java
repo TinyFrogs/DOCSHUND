@@ -1,17 +1,5 @@
 package com.ssafy.docshund.domain.docs.service;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.docshund.domain.alerts.service.AlertsService;
@@ -19,25 +7,27 @@ import com.ssafy.docshund.domain.docs.dto.DocumentDto;
 import com.ssafy.docshund.domain.docs.dto.OriginDocumentDto;
 import com.ssafy.docshund.domain.docs.dto.TranslatedDocumentDto;
 import com.ssafy.docshund.domain.docs.dto.UserTransDocumentDto;
-import com.ssafy.docshund.domain.docs.entity.Document;
-import com.ssafy.docshund.domain.docs.entity.DocumentLike;
-import com.ssafy.docshund.domain.docs.entity.OriginDocument;
-import com.ssafy.docshund.domain.docs.entity.Status;
-import com.ssafy.docshund.domain.docs.entity.TranslatedDocument;
+import com.ssafy.docshund.domain.docs.entity.*;
 import com.ssafy.docshund.domain.docs.exception.DocsException;
 import com.ssafy.docshund.domain.docs.exception.DocsExceptionCode;
-import com.ssafy.docshund.domain.docs.repository.CustomDocumentRepository;
-import com.ssafy.docshund.domain.docs.repository.DocumentLikeRepository;
-import com.ssafy.docshund.domain.docs.repository.DocumentRepository;
-import com.ssafy.docshund.domain.docs.repository.OriginDocumentRepository;
-import com.ssafy.docshund.domain.docs.repository.TranslatedDocumentLikeRepository;
-import com.ssafy.docshund.domain.docs.repository.TranslatedDocumentRepository;
+import com.ssafy.docshund.domain.docs.repository.*;
 import com.ssafy.docshund.domain.users.entity.User;
 import com.ssafy.docshund.domain.users.repository.UserRepository;
 import com.ssafy.docshund.global.util.user.UserUtil;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -309,10 +299,10 @@ public class DocsServiceImpl implements DocsService {
 		return OriginDocumentDto.fromEntity(originDocument);
 	}
 
-	// 원본 생성
+	// 원본 생성 시즌 2 (파일)
 	@Override
 	@Transactional
-	public List<OriginDocumentDto> createOriginDocuments(Integer docsId, String content) {
+	public List<OriginDocumentDto> createOriginDocuments(Integer docsId, MultipartFile file) {
 
 		User user = userUtil.getUser();
 
@@ -324,57 +314,58 @@ public class DocsServiceImpl implements DocsService {
 		if (!userUtil.isAdmin(user)) {
 			throw new DocsException(DocsExceptionCode.NO_PERMISSION);
 		}
-		// 내용이 없을 시 예외 처리
-		if (content.isBlank()) {
-			throw new DocsException(DocsExceptionCode.REQUIRED_IS_EMPTY);
+		// 이미 원본이 존재하는 문서인 경우 예외 처리
+		if (originDocumentRepository.existsByDocument_DocsId(docsId)) {
+			throw new DocsException(DocsExceptionCode.ALREADY_EXIST_ORIGIN);
 		}
 
-		log.info("[Service] Preparing to run Python script...");
+		// 파일이 없을 시 예외 처리
+		if (file == null || file.isEmpty()) {
+			throw new DocsException(DocsExceptionCode.REQUIRED_IS_EMPTY);
+		}
+		log.info("[Service] 업로드된 파일 크기: {} bytes", file.getSize());
+		log.info("[Service] 파이썬 스크립트 실행 준비중...");
+
+		StringBuilder errorBuilder = new StringBuilder();
 
 		try {
-
 			log.info("scriptPath Finding");
-			String scriptPath = "/usr/src/app/python/divide_by_tags.py"; // ✅ Docker에서 Python 파일이 있는 경로
+			String scriptPath = "/usr/src/app/python/divide_by_tags.py";
 
 			log.info("new ProcessBuilder create");
 			ProcessBuilder processBuilder = new ProcessBuilder("python3.9", scriptPath);
-
-			log.info("put processBuilder");
 			processBuilder.environment().put("PYTHONIOENCODING", "UTF-8");
 
-			log.info("Python script starting");
 			Process process = processBuilder.start();
-			log.info("[Service] Python script started...");
+			log.info("[Service] 파이썬 스크립트 시작...");
 
-			// Python에 데이터 전달
 			try (OutputStream outputStream = process.getOutputStream()) {
-				outputStream.write(content.getBytes(StandardCharsets.UTF_8));
+				outputStream.write(file.getBytes());
 				outputStream.flush();
-				log.info("[Service] Sent content to Python script...");
+				log.info("[Service] 파이썬에 파일을 보내는 중...");
 			}
 
 			// Python 출력 스트림 읽기
 			StringBuilder resultJsonBuilder = new StringBuilder();
 			try (BufferedReader reader = new BufferedReader(
-				new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+					new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
 				String line;
 				while ((line = reader.readLine()) != null) {
 					resultJsonBuilder.append(line);
 				}
 			}
-			log.info("[Service] Received response from Python script...");
+			log.info("[Service] 파이썬으로부터 응답을 성공적으로 받았습니다...");
 
 			// Python 에러 스트림 읽기
-			StringBuilder errorBuilder = new StringBuilder();
 			try (BufferedReader errorReader = new BufferedReader(
-				new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
+					new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
 				String line;
 				while ((line = errorReader.readLine()) != null) {
 					errorBuilder.append(line).append(System.lineSeparator());
 				}
 			}
 			if (!errorBuilder.isEmpty()) {
-				log.info("[Service] Python Script Error: {}", errorBuilder.toString());
+				log.error("[Service] 파이썬 스크립트 에러 로그: {}", errorBuilder.toString());
 			}
 
 			process.waitFor();
@@ -384,18 +375,18 @@ public class DocsServiceImpl implements DocsService {
 
 			String resultJson = resultJsonBuilder.toString();
 			List<OriginDocumentDto> documents = objectMapper.readValue(resultJson,
-				new TypeReference<List<OriginDocumentDto>>() {
-				});
+					new TypeReference<List<OriginDocumentDto>>() {
+					});
 
 			Document document = documentRepository.findById(docsId)
-				.orElseThrow(() -> new DocsException(DocsExceptionCode.DOCS_NOT_FOUND));
+					.orElseThrow(() -> new DocsException(DocsExceptionCode.DOCS_NOT_FOUND));
 
 			return documents.stream().map(dto -> {
 				OriginDocument originDocument = new OriginDocument(
-					document,
-					dto.pOrder(),
-					dto.tag(),
-					dto.content()
+						document,
+						dto.pOrder(),
+						dto.tag(),
+						dto.content()
 				);
 
 				OriginDocument savedEntity = originDocumentRepository.save(originDocument);
@@ -403,9 +394,12 @@ public class DocsServiceImpl implements DocsService {
 			}).toList();
 
 		} catch (Exception e) {
+			log.error("[Service] 파이썬 스크립트 실행 중 예외 발생!", e);
 			throw new DocsException(DocsExceptionCode.PYTHON_ERROR);
 		}
 	}
+
+
 
 	// 특정 문서에 대한 번역 문서 목록 전체 조회하기
 	@Transactional(readOnly = true)

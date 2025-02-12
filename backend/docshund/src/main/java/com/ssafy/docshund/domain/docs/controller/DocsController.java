@@ -1,20 +1,5 @@
 package com.ssafy.docshund.domain.docs.controller;
 
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.ssafy.docshund.domain.docs.dto.DocumentDto;
 import com.ssafy.docshund.domain.docs.dto.OriginDocumentDto;
 import com.ssafy.docshund.domain.docs.dto.TranslatedDocumentDto;
@@ -22,9 +7,14 @@ import com.ssafy.docshund.domain.docs.dto.UserTransDocumentDto;
 import com.ssafy.docshund.domain.docs.entity.Status;
 import com.ssafy.docshund.domain.docs.service.DocsService;
 import com.ssafy.docshund.global.util.user.UserUtil;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/docshund/docs")
@@ -79,11 +69,12 @@ public class DocsController {
 	// 받은 원본 문서를 파싱하여 원본 생성
 	@PostMapping("/{docsId}/origin")
 	public ResponseEntity<List<OriginDocumentDto>> postOriginDocs(
-		@PathVariable Integer docsId,
-		@RequestBody MultiValueMap<String, String> requestData
+			@PathVariable Integer docsId,
+			@RequestParam("file")MultipartFile file
 	) {
-		List<OriginDocumentDto> createdDocs = docsService.createOriginDocuments(docsId,
-			requestData.getFirst("content"));
+
+		List<OriginDocumentDto> createdDocs = docsService.createOriginDocuments(docsId, file);
+
 		return ResponseEntity.ok(createdDocs);
 	}
 

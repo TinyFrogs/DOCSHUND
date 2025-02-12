@@ -6,6 +6,7 @@ import com.ssafy.docshund.domain.docs.dto.TranslatedDocumentDto;
 import com.ssafy.docshund.domain.docs.dto.UserTransDocumentDto;
 import com.ssafy.docshund.domain.docs.entity.Status;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -27,7 +28,8 @@ public interface DocsService {
 	OriginDocumentDto getOriginDocumentDetail(Integer originId);
 
 	// 원본 생성하기
-	List<OriginDocumentDto> createOriginDocuments(Integer docsId, String content);
+	// List<OriginDocumentDto> createOriginDocuments(Integer docsId, String content);
+	List<OriginDocumentDto> createOriginDocuments(Integer docsId, MultipartFile file);
 
 	// 관심문서 등록/취소
 	DocumentDto toggleLikes(Integer docsId);
