@@ -62,6 +62,9 @@ const Sidebar = () => {
                             : "text-[#7D7C77]"
                         } hover:text-[#bc5b39]`
                       }
+                      onClick={() => {
+                        // 하위 메뉴에 따라서 store 값 초기화
+                      }}
                     >
                       {subItem.name}
                     </NavLink>

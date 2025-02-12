@@ -13,6 +13,15 @@ const notificationModalStore = create((set) => ({
       isOpen: !state.isOpen,
     }));
   },
+
+  // 모달 내용
+  notifications: [],
+  addNotification: (notification) =>
+    set((state) => ({
+      notifications: [...state.notifications, notification],
+    })),
+  clearNotifications: () => set({ notifications: [] }),
+  setNotifications: (notifications) => set({ notifications }),
 }));
 
 export default notificationModalStore;

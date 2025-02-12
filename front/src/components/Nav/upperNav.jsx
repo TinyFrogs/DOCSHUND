@@ -30,10 +30,7 @@ const UpperNav = () => {
   const { toggleModal, isOpen } = notificationModalStore();
 
   // 게시글 작성 페이지로 이동 시 페이지 초기화
-  const setCurrentPage = communityArticleStore((state) => state.setCurrentPage);
-  const setSortType = communityArticleStore((state) => state.setSortType);
-  const setKeyword = communityArticleStore((state) => state.setKeyword);
-  const setCategory = communityArticleStore((state) => state.setCategory);
+  const { clearArticles } = communityArticleStore();
 
   const [profileImgUrl, setProfileImgUrl] = useState(profile?.profileImage);
 
@@ -118,10 +115,7 @@ const UpperNav = () => {
           </div>
           <div
             onClick={() => {
-              setCurrentPage(0);
-              setSortType("latest");
-              setKeyword("");
-              setCategory("");
+              clearArticles();
               navigate("/community");
             }}
             className={`cursor-pointer ${
@@ -147,17 +141,22 @@ const UpperNav = () => {
         <div className="flex items-center gap-4">
           {isAuthenticated() && (
             <div className="relative">
+              {/* INFO: 알림 아이콘 */}
               <img
                 className="w-[clamp(20px,2.1vw,32px)] h-auto cursor-pointer"
                 src={notification}
                 alt="알림 아이콘"
                 onClick={() => toggleModal()}
               />
-              {isOpen && (
-                <div className="absolute left-1/2 -translate-x-1/2 top-[calc(100%+2.2rem)] z-[1000]">
-                  <NotificationModal />
-                </div>
-              )}
+              <div
+                className={`absolute left-1/2 -translate-x-1/2 top-[calc(100%+1.8rem)] z-[1000] transition-all duration-300 transform ${
+                  isOpen
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 -translate-y-2 pointer-events-none"
+                }`}
+              >
+                <NotificationModal />
+              </div>
             </div>
           )}
 

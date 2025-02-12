@@ -36,9 +36,7 @@ const ReplyHeader = ({ replyCount }) => {
             <path d="M4 2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-7l-3 4-3-4H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" />
           </svg>
         </span>
-        <span className="inline-flex">
-          {commentCount == 0 ? replyCount : commentCount}개의 댓글이 있습니다.
-        </span>
+        <span className="inline-flex">{commentCount}개의 댓글이 있습니다.</span>
       </h2>
       <div className="flex gap-2 mb-4 text-gray-600">
         <button

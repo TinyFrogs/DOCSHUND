@@ -1,8 +1,11 @@
 import "./App.css";
 import AppRouter from "./router.jsx";
 import { toast } from "react-toastify";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import { axiosJsonInstance } from "./utils/axiosInstance.jsx";
+import UseSSE from "./hooks/useSSE.jsx";
 
 //네비게이션 바
 import Footer from "./components/footer/footer.jsx";
@@ -14,6 +17,7 @@ import Modal from "react-modal";
 import LoginModal from "./components/LoginModal.jsx";
 import ToastModal from "./components/alertModal/toastModal.jsx";
 import notificationModalStore from "./store/notificationModalStore.jsx";
+import NotificationService from "./services/notificationService.jsx";
 
 //챗봇
 import ChatBotStore from "./store/chatBotStore.jsx";
@@ -31,13 +35,41 @@ function App() {
   const pathname = location.pathname;
   const isTranslateViewerPage = pathname.includes("/translate/main/viewer");
   const isAdminPage = pathname.includes("/admin");
+  const [token, setToken] = useState("");
+
   const { isChatVisible, toggleChat } = ChatStore();
+  const { setNotifications } = notificationModalStore();
 
   useEffect(() => {
+    console.log("토큰 세팅 실행");
+
+    if (token === "" && localStorage.getItem("token")) {
+      setToken(localStorage.getItem("token"));
+    }
+
     if (location.search.includes("token")) {
       toast.success("로그인에 성공했습니다!");
+      setToken(location.search.split("=")[1]);
     }
-  }, [location]);
+  }, []);
+
+  useEffect(() => {
+    // NOTE: 로그인 성공 시, 기존에 밀려있던 알림을 불러옴
+
+    if (token) {
+      // 로그인 or 로그인 상태의 접속시 알림 불러오기
+      const data = NotificationService.fetchNotifications();
+
+      if (data) {
+        setNotifications(data);
+      }
+    }
+  }, [token, location]);
+
+  // 유저 ID가 없으면 알림을 불러올 수 없음
+  // 유저 ID로 SSE 연결
+  // TODO: SSE 테스트
+  // UseSSE(token ? jwtDecode(token).userId : null);
 
   return (
     <div

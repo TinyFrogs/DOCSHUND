@@ -24,6 +24,17 @@ const communityArticleStore = create((set) => ({
   setTotalPages: (totalPages) => set({ totalPages }),
   setCurrentPage: (currentPage) => set({ currentPage }),
 
+  // article list의 초기화 메소드 설정
+  clearArticles: () => {
+    set({
+      articles: [],
+      sortType: "latest",
+      keyword: "",
+      totalPages: 0,
+      currentPage: 0,
+    });
+  },
+
   // article item의 초기값 설정
   articleId: 0,
   articleItems: {},
@@ -35,6 +46,14 @@ const communityArticleStore = create((set) => ({
   setArticleItems: (articleItems) => set({ articleItems }),
   setLikeCount: (likeCount) => set({ likeCount }),
   setContentLength: (contentLength) => set({ contentLength }),
+
+  // article item의 전체 메소드 설정
+  setArticleData: (data) =>
+    set({ articleId: data.id, articleItems: data, likeCount: data.likeCount }),
+  // article item의 초기화 메소드 설정
+  clearArticleItems: () => {
+    set({ articleId: 0, articleItems: {}, likeCount: 0, contentLength: 0 });
+  },
 
   // 좋아요한 article list의 초기값 설정
   likeArticles: [],
@@ -71,6 +90,11 @@ const communityArticleStore = create((set) => ({
   setIsReplied: (isReplied) => set({ isReplied }),
   setReplyId: (replyId) => set({ replyId }),
   setReplySortType: (replySortType) => set({ replySortType }),
+
+  // reply list의 초기화 메소드 설정
+  clearReplies: () => {
+    set({ replies: [], commentCount: 0, isReplied: false });
+  },
 }));
 
 export default communityArticleStore;

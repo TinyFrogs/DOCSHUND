@@ -19,6 +19,9 @@ const ReplyRenderItem = ({
   const replyId = communityArticleStore((state) => state.replyId);
 
   const setReplyId = communityArticleStore((state) => state.setReplyId);
+  const setCommentCount = communityArticleStore(
+    (state) => state.setCommentCount
+  );
 
   // TODO: 댓글 레이아웃 다듬기
   return (
