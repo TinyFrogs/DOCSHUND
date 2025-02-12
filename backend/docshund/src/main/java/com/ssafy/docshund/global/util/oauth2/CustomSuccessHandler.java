@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import com.ssafy.docshund.domain.alerts.service.AlertsService;
 import com.ssafy.docshund.domain.users.dto.auth.CustomOAuth2User;
 import com.ssafy.docshund.global.util.jwt.JwtUtil;
 
@@ -23,6 +24,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 	private final JwtUtil jwtUtil;
 	private static final long TOKEN_EXPIRATION = 60L * 60L * 24L * 30L;
 
+	private final AlertsService alertsService;
+
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 		Authentication authentication) throws IOException {
@@ -31,6 +34,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 		String personalId = userDetails.getPersonalId();
 		Long userId = userDetails.getUserId();
+		log.info("받아온 userId: {}", userId);
 
 		String role = authentication.getAuthorities().stream()
 			.findFirst()

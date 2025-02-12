@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import com.ssafy.docshund.domain.docs.entity.Position;
 import com.ssafy.docshund.domain.forums.dto.ArticleDto;
 import com.ssafy.docshund.domain.forums.dto.ArticleInfoDto;
+import com.ssafy.docshund.domain.forums.entity.Status;
 
 public interface ArticleService {
 
@@ -14,7 +15,7 @@ public interface ArticleService {
 	void updateArticle(Integer articleId, ArticleDto articleDto);
 
 	Page<ArticleInfoDto> getArticles(String sort, Position filterPosition, String filterDocName,
-                                     String keyword, String searchType, Pageable pageable);
+		String keyword, String searchType, Pageable pageable);
 
 	Page<ArticleInfoDto> getArticlesByUserId(Long authorId, Pageable pageable);
 
@@ -25,5 +26,7 @@ public interface ArticleService {
 	void deleteArticle(Integer articleId);
 
 	void likeArticle(Integer articleId);
+
+	void modifyArticleStatus(Integer articleId, Status status);
 
 }

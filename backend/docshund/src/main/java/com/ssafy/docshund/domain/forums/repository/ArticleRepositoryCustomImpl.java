@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.docshund.domain.docs.entity.Position;
@@ -72,7 +73,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
 				article.updatedAt,
 				article.viewCount,
 				articleLike.alikeId.countDistinct().intValue(),
-				comment.commentId.countDistinct().intValue(),
+				Expressions.numberTemplate(Integer.class, "coalesce({0}, 0)", comment.commentId.countDistinct()),
 				article.user.userId,
 				article.user.nickname,
 				article.user.profileImage,
@@ -89,7 +90,8 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
 			.join(document).on(article.document.docsId.eq(document.docsId))
 			.join(article.user, user)
 			.leftJoin(articleLike).on(article.articleId.eq(articleLike.article.articleId))
-			.leftJoin(comment).on(article.articleId.eq(comment.article.articleId))
+			.leftJoin(comment).on(article.articleId.eq(comment.article.articleId)
+				.and(comment.status.eq(Status.VISIBLE)))
 			.where(builder, article.status.eq(Status.VISIBLE))
 			.groupBy(article.articleId, document.docsId, document.position, document.documentName,
 				article.title, article.content, article.createdAt, article.updatedAt, article.viewCount,
@@ -132,7 +134,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
 				article.updatedAt,
 				article.viewCount,
 				articleLike.alikeId.countDistinct().intValue(),
-				comment.commentId.countDistinct().intValue(),
+				Expressions.numberTemplate(Integer.class, "coalesce({0}, 0)", comment.commentId.countDistinct()),
 				article.user.userId,
 				article.user.nickname,
 				article.user.profileImage,
@@ -149,7 +151,8 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
 			.join(document).on(article.document.docsId.eq(document.docsId))
 			.join(article.user, user)
 			.leftJoin(articleLike).on(article.articleId.eq(articleLike.article.articleId))
-			.leftJoin(comment).on(article.articleId.eq(comment.article.articleId))
+			.leftJoin(comment).on(article.articleId.eq(comment.article.articleId)
+				.and(comment.status.eq(Status.VISIBLE)))
 			.where(article.user.userId.eq(authorId),
 				article.status.eq(Status.VISIBLE))
 			.groupBy(article.articleId, document.docsId, document.position, document.documentName,
@@ -193,7 +196,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
 				article.updatedAt,
 				article.viewCount,
 				articleLike.alikeId.countDistinct().intValue(),
-				comment.commentId.countDistinct().intValue(),
+				Expressions.numberTemplate(Integer.class, "coalesce({0}, 0)", comment.commentId.countDistinct()),
 				article.user.userId,
 				article.user.nickname,
 				article.user.profileImage,
@@ -210,7 +213,8 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
 			.join(document).on(article.document.docsId.eq(document.docsId))
 			.join(article.user, user)
 			.join(articleLike).on(article.articleId.eq(articleLike.article.articleId))
-			.leftJoin(comment).on(article.articleId.eq(comment.article.articleId))
+			.leftJoin(comment).on(article.articleId.eq(comment.article.articleId)
+				.and(comment.status.eq(Status.VISIBLE)))
 			.where(articleLike.user.userId.eq(userId),
 				article.status.eq(Status.VISIBLE))
 			.groupBy(article.articleId, document.docsId, document.position, document.documentName,
@@ -255,7 +259,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
 				article.updatedAt,
 				article.viewCount,
 				articleLike.alikeId.countDistinct().intValue(),
-				comment.commentId.countDistinct().intValue(),
+				Expressions.numberTemplate(Integer.class, "coalesce({0}, 0)", comment.commentId.countDistinct()),
 				article.user.userId,
 				article.user.nickname,
 				article.user.profileImage,
@@ -266,7 +270,8 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
 			.join(article.user, user)
 			.leftJoin(articleLike).on(article.articleId.eq(articleLike.article.articleId)
 				.and(articleLike.user.userId.eq(userId)))
-			.leftJoin(comment).on(article.articleId.eq(comment.article.articleId))
+			.leftJoin(comment).on(article.articleId.eq(comment.article.articleId)
+				.and(comment.status.eq(Status.VISIBLE)))
 			.where(
 				article.articleId.eq(articleId),
 				article.status.eq(Status.VISIBLE)
@@ -281,7 +286,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
 	private OrderSpecifier<?> getSortOrder(QArticle article, QArticleLike articleLike, String sort) {
 		if ("likes".equals(sort)) {
 			return articleLike.alikeId.countDistinct().desc();
-		} else if ("highView".equals(sort)) {
+		} else if ("views".equals(sort)) {
 			return article.viewCount.desc();
 		} else {
 			return article.createdAt.desc();

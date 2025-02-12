@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.ssafy.docshund.domain.docs.entity.Status;
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.types.OrderSpecifier;
@@ -55,7 +56,7 @@ public class CustomDocumentRepositoryImpl implements CustomDocumentRepository {
 			.leftJoin(translatedDocumentLike)
 			.on(translatedDocument.transId.eq(translatedDocumentLike.translatedDocument.transId))
 			.join(translatedDocument.originDocument, originDocument)
-			.where(originDocument.document.docsId.eq(docsId))
+			.where(originDocument.document.docsId.eq(docsId).and(translatedDocument.status.eq(Status.VISIBLE)))
 			.groupBy(originDocument.originId, translatedDocument.transId)
 			.orderBy(originDocument.originId.asc(), translatedDocumentLike.translatedDocument.transId.count().desc())
 			.fetch()
@@ -75,7 +76,8 @@ public class CustomDocumentRepositoryImpl implements CustomDocumentRepository {
 		// transId 기준으로 번역문 가져와서 pOrder 기준 정렬
 		return queryFactory
 			.selectFrom(translatedDocument)
-			.where(translatedDocument.transId.in(bestTransIds))
+			.where(translatedDocument.transId.in(bestTransIds)
+				.and(translatedDocument.status.eq(Status.VISIBLE)))
 			.orderBy(translatedDocument.originDocument.pOrder.asc())
 			.fetch()
 			.stream()
@@ -115,7 +117,8 @@ public class CustomDocumentRepositoryImpl implements CustomDocumentRepository {
 			.on(translatedDocument.transId.eq(translatedDocumentLike.translatedDocument.transId))
 			.join(translatedDocument.originDocument, originDocument)
 			.where(originDocument.document.docsId.eq(docsId)
-				.and(originDocument.originId.eq(originId)))
+				.and(originDocument.originId.eq(originId))
+				.and(translatedDocument.status.eq(Status.VISIBLE)))
 			.groupBy(translatedDocument.transId)
 			.orderBy(sortOrder)
 			.fetch()

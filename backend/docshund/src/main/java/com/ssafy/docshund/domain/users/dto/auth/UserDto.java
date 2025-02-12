@@ -31,4 +31,10 @@ public class UserDto {
 			.role("ROLE_USER")
 			.build();
 	}
+
+	public UserDto(Long userId, String personalId, String role) {
+		this.userId = userId;
+		this.personalId = personalId;
+		this.role = role;
+	}
 }
