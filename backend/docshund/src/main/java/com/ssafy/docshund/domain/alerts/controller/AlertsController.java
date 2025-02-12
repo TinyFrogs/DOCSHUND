@@ -1,25 +1,16 @@
 package com.ssafy.docshund.domain.alerts.controller;
 
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import com.ssafy.docshund.domain.alerts.dto.AlertOutputDto;
 import com.ssafy.docshund.domain.alerts.service.AlertsService;
-import com.ssafy.docshund.domain.users.entity.User;
 import com.ssafy.docshund.global.util.user.UserUtil;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/docshund/alerts")
@@ -34,9 +25,8 @@ public class AlertsController {
 	// 알림 목록 조회
 	@GetMapping("")
 	public ResponseEntity<List<AlertOutputDto>> getAlerts(
-		@RequestParam(value = "userId") Long userId
 	) {
-		List<AlertOutputDto> alerts = alertsService.getAllAlerts(userId);
+		List<AlertOutputDto> alerts = alertsService.getAllAlerts();
 		return ResponseEntity.ok(alerts);
 	}
 
@@ -50,7 +40,7 @@ public class AlertsController {
 	}
 
 	// 알림 삭제
-	@DeleteMapping("/{alertId}/delete")
+	@DeleteMapping("/{alertId}")
 	public ResponseEntity<?> deleteAlert(
 		@PathVariable Long alertId
 	) {
@@ -59,7 +49,7 @@ public class AlertsController {
 	}
 
 	// 알림 일괄 삭제
-	@DeleteMapping("/delete")
+	@DeleteMapping("")
 	public ResponseEntity<?> deleteAlerts(
 	) {
 		alertsService.deleteAlerts();
@@ -67,7 +57,7 @@ public class AlertsController {
 	}
 
 	// 알림 조회 처리
-	@PostMapping("/{alertId}/read")
+	@PatchMapping("/{alertId}")
 	public ResponseEntity<?> readAlert(
 		@PathVariable Long alertId
 	) {
@@ -76,7 +66,7 @@ public class AlertsController {
 	}
 
 	// 알림 일괄 조회 처리
-	@PostMapping("/read")
+	@PatchMapping("")
 	public ResponseEntity<?> readAlerts(
 	) {
 		alertsService.readAlerts();

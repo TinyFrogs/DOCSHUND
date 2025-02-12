@@ -1,22 +1,21 @@
 package com.ssafy.docshund.domain.alerts.service;
 
-import java.util.List;
-
+import com.ssafy.docshund.domain.alerts.dto.AlertOutputDto;
 import com.ssafy.docshund.domain.docs.entity.TranslatedDocument;
 import com.ssafy.docshund.domain.forums.entity.Article;
 import com.ssafy.docshund.domain.forums.entity.Comment;
 import com.ssafy.docshund.domain.supports.entity.Inquiry;
+import com.ssafy.docshund.domain.users.entity.User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.ssafy.docshund.domain.alerts.dto.AlertOutputDto;
-import com.ssafy.docshund.domain.users.entity.User;
+import java.util.List;
 
 @Service
 public interface AlertsService {
 
 	// 알림 목록 조회
-	List<AlertOutputDto> getAllAlerts(Long userId);
+	List<AlertOutputDto> getAllAlerts();
 
 	// 단일 알림 조회
 	AlertOutputDto getAlert(Long alertId);

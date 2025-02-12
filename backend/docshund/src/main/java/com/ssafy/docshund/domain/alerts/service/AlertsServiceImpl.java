@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -38,17 +37,13 @@ public class AlertsServiceImpl implements AlertsService {
 	// 알림 전체 조회
 	@SuppressWarnings("checkstyle:WhitespaceAround")
 	@Override
-	public List<AlertOutputDto> getAllAlerts(Long userId) {
+	public List<AlertOutputDto> getAllAlerts() {
 		User currentUser = userUtil.getUser();
 		if (currentUser == null) {
 			throw new AlertsException(AlertsExceptionCode.USER_NOT_AUTHORIZED);
 		}
-		if (!Objects.equals(currentUser.getUserId(), userId)){
-			throw new AlertsException(AlertsExceptionCode.NOT_YOUR_ALERT);
-		}
-		if (!currentUser.getUserId().equals(userId) && !userUtil.isAdmin(currentUser)) {
-			throw new AlertsException(AlertsExceptionCode.NOT_YOUR_ALERT);
-		}
+		Long userId = currentUser.getUserId();
+		
 		List<Alert> alerts = alertRepository.findByUserUserId(userId);
 		if (alerts.isEmpty()) {
 			throw new AlertsException(AlertsExceptionCode.ALERT_NOT_FOUND);
