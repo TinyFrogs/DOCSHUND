@@ -1,67 +1,161 @@
+import React, { useState } from "react";
+
 const ManageNotification = () => {
-  const dummyUsers = [
+  const [notifications, setNotifications] = useState([
     {
       id: 1,
-      email: "user1@example.com",
-      name: "사용자1",
+      title: "공지사항1",
+      content: "내용1",
       createdAt: "2024-02-09",
-      status: "active",
+      updatedAt: "2024-02-10",
     },
     {
       id: 2,
-      email: "user2@example.com",
-      name: "사용자2",
+      title: "공지사항2",
+      content: "내용2",
       createdAt: "2024-02-08",
-      status: "inactive",
+      updatedAt: "2024-02-09",
     },
-    {
-      id: 3,
-      email: "user3@example.com",
-      name: "사용자3",
-      createdAt: "2024-02-07",
-      status: "active",
-    },
-    {
-      id: 4,
-      email: "user4@example.com",
-      name: "사용자4",
-      createdAt: "2024-02-06",
-      status: "active",
-    },
-    {
-      id: 5,
-      email: "user5@example.com",
-      name: "사용자5",
-      createdAt: "2024-02-05",
-      status: "inactive",
-    },
-  ];
+    // ...existing notifications...
+  ]);
+
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [newNotification, setNewNotification] = useState({
+    title: "",
+    content: "",
+    createdAt: new Date().toISOString().split("T")[0],
+    updatedAt: new Date().toISOString().split("T")[0],
+  });
+  const [isEditing, setIsEditing] = useState(false);
+  const [editId, setEditId] = useState(null);
+
+  const handleAddNotification = () => {
+    setIsEditorOpen(true);
+    setIsEditing(false);
+    setNewNotification({
+      title: "",
+      content: "",
+      createdAt: new Date().toISOString().split("T")[0],
+      updatedAt: new Date().toISOString().split("T")[0],
+    });
+  };
+
+  const handleSaveNotification = () => {
+    if (isEditing) {
+      setNotifications(
+        notifications.map((notification) =>
+          notification.id === editId
+            ? {
+                ...notification,
+                ...newNotification,
+                updatedAt: new Date().toISOString().split("T")[0],
+              }
+            : notification
+        )
+      );
+    } else {
+      setNotifications([
+        ...notifications,
+        { ...newNotification, id: Date.now() },
+      ]);
+    }
+    setIsEditorOpen(false);
+    setNewNotification({
+      title: "",
+      content: "",
+      createdAt: new Date().toISOString().split("T")[0],
+      updatedAt: new Date().toISOString().split("T")[0],
+    });
+  };
+
+  const handleEditNotification = (id) => {
+    const notificationToEdit = notifications.find(
+      (notification) => notification.id === id
+    );
+    setNewNotification(notificationToEdit);
+    setIsEditorOpen(true);
+    setIsEditing(true);
+    setEditId(id);
+  };
+
+  const handleDeleteNotification = (id) => {
+    setNotifications(
+      notifications.filter((notification) => notification.id !== id)
+    );
+  };
+
   return (
     <div className="p-6 max-w-[1200px] mx-auto">
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-800">회원 관리</h1>
-        <div className="relative w-64">
-          <input
-            type="text"
-            placeholder="이메일로 검색"
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#bc5b39] focus:ring-1 focus:ring-[#bc5b39] transition-colors duration-200"
-          />
-          <svg
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-        </div>
+        <h1 className="text-2xl font-bold text-gray-800">공지사항 관리</h1>
+        <button
+          onClick={handleAddNotification}
+          className="bg-[#bc5b39] text-white px-4 py-2 rounded-lg hover:bg-[#a34b2b] transition-colors duration-200"
+        >
+          + 공지사항 등록
+        </button>
       </div>
+
+      {isEditorOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl z-50">
+            <h2 className="text-xl font-bold mb-4">
+              {isEditing ? "공지사항 수정" : "공지사항 등록"}
+            </h2>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">
+                제목
+              </label>
+              <input
+                type="text"
+                value={newNotification.title}
+                onChange={(e) =>
+                  setNewNotification({
+                    ...newNotification,
+                    title: e.target.value,
+                  })
+                }
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">
+                내용
+              </label>
+              <textarea
+                value={newNotification.content}
+                onChange={(e) =>
+                  setNewNotification({
+                    ...newNotification,
+                    content: e.target.value,
+                  })
+                }
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
+                style={{ height: "250px" }}
+              ></textarea>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setIsEditorOpen(false)}
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors duration-200"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleSaveNotification}
+                className="bg-[#bc5b39] text-white px-4 py-2 rounded-lg hover:bg-[#a34b2b] transition-colors duration-200"
+              >
+                저장
+              </button>
+            </div>
+          </div>
+          <div
+            className="fixed inset-0 bg-black opacity-50 z-40"
+            onClick={() => setIsEditorOpen(false)}
+          ></div>
+        </div>
+      )}
 
       {/* Table */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
@@ -70,16 +164,13 @@ const ManageNotification = () => {
             <thead>
               <tr className="bg-gray-50">
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  이메일
+                  제목
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  이름
+                  게시일
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  가입일
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  상태
+                  수정일
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   관리
@@ -87,36 +178,31 @@ const ManageNotification = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {dummyUsers.map((user) => (
+              {notifications.map((notification) => (
                 <tr
-                  key={user.id}
+                  key={notification.id}
                   className="hover:bg-gray-50 transition-colors duration-150"
                 >
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {user.email}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {user.name}
+                    {notification.title}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.createdAt}
+                    {notification.createdAt}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-3 py-1 text-xs font-medium rounded-full ${
-                        user.status === "active"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {user.status === "active" ? "활성" : "비활성"}
-                    </span>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {notification.updatedAt}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                    <button className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150">
+                    <button
+                      onClick={() => handleEditNotification(notification.id)}
+                      className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150"
+                    >
                       수정
                     </button>
-                    <button className="text-red-600 hover:text-red-700 transition-colors duration-150">
+                    <button
+                      onClick={() => handleDeleteNotification(notification.id)}
+                      className="text-red-600 hover:text-red-700 transition-colors duration-150"
+                    >
                       삭제
                     </button>
                   </td>

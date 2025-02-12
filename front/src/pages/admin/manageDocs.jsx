@@ -48,6 +48,20 @@ const ManageDocs = () => {
     );
   };
 
+  const handleUpload = async (e, docsId) => {
+    try {
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append("file", file);
+
+      console.log("Uploading file:", file);
+      await registDocumentContent(docsId, formData);
+      alert("문서가 성공적으로 업로드되었습니다.");
+    } catch (error) {
+      console.error("문서 업로드 중 오류가 발생했습니다.", error);
+    }
+  };
+
   return (
     <div className="p-6 max-w-[1200px] mx-auto">
       <RegistDocs
@@ -62,11 +76,11 @@ const ManageDocs = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-gray-800">문서관리</h1>
-        <h2>* 삭제하실 문서를 선택 후 삭제 버튼을 눌러주세요.</h2>
+        {/* <h2>* 삭제하실 문서를 선택 후 삭제 버튼을 눌러주세요.</h2> */}
         <div className="flex gap-2">
-          <button className="cursor-pointer px-2 py-2 bg-[#ff2121] text-white rounded-lg hover:bg-[#a34e31] transition-colors duration-200">
+          {/* <button className="cursor-pointer px-2 py-2 bg-[#ff2121] text-white rounded-lg hover:bg-[#a34e31] transition-colors duration-200">
             - 문서삭제
-          </button>
+          </button> */}
           <button
             onClick={() => setOpenRegistDocs(true)}
             className="cursor-pointer px-2 py-2 bg-[#bc5b39] text-white rounded-lg hover:bg-[#a34e31] transition-colors duration-200"
@@ -148,16 +162,14 @@ const ManageDocs = () => {
                     {adminDocs.likeCount}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <button
-                      onClick={() => {
-                        setOpenRegistDocsContent(true);
-                        console.log(adminDocs.docsId);
-                        setCurrentDocsId(adminDocs.docsId);
-                      }}
-                      className="cursor-pointer px-2 py-2 bg-[#bc5b39] text-white rounded-lg hover:bg-[#a34e31] transition-colors duration-200"
-                    >
+                    <label className="cursor-pointer px-2 py-2 rounded-lg bg-[#bc5b39] text-white hover:bg-[#a34e31] transition-colors duration-200">
+                      <input
+                        type="file"
+                        onChange={(e) => handleUpload(e, adminDocs.docsId)}
+                        className="hidden"
+                      />
                       원본업로드
-                    </button>
+                    </label>
                   </td>
                 </tr>
               ))}

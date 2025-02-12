@@ -1,4 +1,7 @@
-import { axiosJsonInstance } from "../../../utils/axiosInstance";
+import {
+  axiosJsonInstance,
+  axiosMultipartInstance,
+} from "../../../utils/axiosInstance";
 import axios from "axios";
 const baseUrl = "http://i12a703.p.ssafy.io:8081/api/v1/docshund";
 
@@ -31,19 +34,10 @@ export const registDocument = async (documentData) => {
 };
 
 export const registDocumentContent = async (docsId, originDocumentData) => {
-  const params = new URLSearchParams();
-  params.append("content", encodeURIComponent(originDocumentData));
-  console.log(encodeURIComponent(originDocumentData));
   try {
-    const response = await axios.post(
+    const response = await axiosMultipartInstance.post(
       `${baseUrl}/docs/${docsId}/origin`,
-      params, // body 데이터
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
+      originDocumentData
     );
     const data = response.data;
     console.log(data);
