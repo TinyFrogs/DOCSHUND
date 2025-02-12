@@ -71,7 +71,7 @@ const LikeDocsPage = () => {
     <div className="flex justify-between text-lg px-3">
       <div className="flex-1 min-w-0 mr-3 font-semibold line-clamp-1 break-all">
         <Link
-          to={`/translation/${item.docsId}`}
+          to={`/translate/main/viewer/${item.docsId}`}
           className="text-[#7d7c77] hover:text-[#bc5b39]"
         >
           {item.documentName}

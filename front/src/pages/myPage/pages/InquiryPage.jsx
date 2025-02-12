@@ -52,7 +52,11 @@ const InquiryPage = () => {
 
           // data가 존재하면 setInquiries로 데이터를 저장한다.
           if (data) {
-            setInquiries(data.content);
+            const sortedInquiries = data.content.sort(
+              (a, b) =>
+                new Date(b.inquiryCreatedAt) - new Date(a.inquiryCreatedAt)
+            );
+            setInquiries(sortedInquiries);
             setCurrentPage(data.pageable.pageNumber);
             setTotalPages(data.totalPages);
             setItmesPerPage(data.size);

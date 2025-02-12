@@ -97,6 +97,9 @@ function AppRoutes() {
         </Route>
       </Route>
 
+      {/* 유어마이페이지 */}
+      <Route path="/userPage/:userId" element={<UserPage />}></Route>
+
       {/* 에러페이지 */}
       <Route path="/error" element={<ErrorPage />} />
       <Route
@@ -128,8 +131,6 @@ function AppRoutes() {
           <Route path="memo" element={<MemoPage />} />
           <Route path="inquiry" element={<InquiryPage />} />
         </Route>
-        {/* 유어마이페이지 */}
-        <Route path="/userPage/:userId" element={<UserPage />}></Route>
       </Route>
     </Routes>
   );

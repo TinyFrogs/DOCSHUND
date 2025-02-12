@@ -69,7 +69,7 @@ const ProfileCard = ({
             <img
               src={previewImage}
               alt="Profile"
-              className="w-32 h-32 rounded-full"
+              className="w-32 h-32 rounded-full border-1 border-[#E1E1DF]"
             />
             <div className="flex flex-col ml-6 self-end">
               <label className="cursor-pointer bg-gray-200 p-2 rounded-lg text-xs hover:bg-gray-300 w-fit">
@@ -91,7 +91,7 @@ const ProfileCard = ({
           <img
             src={profile.profileImage}
             alt="Profile"
-            className="w-32 h-32 rounded-full"
+            className="w-32 h-32 rounded-full border-1 border-[#E1E1DF]"
           />
         )}
       </div>
