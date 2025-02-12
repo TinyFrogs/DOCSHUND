@@ -37,7 +37,7 @@ public class ReportRepositoryCustomImpl implements ReportRepositoryCustom {
 					report.reportId, user.userId, report.category,
 					report.content, report.originContent, report.reportedUser,
 					report.reportFile, report.commentId, report.articleId,
-					report.transId, report.chatId
+					report.transId, report.chatId, report.createdAt
 				)
 			)
 			.from(report)
