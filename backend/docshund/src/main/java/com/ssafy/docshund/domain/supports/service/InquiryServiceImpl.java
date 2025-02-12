@@ -1,14 +1,5 @@
 package com.ssafy.docshund.domain.supports.service;
 
-import static com.ssafy.docshund.domain.supports.exception.inquiry.InquiryExceptionCode.INQUIRY_NOT_FOUND;
-import static com.ssafy.docshund.domain.users.exception.auth.AuthExceptionCode.INVALID_MEMBER_ROLE;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.ssafy.docshund.domain.alerts.service.AlertsService;
 import com.ssafy.docshund.domain.supports.dto.inquiry.AnswerRequestDto;
 import com.ssafy.docshund.domain.supports.dto.inquiry.InquiryRequestDto;
@@ -23,9 +14,16 @@ import com.ssafy.docshund.domain.users.exception.auth.AuthException;
 import com.ssafy.docshund.global.aws.s3.S3FileUploadService;
 import com.ssafy.docshund.global.mail.MailSendService;
 import com.ssafy.docshund.global.util.user.UserUtil;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import static com.ssafy.docshund.domain.supports.exception.inquiry.InquiryExceptionCode.INQUIRY_NOT_FOUND;
+import static com.ssafy.docshund.domain.users.exception.auth.AuthExceptionCode.INVALID_MEMBER_ROLE;
 
 @Slf4j
 @Service
@@ -84,7 +82,9 @@ public class InquiryServiceImpl implements InquiryService {
 
 		inquiry.isAnsweredTrue();
 		answerRepository.save(answer);
-		alertsService.sendInquiryAnswerAlert(inquiry);
+		if(inquiry.getUser() != null) {
+			alertsService.sendInquiryAnswerAlert(inquiry);
+		}
 	}
 
 }

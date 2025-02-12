@@ -3,6 +3,7 @@ import logging
 import sys
 from bs4 import BeautifulSoup
 
+
 # 로그 설정
 logging.basicConfig(
     level=logging.INFO,
@@ -11,12 +12,20 @@ logging.basicConfig(
 )
 
 
-# HTML에서 <script> 태그를 제거하고, 내부 텍스트만 유지
 def sanitize_html(html_doc):
     soup = BeautifulSoup(html_doc, 'html.parser')
+
+    # <script> 태그 제거 후 내부 텍스트 유지
     for script_tag in soup.find_all('script'):
         script_text = script_tag.get_text()
-        script_tag.replace_with(script_text)  # 태그 제거 후 내부 텍스트 유지
+        script_tag.replace_with(script_text)
+
+    # <a> 태그를 <span> 태그로 변경
+    for a_tag in soup.find_all('a'):
+        span_tag = soup.new_tag("span")
+        span_tag.string = a_tag.get_text()
+        a_tag.replace_with(span_tag)
+
     return str(soup)
 
 
