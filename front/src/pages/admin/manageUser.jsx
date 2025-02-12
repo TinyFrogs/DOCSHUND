@@ -142,7 +142,9 @@ const ManageUser = () => {
                     {user.nickname}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.createdAt}
+                    {new Date(
+                      new Date(user.createdAt).toISOString()
+                    ).toLocaleString()}
                   </td>
                   <td className="px-3 py-4 whitespace-nowrap w-28 flex items-center gap-2">
                     <span

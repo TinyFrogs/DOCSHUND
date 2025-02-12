@@ -36,12 +36,12 @@
 
 .contexify {
   background-color: var(--contexify-bg-color) !important;
-  text-color: var(--contexify-item-color) !important;
+  width: 100px !important;
+  color: var(--contexify-item-color) !important;
+  border-radius: 12px !important;
 }
 
-.contexify_submenu-isOpen,
-.contexify_submenu-isOpen > .contexify_itemContent {
-  color: var(--contexify-activeItem-color);
-  background-color: var(--contexify-activeItem-bgColor);
-  border-radius: var(--contexify-activeItem-radius);
+.contexify__activeItem {
+  background-color: var(--contexify-activeItem-bgColor) !important;
+  color: var(--contexify-hover-text) !important;
 }

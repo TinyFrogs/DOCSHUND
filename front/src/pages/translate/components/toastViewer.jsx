@@ -18,7 +18,7 @@ const ToastViewer = ({ content }) => {
     viewerRef.current = new Viewer({
       el: containerRef.current,
       initialValue: content || "",
-      height: "100%",
+      height: "auto",
     });
 
     // Cleanup

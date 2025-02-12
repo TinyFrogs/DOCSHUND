@@ -1,154 +1,278 @@
-import { useNavigate } from "react-router-dom";
-import modalStore from "../../store/myPageStore/myPageModalStore";
-import inquiryStore from "../../store/myPageStore/inquiryStore";
-import InquiryModal from "../myPage/components/InquiryModal";
-import ListRender from "../../components/pagination/listRender";
-import InquiryService from "../../services/helpDeskServices/inquiryService";
+import { useState, useEffect, useRef } from "react";
+import {
+  fetchInquiryList,
+  fetchUserList,
+} from "../admin/Hooks/adminGetService";
 
-import { useEffect, useState } from "react";
-import { jwtDecode } from "jwt-decode";
-import { format, isSameDay } from "date-fns";
-import { ChevronUp, ChevronDown } from "lucide-react";
+import { respondInquiry } from "../admin/Hooks/adminPostService";
+
+import { Download } from "lucide-react";
+import useUserManagerStore from "../../store/adminStore/userManagerStore";
+import ToastViewer from "../../pages/translate/components/toastViewer";
+import { toast } from "react-toastify";
 
 const ManageInquiry = () => {
-  const navigate = useNavigate();
+  const inquiryListData = useRef([]);
+  const [answer, setAnswer] = useState("");
+  const [inquiryStates, setInquiryStates] = useState({});
+  const [userList, setUserList] = useState([]);
+  const [inquiryList, setInquiryList] = useState([]);
+  const [activeFilter, setActiveFilter] = useState("all");
+  const { currentUserList, addUserList, removeUserList } =
+    useUserManagerStore();
 
-  const token = localStorage.getItem("token");
+  const handleFilter = async (category) => {
+    if (category === "ALL") {
+      setInquiryList(inquiryListData.current);
+    } else if (category === "MEMBER") {
+      const tmpInquiryList = inquiryListData.current.filter(
+        (inquiry) => inquiry.inquiryCategory === "MEMBER"
+      );
+      setInquiryList(tmpInquiryList);
+    } else if (category === "DOCUMENT_REQUEST") {
+      const tmpInquiryList = inquiryListData.current.filter(
+        (inquiry) => inquiry.inquiryCategory === "DOCUMENT_REQUEST"
+      );
+      setInquiryList(tmpInquiryList);
+    } else if (category === "REPORT") {
+      const tmpInquiryList = inquiryListData.current.filter(
+        (inquiry) => inquiry.inquiryCategory === "REPORT"
+      );
+      setInquiryList(tmpInquiryList);
+    }
+  };
 
-  // inquiryStore에서 inquiries와 setInquiries를 가져온다.
-  const inquiries = inquiryStore((state) => state.inquiries);
-  const setInquiries = inquiryStore((state) => state.setInquiries);
+  // const handleInquiryStatus = async (inquiryId) => {
+  //   const response = await withdrawReport(inquiryId);
+  //   if (response === 200) {
+  //     toast.success("신고 철회 완료");
+  //   } else {
+  //     toast.error("공개 처리 실패");
+  //   }
+  //   const data = await fetchReportList();
+  //   setReportList(data);
+  // };
 
-  const totalPages = inquiryStore((state) => state.totalPages);
-  const setTotalPages = inquiryStore((state) => state.setTotalPages);
-  const currentPage = inquiryStore((state) => state.currentPage);
-  const setCurrentPage = inquiryStore((state) => state.setCurrentPage);
+  const processUserList = (userListContent) => {
+    userListContent.forEach((user) => {
+      currentUserList[user.userId] = user.nickname;
+    });
+  };
 
-  const setLoading = inquiryStore((state) => state.setLoading);
-  const setError = inquiryStore((state) => state.setError);
-
-  const { setOpenId, openId, closeModal } = modalStore();
-
-  const [itemsPerPage, setItmesPerPage] = useState(15); // 페이지당 보여줄 게시글 수
+  const toggleInquiryContent = (inquiryId) => {
+    setInquiryStates((prev) => ({
+      ...Object.keys(prev).reduce((acc, key) => {
+        if (key !== inquiryId) {
+          acc[key] = false;
+        }
+        return acc;
+      }, {}),
+      [inquiryId]: !prev[inquiryId],
+    }));
+  };
 
   useEffect(() => {
-    setLoading(true);
-
-    // inquiries 데이터를 가져오는 함수
-    const fetchInquiries = async () => {
+    const fetchUsers = async () => {
       try {
-        // 토큰이 존재하면 userId 추출
-
-        // inquiryService의 fetchInquiries 함수를 호출한다.
-        const data = await InquiryService.fetchInquiries(
-          currentPage,
-          itemsPerPage,
-          ""
-        );
-
-        // data가 존재하면 setInquiries로 데이터를 저장한다.
-        if (data) {
-          setInquiries(data.content);
-          setCurrentPage(data.pageable.pageNumber);
-          setTotalPages(data.totalPages);
-          setItmesPerPage(data.size);
-        }
+        const data = await fetchUserList();
+        data.sort((a, b) => b.reportCount - a.reportCount);
+        setUserList(data);
+        processUserList(data);
       } catch (error) {
-        setError(error);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching users:", error);
       }
     };
 
-    // fetchInquiries 함수를 호출한다.
-    fetchInquiries();
-  }, [currentPage, itemsPerPage, token]);
-
-  useEffect(() => {
-    return () => {
-      setOpenId(null);
+    const fetchInquiryData = async () => {
+      try {
+        const data = await fetchInquiryList();
+        setInquiryList(data);
+        inquiryListData.current = data;
+        console.log(data);
+      } catch (error) {
+        console.error("Error fetching inquiry:", error);
+      }
     };
-  }, [setOpenId]);
 
-  const renderInquiry = (item) => {
-    return (
-      <div key={item.inquiryId} className="flex-col">
-        <div className="flex justify-between px-3">
-          <div
-            className={`flex-1 min-w-0 break-all mr-3 ${
-              openId === item.inquiryId ? "" : "line-clamp-1"
-            }`}
-          >
-            <h3
-              onClick={() => {
-                setOpenId(item.inquiryId === openId ? null : item.inquiryId);
-              }}
-              className="sm:text-base md:text-lg font-semibold text-[#7d7c77] hover:text-[#bc5b39] cursor-pointer"
-            >
-              {item.inquiryTitle}
-            </h3>
-          </div>
-          <div className="flex space-x-6 items-center">
-            <p className="sm:text-sm md:text-base">
-              {item.inquiryCreatedAt
-                ? isSameDay(new Date(item.inquiryCreatedAt), new Date())
-                  ? format(new Date(item.inquiryCreatedAt), "HH:mm")
-                  : format(new Date(item.inquiryCreatedAt), "yyyy-MM-dd")
-                : "표시할 수 없는 날짜입니다."}
-            </p>
-            <p
-              className={`text-sm ${
-                item.answered ? "text-green-500" : "text-red-500"
-              }`}
-            >
-              {item.answered ? "답변 완료" : "답변 대기"}
-            </p>
+    fetchUsers();
+    fetchInquiryData();
+  }, []);
 
-            <button
-              onClick={() => {
-                setOpenId(item.inquiryId === openId ? null : item.inquiryId);
-              }}
-              className="cursor-pointer"
-            >
-              <span>
-                {openId === item.inquiryId ? (
-                  <ChevronUp size={20} />
-                ) : (
-                  <ChevronDown size={20} />
-                )}
-              </span>
-            </button>
-          </div>
-        </div>
-        {item.inquiryId === openId && (
-          <InquiryModal item={item} closeModal={closeModal} />
-        )}
-      </div>
-    );
-  };
+  const filterButtons = [
+    { label: "전체", value: "ALL" },
+    { label: "회원 관련", value: "MEMBER" },
+    { label: "문서 요청 관련", value: "DOCUMENT_REQUEST" },
+    { label: "신고 관련", value: "REPORT" },
+  ];
 
   return (
-    <div>
-      <div className="flex justify-between mt-5 mb-5">
-        <h1 className="font-bold text-2xl">나의 문의</h1>
-        <button
-          onClick={() => navigate("/helpDesk/inquiryForm")}
-          className="border-box bg-[#bc5b39] rounded-[12px] px-[20px] w-fit h-10 relative flex items-center justify-center text-[#ffffff] hover:bg-[#C96442]"
-        >
-          + 문의작성
-        </button>
+    <div className="p-6 max-w-[1200px] mx-auto">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-2xl font-bold text-gray-800">신고 관리</h1>
+        <div className="relative w-64">
+          <input
+            type="text"
+            placeholder="이메일로 검색"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#bc5b39] focus:ring-1 focus:ring-[#bc5b39] transition-colors duration-200"
+          />
+          <svg
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+        </div>
       </div>
 
-      <div className="pt-4 pl-6 bg-white rounded-tl-xl rounded-tr-xl border-t border-l border-r border-[#E1E1DF]"></div>
-      <div className="p-10 bg-white rounded-bl-xl rounded-br-xl border-b border-l border-r border-[#E1E1DF] text-[#7D7C77]">
-        <ListRender
-          data={inquiries}
-          renderItem={renderInquiry}
-          totalPages={totalPages}
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          itemCategory="inquiry"
-        />
+      {/* Filter Buttons */}
+      <div className="flex justify-start space-x-2 mb-4">
+        {filterButtons.map((button) => (
+          <button
+            key={button.value}
+            onClick={() => {
+              handleFilter(button.value);
+              setActiveFilter(button.value);
+            }}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer duration-200 ${
+              activeFilter === button.value
+                ? "bg-[#bc5b39] text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            {button.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Table */}
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  제목
+                </th>
+                <th className="flex gap-1 px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <div>작성자</div>
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  작성일자
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  상태
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  답변일
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {inquiryList.map((inquiry) => (
+                <>
+                  <tr
+                    key={inquiry.inquiryId}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log(inquiry.content);
+                      toggleInquiryContent(inquiry.inquiryId);
+                    }}
+                    className="hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 overflow-hidden col-span-2">
+                      {inquiry.inquiryTitle}
+                    </td>
+                    <td className="flex gap-1 px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {currentUserList[inquiry.userId]}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(
+                        new Date(inquiry.inquiryCreatedAt).toISOString()
+                      ).toLocaleString()}
+                    </td>
+                    <td className="px-3 py-4 whitespace-nowrap w-28 flex items-center gap-2">
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          console.log(inquiry.inquiryId);
+                          // handleInquiryStatus(inquiry.inquiryId);
+                        }}
+                        className={`px-3 py-1 text-xs font-medium rounded-full ${
+                          inquiry.answered
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {inquiry.answered ? "답변 완료" : "답변 대기"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                      <button className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150 cursor-pointer">
+                        <a
+                          onClick={(e) => e.stopPropagation()}
+                          download={inquiry.inquiryFile}
+                        >
+                          <Download />
+                        </a>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colSpan="7" className="p-0">
+                      <div
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                          inquiryStates[inquiry.inquiryId]
+                            ? "max-h-[500px] opacity-100"
+                            : "max-h-0 opacity-0"
+                        }`}
+                      >
+                        <div className="border-t border-slate-200 p-4 text-slate-700 leading-relaxed">
+                          <div className="mb-4">
+                            <div className="font-medium text-slate-900 mb-2">
+                              문의 내용
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-3">
+                              <ToastViewer content={inquiry.inquiryContent} />
+                            </div>
+                          </div>
+                          <div>
+                            <div className="font-medium text-slate-900 mb-2">
+                              답변 작성
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-3">
+                              <textarea
+                                className="w-full"
+                                onChange={(e) => setAnswer(e.target.value)}
+                                name=""
+                                id=""
+                              ></textarea>
+                              <button
+                                onClick={() => {
+                                  respondInquiry(inquiry.inquiryId, answer);
+                                }}
+                                className="cursor-pointer"
+                              >
+                                작성 완료
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ const reportStore = create((set) => ({
   isReportOpen: false,
   isReportVisible: false,
   originContent: "",
-  reportedUser: "",
+  reportedUser: 0,
   chatId: "",
   articleId: "",
   transId: "",

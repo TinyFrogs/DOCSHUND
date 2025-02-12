@@ -1,4 +1,3 @@
-import "react-contexify/dist/ReactContexify.css";
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -11,12 +10,15 @@ import {
   fetchTranslateData,
   fetchBestTranslate,
 } from "./hooks/translateGetService.jsx";
-import * as motion from "motion/react-client";
 
 // 컴포넌트 import
 import TranslateEditor from "./translateEditor.jsx";
 import TranslateArchive from "./translateArchive.jsx";
 import ToastViewer from "./components/toastViewer.jsx";
+
+//우클릭 커스타마이즈
+import "react-contexify/dist/ReactContexify.css";
+
 import {
   Menu,
   Item,
@@ -73,35 +75,6 @@ const TranslateViewer = () => {
     useModalStore();
 
   // 우클릭 또는 버튼 클릭 시 UI 상태 토글
-  const toggleButton = (partId, e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const mouseY = e.clientY - rect.top;
-    // 버튼 컨테이너의 높이 (대략적인 높이값)
-    const buttonContainerHeight = 100;
-    // y 위치 제한 (컨테이너 내부에서 적절한 위치 조정)
-    const limitedY = Math.min(
-      Math.max(buttonContainerHeight / 2, mouseY),
-      rect.height - buttonContainerHeight / 5
-    );
-
-    setMousePositions((prev) => ({
-      ...prev,
-      [partId]: {
-        x: e.clientX - rect.left,
-        y: limitedY,
-      },
-    }));
-
-    setButtonStates((prev) => ({
-      ...Object.keys(prev).reduce((acc, key) => {
-        if (key !== partId) {
-          acc[key] = false;
-        }
-        return acc;
-      }, {}),
-      [partId]: !prev[partId],
-    }));
-  };
 
   const toggleDocpart = (partId) => {
     setDocpartStates((prev) => ({
@@ -304,16 +277,13 @@ const TranslateViewer = () => {
               } else {
                 setBestTrans("");
               }
-              toggleDocpart(part.id);
             }}
             className="paragraph flex flex-row gap-4 relative"
           >
             <div
               onClick={async (e) => {
                 e.stopPropagation();
-                if (localStorage.getItem("token")) {
-                  toggleButton(part.id, e);
-                }
+
                 const tmpTransList = await fetchBestTranslate(
                   part.docsId,
                   "best"
@@ -333,7 +303,7 @@ const TranslateViewer = () => {
                 }
                 toggleDocpart(part.id);
               }}
-              className="flex flex-col w-full p-1 rounded-sm text-[#424242] hover:shadow-lg hover:border hover:border-gray-200 cursor-pointer"
+              className="flex flex-col w-full h-fit p-1 rounded-sm text-[#424242] hover:shadow-lg hover:border hover:border-gray-200 cursor-pointer"
             >
               <div
                 ref={(element) => {
@@ -349,7 +319,6 @@ const TranslateViewer = () => {
                     }, 50);
                   }
                 }}
-                style={{ height: heightStates[part.id] }}
               >
                 {!docpartStates[part.id] ? (
                   <ToastViewer content={part.content} />
@@ -361,9 +330,13 @@ const TranslateViewer = () => {
                         <Trophy className="w-6 h-6 text-yellow-500" />
                       </div>
                     )}
-                    <ToastViewer
-                      content={`<span style="background-color: #fbebd2">${bestTrans}</span>`}
-                    />
+                    {bestTrans === "" ? (
+                      <ToastViewer content={bestTrans} />
+                    ) : (
+                      <ToastViewer
+                        content={`<span style="background-color: #fbebd2">${bestTrans}</span>`}
+                      />
+                    )}
                   </div>
                 )}
               </div>
@@ -388,8 +361,8 @@ const TranslateViewer = () => {
           </div>
         )}
       </div>
-      <TranslateEditor className="z-auto" />
-      <TranslateArchive className="z-auto" />
+      {createPortal(<TranslateEditor />, document.body)}
+      {createPortal(<TranslateArchive />, document.body)}
 
       {/* Menu를 Portal로 document.body에 렌더링하고 z-index를 높게 지정 */}
       {createPortal(
@@ -403,7 +376,7 @@ const TranslateViewer = () => {
             {contextMenuDocsName}문서 {contextMenuOriginId}번째 문단
           </Item>
           <Separator />
-          <Item className="hover:bg-gray-100" onClick={handleTranslate}>
+          <Item className="hover:bg-gray-100!" onClick={handleTranslate}>
             번역하기
           </Item>
           <Item onClick={handleArchive}>번역 기록</Item>

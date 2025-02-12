@@ -6,6 +6,7 @@ const editorStore = create((set) => ({
   docsId: 0,
   originId: 0,
   currentUserText: "",
+  currentPartHeight: 0,
   tempSave: "",
   submitData: "",
   setDocsPart: (text) => {
@@ -23,6 +24,9 @@ const editorStore = create((set) => ({
   },
   setCurrentUserText: (text) => {
     set({ currentUserText: text });
+  },
+  setCurrentPartHeight: (height) => {
+    set({ currentPartHeight: height });
   },
   setTempSave: (text) => {
     set({ tempSave: text });
