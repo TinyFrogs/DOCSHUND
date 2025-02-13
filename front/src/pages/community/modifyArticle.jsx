@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 // stroe
 import communityArticleStore from "../../store/communityStore/communityArticleStore";
@@ -13,11 +14,14 @@ import ArticleItemService from "./services/articleItemService";
 
 const ModifyArticle = () => {
   const { articleId } = useParams();
-
-  const articleItems = communityArticleStore((state) => state.articleItems);
   const navigate = useNavigate();
 
-  const [title, setTitle] = useState(articleItems.title); // 제목 상태
+  const articleItems = communityArticleStore((state) => state.articleItems);
+  const setArticleItems = communityArticleStore(
+    (state) => state.setArticleItems
+  );
+
+  const [title, setTitle] = useState(""); // 제목 상태
   const [mainCategory, setMainCategory] = useState(articleItems.position); // 대분류 선택 상태
   const [subCategory, setSubCategory] = useState(articleItems.documentName); // 소분류 선택 상태
   const [file, setFile] = useState(null); // 첨부 파일 상태
@@ -26,6 +30,40 @@ const ModifyArticle = () => {
 
   const documentNames = docsCategoryStore((state) => state.documentNames);
   const setFileUrl = communityArticleStore((state) => state.setFileUrl);
+
+  useEffect(() => {
+    const loadArticleData = async () => {
+      try {
+        // articleItems가 비어있거나 현재 articleId와 다른 경우에만 데이터를 새로 불러옵니다
+        if (!articleItems?.articleId && articleItems.articleId !== articleId) {
+          console.log("articleItems api 호출 -> ");
+          console.log(title, mainCategory, subCategory, content);
+
+          const data = await ArticleItemService.fetchArticleItem(articleId);
+          setArticleItems(data); // store에 데이터 저장
+
+          if (data) {
+            // 로컬 상태 업데이트
+            setTitle(data.title);
+            setMainCategory(data.position);
+            setSubCategory(data.documentName);
+            setContent(data.content);
+          }
+        } else {
+          // store에 있는 데이터 사용
+          setTitle(articleItems.title);
+          setMainCategory(articleItems.position);
+          setSubCategory(articleItems.documentName);
+          setContent(articleItems.content);
+        }
+      } catch (error) {
+        console.error("Failed to load article:", error);
+        toast.error("게시글을 불러오는데 실패했습니다.");
+      }
+    };
+
+    loadArticleData();
+  }, [articleId]);
 
   // 제목 입력 핸들러
   const handleTitleChange = (e) => {
@@ -69,7 +107,7 @@ const ModifyArticle = () => {
 
     // 제목, 대분류, 소분류, 내용, 파일이 모두 입력되었는지 확인
     if (!title || !mainCategory || !subCategory || !content) {
-      alert("모든 항목을 입력해주세요.");
+      toast.warn("모든 항목을 입력해주세요.");
       return;
     } else {
       const response = await ArticleItemService.patchArticleItem(
@@ -79,12 +117,15 @@ const ModifyArticle = () => {
         content
       );
 
-      const data = response.data;
-
-      console.log(data);
-
       if (response.status === 204) {
-        alert("글 수정이 완료되었습니다.");
+        setArticleItems({
+          ...articleItems,
+          title,
+          position: mainCategory,
+          documentName: subCategory,
+          content,
+        });
+        toast.info("글 수정이 완료되었습니다.");
         navigate(`/community/article/${articleId}`);
       }
     }
@@ -159,7 +200,10 @@ const ModifyArticle = () => {
                       내용 <span className="text-red-500">*</span>
                     </label>
                     <div className="mt-1 block w-full h-100">
-                      <EditorContent initialTextContent={content} />
+                      <EditorContent
+                        initialTextContent={content}
+                        maxLength={15000}
+                      />
                     </div>
                   </div>
 

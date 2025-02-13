@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import useDocsStore from "../../store/translateStore/docsStore";
-import useModalStore from "../../store/translateStore/translateModalStore";
 import { fetchDocsList } from "./services/translateGetService";
 import { likeDocs } from "./services/translatePostService";
 import { motion } from "framer-motion";
+
+import useModalStore from "../../store/translateStore/translateModalStore";
+import useDocsStore from "../../store/translateStore/docsStore";
+import chatStore from "../../store/chatStore";
 
 const TransLatePage = () => {
   const userId = useRef(0);
@@ -18,6 +20,7 @@ const TransLatePage = () => {
   //포지션 필터 버튼 관련
   const docsCategories = ["ALL", "FRONTEND", "BACKEND", "DEVOPS", "DBSQL"];
   const [selectedCategory, setSelectedCategory] = useState("ALL");
+  const closeChat = chatStore((state) => state.closeChat);
 
   const {
     docsList,
@@ -56,6 +59,10 @@ const TransLatePage = () => {
       setBestDocsList(tmpDocsList);
       console.log("tmpDocsList", tmpDocsList);
     };
+
+    // 채팅 모달 상태 초기화
+    closeChat();
+
     fetchData();
   }, []);
 

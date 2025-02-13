@@ -7,7 +7,9 @@ import useEditorStore from "../../../store/translateStore/editorStore";
 import communityArticleStore from "../../../store/communityStore/communityArticleStore";
 
 const EditorContent = ({ initialTextContent, maxLength = 15000 }) => {
-  const [contentLength, setContentLength] = useState(initialTextContent.length);
+  const [contentLength, setContentLength] = useState(
+    initialTextContent?.length
+  );
   const editorRef = useRef(null);
   const { docsPart, setCurrentUserText } = useEditorStore();
 
@@ -25,7 +27,7 @@ const EditorContent = ({ initialTextContent, maxLength = 15000 }) => {
     if (editorRef.current) {
       const editorInstance = editorRef.current.getInstance();
       const markdownContent = editorInstance.getMarkdown();
-      if (markdownContent.length <= maxLength) {
+      if (markdownContent?.length <= maxLength) {
         setCurrentUserText(markdownContent);
         setContentLength(markdownContent.length);
       } else {

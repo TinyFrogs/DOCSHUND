@@ -76,8 +76,8 @@ function App() {
 
   // 유저 ID가 없으면 알림을 불러올 수 없음
   // 유저 ID로 SSE 연결
-  // TODO: SSE 테스트
-  // UseSSE(token ? jwtDecode(token).userId : null);
+
+  UseSSE(token ? jwtDecode(token).userId : null);
 
   return (
     <div

@@ -192,6 +192,7 @@ const ArticleList = () => {
           </div>
         </div>
         {/* 글 목록, 페이지네이션 */}
+
         <div className="p-10 bg-white rounded-bl-xl rounded-br-xl border-b border-l border-r border-[#E1E1DF] text-[#7D7C77]">
           <ListRender
             data={articles}
