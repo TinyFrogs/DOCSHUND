@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import authService from "../services/authService";
+import PropTypes from "prop-types";
 
 const ProtectedRoute = ({ isAdminRoute }) => {
   const { isAuthenticated } = authService();
@@ -29,6 +30,9 @@ const ProtectedRoute = ({ isAdminRoute }) => {
     localStorage.removeItem("token"); // 유효하지 않은 토큰 삭제
     return <Navigate to="/" replace />; // 로그인 페이지로 리다이렉트
   }
+};
+ProtectedRoute.propTypes = {
+  isAdminRoute: PropTypes.bool.isRequired,
 };
 
 export default ProtectedRoute;
