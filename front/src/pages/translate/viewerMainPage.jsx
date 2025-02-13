@@ -3,28 +3,24 @@ import { useState, useEffect } from "react";
 import ChatBotBtn from "../chatBot/chatBotBtn.jsx";
 import AlertModal from "../../components/alertModal/alertModal.jsx";
 import useAlertStore from "../../store/alertStore.jsx";
+import Information from "./page/information.jsx";
 import warning from "../../assets/icon/warning.png";
+import useModalStore from "../../store/translateStore/translateModalStore.jsx";
 const ViewerMainPage = () => {
   // const navigate = useNavigate();
   const { docsId } = useParams();
-
-  // const [isBtnClicked, setIsBtnClicked] = useState(false);
   const { isAlertOpen, toggleAlert } = useAlertStore();
-
-  useEffect(() => {
-    useAlertStore.setState({ isAlertOpen: true });
-  }, []);
 
   return (
     <div
       onContextMenu={(e) => {
-        show(e);
         e.preventDefault();
       }}
       className="min-w-[768px] flex"
     >
+      <Information />
       <ChatBotBtn />
-      <AlertModal
+      {/* <AlertModal
         imgSrc={warning}
         alertTitle={"알림"}
         alertText={
@@ -34,7 +30,7 @@ const ViewerMainPage = () => {
           "3. 본 서비스는 공익적인 목적을 위해 제공되며, 상업적 이용 시 발생하는 모든 법적 책임은의 사용자에게 있으며, 서비스 제공자는 이에 대한 책임을 지지 않습니다."
         }
         isVisible={isAlertOpen}
-      />
+      /> */}
       <Outlet className="min-w-[768px] pr-16" />
     </div>
   );

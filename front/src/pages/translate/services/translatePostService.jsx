@@ -16,7 +16,7 @@ export const likeTranslate = async (docsId, transId) => {
     const response = await axiosJsonInstance.post(
       `${baseUrl}/${docsId}/trans/paragraph/${transId}/votes`
     );
-    console.log(response);
+    console.log(response.status);
     return response.status;
   } catch (error) {
     console.log("번역 좋아요 실패", error);

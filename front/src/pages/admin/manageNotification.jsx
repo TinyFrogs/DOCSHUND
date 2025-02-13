@@ -1,23 +1,12 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
+import { fetchNoticeList } from "./services/adminGetService";
+import { registNotification } from "./services/adminPostService";
+import { deleteNotification } from "./services/adminDeleteService";
+import { modifyNotice } from "./services/adminPatchService";
+import { toast } from "react-toastify";
 
 const ManageNotification = () => {
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "공지사항1",
-      content: "내용1",
-      createdAt: "2024-02-09",
-      updatedAt: "2024-02-10",
-    },
-    {
-      id: 2,
-      title: "공지사항2",
-      content: "내용2",
-      createdAt: "2024-02-08",
-      updatedAt: "2024-02-09",
-    },
-    // ...existing notifications...
-  ]);
+  const [notifications, setNotifications] = useState([]);
 
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [newNotification, setNewNotification] = useState({
@@ -28,6 +17,16 @@ const ManageNotification = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
+
+  const fetchNoticeData = async () => {
+    try {
+      const data = await fetchNoticeList();
+      console.log(data);
+      setNotifications(data.content);
+    } catch (error) {
+      console.log("공지사항 목록 조회 실패", error);
+    }
+  };
 
   const handleAddNotification = () => {
     setIsEditorOpen(true);
@@ -40,24 +39,13 @@ const ManageNotification = () => {
     });
   };
 
-  const handleSaveNotification = () => {
-    if (isEditing) {
-      setNotifications(
-        notifications.map((notification) =>
-          notification.id === editId
-            ? {
-                ...notification,
-                ...newNotification,
-                updatedAt: new Date().toISOString().split("T")[0],
-              }
-            : notification
-        )
-      );
+  const handleSaveNotification = async (title, content) => {
+    const response = await registNotification(title, content);
+    if (response === 200) {
+      toast.success("공지 등록 성공");
+      fetchNoticeData();
     } else {
-      setNotifications([
-        ...notifications,
-        { ...newNotification, id: Date.now() },
-      ]);
+      toast.error("공지 등록 실패");
     }
     setIsEditorOpen(false);
     setNewNotification({
@@ -68,21 +56,36 @@ const ManageNotification = () => {
     });
   };
 
-  const handleEditNotification = (id) => {
-    const notificationToEdit = notifications.find(
-      (notification) => notification.id === id
-    );
-    setNewNotification(notificationToEdit);
-    setIsEditorOpen(true);
-    setIsEditing(true);
-    setEditId(id);
+  const handleEditNotification = async (noticeId, title, content) => {
+    const response = await modifyNotice(noticeId, title, content);
+    if (response === 200) {
+      toast.success("공지 수정 성공");
+      fetchNoticeData();
+    } else {
+      toast.error("공지 수정 실패");
+    }
+    setIsEditorOpen(false);
+    setNewNotification({
+      title: "",
+      content: "",
+      createdAt: new Date().toISOString().split("T")[0],
+      updatedAt: new Date().toISOString().split("T")[0],
+    });
   };
 
-  const handleDeleteNotification = (id) => {
-    setNotifications(
-      notifications.filter((notification) => notification.id !== id)
-    );
+  const handleDeleteNotification = async (noticeId) => {
+    const response = await deleteNotification(noticeId);
+    if (response === 200) {
+      toast.success("삭제 성공");
+      fetchNoticeData();
+    } else {
+      toast.error("공지 삭제 실패");
+    }
   };
+
+  useEffect(() => {
+    fetchNoticeData();
+  }, []);
 
   return (
     <div className="p-6 max-w-[1200px] mx-auto">
@@ -142,12 +145,34 @@ const ManageNotification = () => {
               >
                 취소
               </button>
-              <button
-                onClick={handleSaveNotification}
-                className="bg-[#bc5b39] text-white px-4 py-2 rounded-lg hover:bg-[#a34b2b] transition-colors duration-200"
-              >
-                저장
-              </button>
+              <div>
+                {isEditing ? (
+                  <button
+                    onClick={() =>
+                      handleEditNotification(
+                        editId,
+                        newNotification.title,
+                        newNotification.content
+                      )
+                    }
+                    className="bg-[#bc5b39] text-white px-4 py-2 rounded-lg hover:bg-[#a34b2b] transition-colors duration-200"
+                  >
+                    수정
+                  </button>
+                ) : (
+                  <button
+                    onClick={() =>
+                      handleSaveNotification(
+                        newNotification.title,
+                        newNotification.content
+                      )
+                    }
+                    className="bg-[#bc5b39] text-white px-4 py-2 rounded-lg hover:bg-[#a34b2b] transition-colors duration-200"
+                  >
+                    작성
+                  </button>
+                )}
+              </div>
             </div>
           </div>
           <div
@@ -187,20 +212,30 @@ const ManageNotification = () => {
                     {notification.title}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {notification.createdAt}
+                    {new Date(notification.createdAt).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {notification.updatedAt}
+                    {new Date(notification.updatedAt).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                     <button
-                      onClick={() => handleEditNotification(notification.id)}
+                      onClick={() => {
+                        setIsEditorOpen(true);
+                        setIsEditing(true);
+                        setEditId(notification.noticeId);
+                        setNewNotification({
+                          title: notification.title,
+                          content: notification.content,
+                        });
+                      }}
                       className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150"
                     >
                       수정
                     </button>
                     <button
-                      onClick={() => handleDeleteNotification(notification.id)}
+                      onClick={() =>
+                        handleDeleteNotification(notification.noticeId)
+                      }
                       className="text-red-600 hover:text-red-700 transition-colors duration-150"
                     >
                       삭제

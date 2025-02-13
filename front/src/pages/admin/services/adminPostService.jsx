@@ -25,9 +25,9 @@ export const registDocument = async (documentData) => {
       `${baseUrl}/docs`,
       documentData
     );
-    const data = response.data;
+    const data = response.status;
     console.log(data);
-    return data.status;
+    return data;
   } catch (error) {
     console.log("문서 등록 실패", error);
   }
@@ -39,9 +39,9 @@ export const registDocumentContent = async (docsId, originDocumentData) => {
       `${baseUrl}/docs/${docsId}/origin`,
       originDocumentData
     );
-    const data = response.data;
+    const data = response.status;
     console.log(data);
-    return data.status;
+    return data;
   } catch (error) {
     console.log("문서 원본 업로드 실패", error);
   }
@@ -53,10 +53,25 @@ export const respondInquiry = async (inquiryId, answer) => {
       `${baseUrl}/supports/inquiry/${inquiryId}/answer`,
       answer
     );
-    const data = response.data;
+    const data = response.status;
     console.log(data);
-    return data.status;
+    return data;
   } catch (error) {
     console.log("문의 응답 실패", error);
+  }
+};
+
+export const registNotification = async (title, content) => {
+  const noticeData = { title, content };
+  try {
+    const response = await axiosJsonInstance.post(
+      `${baseUrl}/supports/notice`,
+      noticeData
+    );
+    const data = response.status;
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.log("공지 등록 실패", error);
   }
 };

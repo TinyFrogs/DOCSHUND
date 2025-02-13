@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import docsStore from "../../../store/translateStore/docsStore";
 import docsCategoryStore from "../../../store/docsCategoryStore";
 import communityArticleStore from "../../../store/communityStore/communityArticleStore";
-import { fetchDocsList } from "../../translate/hooks/translateGetService";
+import { fetchDocsList } from "../../translate/services/translateGetService";
 
 import ListIcon from "../../../assets/icon/docsList.png";
 import { ChevronDown, ChevronUp, Layout } from "lucide-react";

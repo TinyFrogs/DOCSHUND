@@ -1,15 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import {
   initDB,
   addData,
   loadData,
   closeAllConnections,
-} from "./hooks/indexedDbService.jsx";
+} from "./services/indexedDbService.jsx";
+import userProfileService from "../myPage/services/userProfileService.jsx";
 import {
   fetchTranslateData,
   fetchBestTranslate,
-} from "./hooks/translateGetService.jsx";
+} from "./services/translateGetService.jsx";
+import useMemoService from "../myPage/services/memoService.jsx";
 
 // 컴포넌트 import
 import TranslateEditor from "./translateEditor.jsx";
@@ -30,7 +33,9 @@ import {
 // 상태 import
 import useModalStore from "../../store/translateStore/translateModalStore.jsx";
 import useEditorStore from "../../store/translateStore/editorStore.jsx";
+import useDocsStore from "../../store/translateStore/docsStore.jsx";
 import useArchiveStore from "../../store/translateStore/archiveStore.jsx";
+import MemoStore from "../../store/../store/myPageStore/memoStore.jsx";
 
 // 이미지 import
 import loadingGif from "../../assets/loading.gif";
@@ -39,6 +44,11 @@ import Korean from "../../assets/icon/korean.png";
 import { createPortal } from "react-dom";
 
 const TranslateViewer = () => {
+  let userId = 0;
+  if (localStorage.getItem("token")) {
+    const token = localStorage.getItem("token");
+    userId = jwtDecode(token).userId;
+  }
   const navigate = useNavigate();
   const { docsId } = useParams();
   const [docParts, setDocParts] = useState([]);
@@ -58,8 +68,8 @@ const TranslateViewer = () => {
   // 문단 높이 조절을 위한 초기 높이 저장 ref
   const initialHeights = useRef({});
   //우클릭메뉴 커스텀을 위한 상태
-  const [contextMenuDocsName, setContextMenuDocsName] = useState("");
-  const [contextMenuOriginId, setContextMenuOriginId] = useState(0);
+
+  const [contextMenuPorder, setContextMenuPorder] = useState(0);
 
   // indexedDB 관련 변수
   const dbName = "docs";
@@ -67,14 +77,27 @@ const TranslateViewer = () => {
   const [isDbInitialized, setIsDbInitialized] = useState(false);
 
   // 번역 관련 상태
-  const { transList, setTransList } = useArchiveStore();
-  const { bestTrans, setBestTrans, setDocsId, setOriginId, setDocsPart } =
-    useEditorStore();
+  const { transList, setTransList, transUserList } = useArchiveStore();
+  const {
+    bestTrans,
+    setBestTrans,
+    setDocsId,
+    setOriginId,
+    setDocsPart,
+    setPorder,
+  } = useEditorStore();
+  const { documentName } = useDocsStore();
   // 모달 관련 상태
-  const { openEditor, openArchive, toggleArchive, toggleEditor } =
-    useModalStore();
+  const { openEditor, openArchive } = useModalStore();
 
   // 우클릭 또는 버튼 클릭 시 UI 상태 토글
+
+  const generateUserList = async (translateList) => {
+    translateList.forEach(async (trans) => {
+      const user = await userProfileService.fetchProfile(trans.userId);
+      transUserList[trans.userId] = user.nickname;
+    });
+  };
 
   const toggleDocpart = (partId) => {
     setDocpartStates((prev) => ({
@@ -128,6 +151,8 @@ const TranslateViewer = () => {
     setHasMore(true);
     setCheckComplete(false);
     setIsDbInitialized(false);
+    MemoStore.setState({ memos: useMemoService.fetchMemos(userId) });
+    console.log(MemoStore.getState().memos);
     docData.current = [];
 
     async function checkDB() {
@@ -217,10 +242,11 @@ const TranslateViewer = () => {
     const { part } = props;
     useEditorStore.setState({
       docsPart: part.content,
-      porder: part.porder,
+      porder: part.pOrder,
       docsId: part.docsId,
       originId: part.originId,
     });
+
     await openEditor();
     toggleEditor();
   };
@@ -230,11 +256,11 @@ const TranslateViewer = () => {
     const { part } = props;
     setDocsPart(part.content);
     setDocsId(part.docsId);
-    console.log("현재docsId", part.docsId);
     setOriginId(part.originId);
-    await fetchBestTranslate(part.docsId, "");
+    setPorder(part.pOrder);
+    // await fetchBestTranslate(part.docsId, "");
+    // await generateUserList(transList);
     await openArchive();
-    toggleArchive();
   };
 
   return (
@@ -257,14 +283,16 @@ const TranslateViewer = () => {
                 e.preventDefault();
                 return;
               }
-              setContextMenuDocsName(part.documentName);
-              setContextMenuOriginId(part.originId);
+
+              console.log("contextMenuDocsName", documentName);
+              setContextMenuPorder(part.pOrder);
               handleContextMenu(e, part);
               const tmpTransList = await fetchBestTranslate(
                 part.docsId,
                 "best"
               );
               setTransList(tmpTransList);
+              await generateUserList(tmpTransList);
               if (tmpTransList !== undefined) {
                 const filteredTranslations = tmpTransList.filter(
                   (item) => item.originId === part.originId
@@ -283,7 +311,6 @@ const TranslateViewer = () => {
             <div
               onClick={async (e) => {
                 e.stopPropagation();
-
                 const tmpTransList = await fetchBestTranslate(
                   part.docsId,
                   "best"
@@ -293,7 +320,10 @@ const TranslateViewer = () => {
                   const filteredTranslations = tmpTransList.filter(
                     (item) => item.originId === part.originId
                   );
-                  if (filteredTranslations.length > 0) {
+                  if (
+                    filteredTranslations.length > 0 &&
+                    filteredTranslations[0].likeCount > 0
+                  ) {
                     setBestTrans(filteredTranslations[0].content);
                   } else {
                     setBestTrans("");
@@ -303,7 +333,7 @@ const TranslateViewer = () => {
                 }
                 toggleDocpart(part.id);
               }}
-              className="flex flex-col w-full h-fit p-1 rounded-sm text-[#424242] hover:shadow-lg hover:border hover:border-gray-200 cursor-pointer"
+              className="flex flex-col w-full h-fit rounded-md p-2 text-[#424242] hover:shadow-[0px_0px_15px_0px_rgba(149,_157,_165,_0.3)] hover:border-gray-200 cursor-pointer transition-all duration-250"
             >
               <div
                 ref={(element) => {
@@ -372,9 +402,7 @@ const TranslateViewer = () => {
           animation="scale"
           style={{ zIndex: 1900 }}
         >
-          <Item disabled>
-            {contextMenuDocsName}문서 {contextMenuOriginId}번째 문단
-          </Item>
+          <Item disabled>{contextMenuPorder}번째 문단</Item>
           <Separator />
           <Item className="hover:bg-gray-100!" onClick={handleTranslate}>
             번역하기

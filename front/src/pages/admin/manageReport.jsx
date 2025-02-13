@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { fetchReportList, fetchUserList } from "../admin/Hooks/adminGetService";
-import { withdrawReport } from "../admin/Hooks/adminPostService";
+import {
+  fetchReportList,
+  fetchUserList,
+} from "../admin/services/adminGetService";
+import { withdrawReport } from "../admin/services/adminPostService";
 import { MoveRight, Download } from "lucide-react";
 import useUserManagerStore from "../../store/adminStore/userManagerStore";
 import ToastViewer from "../../pages/translate/components/toastViewer";
@@ -84,8 +87,8 @@ const ManageReport = () => {
 
     const fetchData = async () => {
       const data = await fetchReportList();
-      reportListData.current = data || [];
-      setReportList(data || []);
+      reportListData.current = data;
+      setReportList(data);
     };
 
     fetchUsers();
@@ -172,96 +175,88 @@ const ManageReport = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {reportList.length > 0 ? (
-                reportList.map((report) => (
-                  <>
-                    <tr
-                      key={report.reportId}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        console.log(report.content);
-                        toggleReportContent(report.reportId);
-                      }}
-                      className="hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {report.category}
-                      </td>
-                      <td className="flex gap-1 px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {currentUserList[report.user.userId]} <MoveRight />{" "}
-                        {currentUserList[report.reportedUser]}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(
-                          new Date(report.createdAt).toISOString()
-                        ).toLocaleString()}
-                      </td>
-                      <td className="px-3 py-4 whitespace-nowrap w-28 flex items-center gap-2">
-                        <span
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            console.log(report.reportId);
-                            handleReportStatus(report.reportId);
-                          }}
-                          className={`px-3 py-1 text-xs font-medium rounded-full ${
-                            report.status === "active"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
+              {reportList.map((report) => (
+                <>
+                  <tr
+                    key={report.reportId}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log(report.content);
+                      toggleReportContent(report.reportId);
+                    }}
+                    className="hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {report.category}
+                    </td>
+                    <td className="flex gap-1 px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {currentUserList[report.userId]} <MoveRight />{" "}
+                      {currentUserList[report.reportedUser]}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(
+                        new Date(report.createdAt).toISOString()
+                      ).toLocaleString()}
+                    </td>
+                    <td className="px-3 py-4 whitespace-nowrap w-28 flex items-center gap-2">
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          console.log(report.reportId);
+                          handleReportStatus(report.reportId);
+                        }}
+                        className={`px-3 py-1 text-xs font-medium rounded-full ${
+                          report.status === "active"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {report.status === "active" ? "공개" : "철회"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                      <button className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150 cursor-pointer">
+                        <a
+                          onClick={(e) => e.stopPropagation()}
+                          download={report.reportFile}
                         >
-                          {report.status === "active" ? "공개" : "철회"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                        <button className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150 cursor-pointer">
-                          <a
-                            onClick={(e) => e.stopPropagation()}
-                            download={report.reportFile}
-                          >
-                            <Download />
-                          </a>
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td colSpan="7" className="p-0">
-                        <div
-                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                            reportStates[report.reportId]
-                              ? "max-h-[500px] opacity-100"
-                              : "max-h-0 opacity-0"
-                          }`}
-                        >
-                          <div className="border-t border-slate-200 p-4 text-slate-700 leading-relaxed">
-                            <div className="mb-4">
-                              <div className="font-medium text-slate-900 mb-2">
-                                원본 내용
-                              </div>
-                              <div className="bg-gray-50 rounded-lg p-3">
-                                <ToastViewer content={report.originContent} />
-                              </div>
+                          <Download />
+                        </a>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colSpan="7" className="p-0">
+                      <div
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                          reportStates[report.reportId]
+                            ? "max-h-[500px] opacity-100"
+                            : "max-h-0 opacity-0"
+                        }`}
+                      >
+                        <div className="border-t border-slate-200 p-4 text-slate-700 leading-relaxed">
+                          <div className="mb-4">
+                            <div className="font-medium text-slate-900 mb-2">
+                              원본 내용
                             </div>
-                            <div>
-                              <div className="font-medium text-slate-900 mb-2">
-                                신고 내용
-                              </div>
-                              <div className="bg-gray-50 rounded-lg p-3">
-                                <ToastViewer content={report.content} />
-                              </div>
+                            <div className="bg-gray-50 rounded-lg p-3">
+                              <ToastViewer content={report.originContent} />
+                            </div>
+                          </div>
+                          <div>
+                            <div className="font-medium text-slate-900 mb-2">
+                              신고 내용
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-3">
+                              <ToastViewer content={report.content} />
                             </div>
                           </div>
                         </div>
-                      </td>
-                    </tr>
-                  </>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="7" className="text-center py-4">
-                    No reports found.
-                  </td>
-                </tr>
-              )}
+                      </div>
+                    </td>
+                  </tr>
+                </>
+              ))}
             </tbody>
           </table>
         </div>
