@@ -180,6 +180,7 @@ public class DocsServiceImpl implements DocsService {
 
 		// 조회수 증가
 		document.setViewCount(document.getViewCount() + 1);
+		documentRepository.save(document);
 
 		// 좋아요한 유저들 조회
 		List<Long> likeUserIds = documentLikeRepository.findLikedUserIdsByDocumentId(docsId);
@@ -290,10 +291,12 @@ public class DocsServiceImpl implements DocsService {
 		if (docsId == null) {
 			throw new DocsException(DocsExceptionCode.ILLEGAL_ARGUMENT);
 		}
-		if (!documentRepository.existsById(docsId)) {
-			throw new DocsException(DocsExceptionCode.DOCS_NOT_FOUND);
-		}
+		Document document = documentRepository.findById(docsId)
+			.orElseThrow(() -> new DocsException(DocsExceptionCode.DOCS_NOT_FOUND));
 		List<OriginDocument> originDocuments = originDocumentRepository.findByDocument_DocsId(docsId);
+		document.setViewCount(document.getViewCount() + 1);
+		documentRepository.save(document);
+
 		return originDocuments.stream()
 			.map(OriginDocumentDto::fromEntity)
 			.collect(Collectors.toList());
