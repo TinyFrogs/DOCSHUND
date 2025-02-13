@@ -65,7 +65,7 @@ public class SecurityConfig {
 					"/api/v1/docshund/supports/notice",
 					"/api/v1/docshund/supports/notice/*",
 					"/api/v1/docshund/users/profile/*",
-					"/api/v1/docshund/docs/trans/*"
+					"/api/v1/docshund/docs/trans"
 				).permitAll()
 				.anyRequest().authenticated())
 			.sessionManagement(session -> session
