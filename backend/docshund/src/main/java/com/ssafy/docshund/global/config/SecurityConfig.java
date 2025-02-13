@@ -1,5 +1,6 @@
 package com.ssafy.docshund.global.config;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.springframework.context.annotation.Bean;
@@ -57,11 +58,14 @@ public class SecurityConfig {
 					"/api/v1/docshund/docs/*/trans",
 					"/api/v1/docshund/forums",
 					"/api/v1/docshund/forums/*",
+					"/api/v1/docshund/forums/user/*",
 					"/api/v1/docshund/forums/*/comments",
+					"/api/v1/docshund/forums/comments/user/*",
 					"/api/v1/docshund/supports/inquiry",
 					"/api/v1/docshund/supports/notice",
 					"/api/v1/docshund/supports/notice/*",
-					"/api/v1/docshund/users/profile/*"
+					"/api/v1/docshund/users/profile/*",
+					"/api/v1/docshund/docs/trans/*"
 				).permitAll()
 				.anyRequest().authenticated())
 			.sessionManagement(session -> session
@@ -74,7 +78,11 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
+		configuration.setAllowedOrigins(Arrays.asList(
+			"http://localhost:5173",
+			"https://localhost:5173",
+			"https://i12a703.p.ssafy.io"
+		));
 		configuration.setAllowedMethods(Collections.singletonList("*"));
 		configuration.setAllowedHeaders(Collections.singletonList("*"));
 		configuration.setAllowCredentials(true);

@@ -1,26 +1,5 @@
 package com.ssafy.docshund.domain.docs.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ssafy.docshund.domain.alerts.service.AlertsService;
-import com.ssafy.docshund.domain.docs.dto.DocumentDto;
-import com.ssafy.docshund.domain.docs.dto.OriginDocumentDto;
-import com.ssafy.docshund.domain.docs.dto.TranslatedDocumentDto;
-import com.ssafy.docshund.domain.docs.dto.UserTransDocumentDto;
-import com.ssafy.docshund.domain.docs.entity.*;
-import com.ssafy.docshund.domain.docs.exception.DocsException;
-import com.ssafy.docshund.domain.docs.exception.DocsExceptionCode;
-import com.ssafy.docshund.domain.docs.repository.*;
-import com.ssafy.docshund.domain.users.entity.User;
-import com.ssafy.docshund.domain.users.repository.UserRepository;
-import com.ssafy.docshund.global.util.user.UserUtil;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -28,6 +7,38 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.docshund.domain.alerts.service.AlertsService;
+import com.ssafy.docshund.domain.docs.dto.DocumentDto;
+import com.ssafy.docshund.domain.docs.dto.OriginDocumentDto;
+import com.ssafy.docshund.domain.docs.dto.TranslatedDocumentDto;
+import com.ssafy.docshund.domain.docs.dto.UserTransDocumentDto;
+import com.ssafy.docshund.domain.docs.entity.Document;
+import com.ssafy.docshund.domain.docs.entity.DocumentLike;
+import com.ssafy.docshund.domain.docs.entity.OriginDocument;
+import com.ssafy.docshund.domain.docs.entity.Status;
+import com.ssafy.docshund.domain.docs.entity.TranslatedDocument;
+import com.ssafy.docshund.domain.docs.exception.DocsException;
+import com.ssafy.docshund.domain.docs.exception.DocsExceptionCode;
+import com.ssafy.docshund.domain.docs.repository.CustomDocumentRepository;
+import com.ssafy.docshund.domain.docs.repository.DocumentLikeRepository;
+import com.ssafy.docshund.domain.docs.repository.DocumentRepository;
+import com.ssafy.docshund.domain.docs.repository.OriginDocumentRepository;
+import com.ssafy.docshund.domain.docs.repository.TranslatedDocumentLikeRepository;
+import com.ssafy.docshund.domain.docs.repository.TranslatedDocumentRepository;
+import com.ssafy.docshund.domain.users.entity.User;
+import com.ssafy.docshund.domain.users.repository.UserRepository;
+import com.ssafy.docshund.global.util.user.UserUtil;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -348,7 +359,7 @@ public class DocsServiceImpl implements DocsService {
 			// Python 출력 스트림 읽기
 			StringBuilder resultJsonBuilder = new StringBuilder();
 			try (BufferedReader reader = new BufferedReader(
-					new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+				new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
 				String line;
 				while ((line = reader.readLine()) != null) {
 					resultJsonBuilder.append(line);
@@ -358,7 +369,7 @@ public class DocsServiceImpl implements DocsService {
 
 			// Python 에러 스트림 읽기
 			try (BufferedReader errorReader = new BufferedReader(
-					new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
+				new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
 				String line;
 				while ((line = errorReader.readLine()) != null) {
 					errorBuilder.append(line).append(System.lineSeparator());
@@ -375,18 +386,18 @@ public class DocsServiceImpl implements DocsService {
 
 			String resultJson = resultJsonBuilder.toString();
 			List<OriginDocumentDto> documents = objectMapper.readValue(resultJson,
-					new TypeReference<List<OriginDocumentDto>>() {
-					});
+				new TypeReference<List<OriginDocumentDto>>() {
+				});
 
 			Document document = documentRepository.findById(docsId)
-					.orElseThrow(() -> new DocsException(DocsExceptionCode.DOCS_NOT_FOUND));
+				.orElseThrow(() -> new DocsException(DocsExceptionCode.DOCS_NOT_FOUND));
 
 			return documents.stream().map(dto -> {
 				OriginDocument originDocument = new OriginDocument(
-						document,
-						dto.pOrder(),
-						dto.tag(),
-						dto.content()
+					document,
+					dto.pOrder(),
+					dto.tag(),
+					dto.content()
 				);
 
 				OriginDocument savedEntity = originDocumentRepository.save(originDocument);
@@ -398,8 +409,6 @@ public class DocsServiceImpl implements DocsService {
 			throw new DocsException(DocsExceptionCode.PYTHON_ERROR);
 		}
 	}
-
-
 
 	// 특정 문서에 대한 번역 문서 목록 전체 조회하기
 	@Transactional(readOnly = true)
@@ -527,10 +536,6 @@ public class DocsServiceImpl implements DocsService {
 	@Override
 	public List<UserTransDocumentDto> getUserTransDocument(Long userId) {
 
-		// 유저 id가 null 인 경우, 유저가 존재하지 않는 경우 예외 처리
-		if (userId == null) {
-			throw new DocsException(DocsExceptionCode.ILLEGAL_ARGUMENT);
-		}
 		if (!userRepository.existsById(userId)) {
 			throw new DocsException(DocsExceptionCode.USER_NOT_FOUND);
 		}
