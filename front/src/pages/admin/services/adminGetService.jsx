@@ -1,10 +1,9 @@
 import { axiosJsonInstance } from "../../../utils/axiosInstance";
-const baseUrl = "http://i12a703.p.ssafy.io:8081/api/v1/docshund";
 
 // 좋아요한 문서 조회
 export const fetchUserList = async () => {
   try {
-    const response = await axiosJsonInstance.get(`${baseUrl}/users`);
+    const response = await axiosJsonInstance.get(`/users`);
     const data = response.data.content;
     return data;
   } catch (error) {
@@ -14,7 +13,7 @@ export const fetchUserList = async () => {
 
 export const fetchReportList = async () => {
   try {
-    const response = await axiosJsonInstance.get(`${baseUrl}/supports/reports`);
+    const response = await axiosJsonInstance.get(`/supports/reports`);
     const data = response.data.content;
     console.log(data);
     return data;
@@ -25,7 +24,7 @@ export const fetchReportList = async () => {
 
 export const fetchInquiryList = async () => {
   try {
-    const response = await axiosJsonInstance.get(`${baseUrl}/supports/inquiry`);
+    const response = await axiosJsonInstance.get(`/supports/inquiry`);
     const data = response.data.content;
     return data;
   } catch (error) {
@@ -35,7 +34,7 @@ export const fetchInquiryList = async () => {
 
 export const fetchNoticeList = async () => {
   try {
-    const response = await axiosJsonInstance.get(`${baseUrl}/supports/notice`);
+    const response = await axiosJsonInstance.get(`supports/notice`);
     const data = response.data;
     console.log(data);
     return data;

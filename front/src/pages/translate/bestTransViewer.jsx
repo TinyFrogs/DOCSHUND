@@ -183,14 +183,6 @@ const BestTransViewer = () => {
 
   return (
     <div className="h-[99%] min-w-[800px] bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto shadow-xl">
-      <button
-        onClick={async () => {
-          navigate(`/translate/main/viewer/${docsId}`);
-        }}
-        className="fixed top-2 right-2 z-[1900] group rounded-full w-12 h-12 bg-gradient-to-r from-[#BC5B39] to-[#ff835a] flex justify-center items-center cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 border-2 border-white"
-      >
-        <img className="w-7 h-6" src={English} alt="전체 번역 보기" />
-      </button>
       <div className="flex flex-col gap-2">
         {docParts.map((part, index) => (
           <div key={index} className="paragraph flex flex-row gap-4 relative">

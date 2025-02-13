@@ -119,8 +119,12 @@ const LeftNav = () => {
   const { docsList, setDocsList } = useDocsStore();
 
   useEffect(() => {
-    fetchDocsList(true);
-  }, [docsList]);
+    const fetchData = async () => {
+      const tmpDocsList = await fetchDocsList();
+      setDocsList(tmpDocsList);
+    };
+    fetchData();
+  }, []);
 
   function toggleNav() {
     if (isNavOpen === true) {

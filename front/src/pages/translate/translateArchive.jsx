@@ -81,6 +81,8 @@ const TranslateArchive = () => {
 
   const handleLike = async (docsId, transId) => {
     const status = await likeTranslate(docsId, transId);
+    const tmpTransList = await fetchBestTranslate(docsId, "");
+    setTransList(tmpTransList);
     return status;
   };
 
@@ -126,17 +128,18 @@ const TranslateArchive = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          style={{ backdropFilter: "blur(10px)" }}
         >
           {/* {isArchiveVisible ? ( */}
           <motion.div
             key="archive-modal"
-            initial={{ opacity: 0, y: 1000 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 1000 }}
-            transition={{
-              ease: "easeOut",
-              duration: 0.3,
-            }}
+            // initial={{ opacity: 0, y: 1000 }}
+            // animate={{ opacity: 1, y: 0 }}
+            // exit={{ opacity: 0, y: 1000 }}
+            // transition={{
+            //   ease: "easeOut",
+            //   duration: 0.3,
+            // }}
             className="fixed inset-0 flex items-center justify-center min-w-full min-h-full "
           >
             <ReportModal />
@@ -148,7 +151,7 @@ const TranslateArchive = () => {
                   alt="나가기"
                   onClick={async () => {
                     handleClose();
-                    setTimeout(() => closeArchive(), 300);
+                    setTimeout(() => closeArchive(), 100);
                   }}
                 />
                 <span className="flex-1 text-center">

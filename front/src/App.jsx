@@ -19,13 +19,14 @@ import ToastModal from "./components/alertModal/toastModal.jsx";
 import notificationModalStore from "./store/notificationModalStore.jsx";
 import NotificationService from "./services/notificationService.jsx";
 
-//챗봇
-import ChatBotStore from "./store/chatBotStore.jsx";
-
 //문서채팅
 import Chat from "./pages/chat/chat.jsx";
 import ChatStore from "./store/chatStore.jsx";
 import chatImg from "./assets/icon/chat.png";
+import { MessageCircle } from "lucide-react";
+
+//챗봇
+import ChatBotStore from "./store/chatBotStore.jsx";
 
 Modal.setAppElement("#root");
 
@@ -39,6 +40,8 @@ function App() {
 
   const { isChatVisible, toggleChat } = ChatStore();
   const { setNotifications } = notificationModalStore();
+
+  const { isChatBotVisible, toggleChatBot } = ChatBotStore();
 
   useEffect(() => {
     console.log("토큰 세팅 실행");
@@ -92,17 +95,18 @@ function App() {
         <AppRouter />
       </div>
       {isTranslateViewerPage ? (
-        <div className="fixed bottom-4 right-4 z-[1900] group">
+        <div className="fixed bottom-4 right-3 z-[1900] group">
           {localStorage.getItem("token") && (
             <div
-              onClick={toggleChat}
-              className="rounded-full w-16 h-16 bg-gradient-to-r from-[#BC5B39] to-[#E4DCD4] flex justify-center items-center cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 border-2 border-white"
+              onClick={() => {
+                toggleChat();
+                ChatBotStore.setState({
+                  isChatBotVisible: false,
+                });
+              }}
+              className="rounded-full w-10 h-10 bg-gradient-to-r from-[#BC5B39] to-[#ff835a] flex justify-center items-center cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 border-2 border-white"
             >
-              <img
-                className="group-hover:rotate-12 transition-transform duration-300"
-                src={chatImg}
-                alt="채팅 아이콘"
-              />
+              <MessageCircle className="text-white w-6 h-6 transition-transform duration-300" />
             </div>
           )}
         </div>

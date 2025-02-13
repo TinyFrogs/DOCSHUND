@@ -116,38 +116,24 @@ const ReportModal = () => {
   };
 
   return (
-    <Modal
-      isOpen={isReportOpen}
-      closeTimeoutMS={0}
-      style={{
-        overlay: {
-          backgroundColor: "rgba(240,238,229,0.8)",
-          zIndex: 3000,
-        },
-      }}
-      className="border-box w-full h-full flex items-center justify-center"
-    >
-      <AnimatePresence>
-        {isReportVisible ? (
+    <AnimatePresence>
+      {isReportOpen && (
+        <motion.div
+          className="fixed inset-0 flex items-center justify-center z-[2200] backdrop-brightness-60 border-box w-full h-full"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          style={{ backdropFilter: "blur(10px)" }}
+        >
           <motion.div
             key="editor-modal"
-            initial={{ opacity: 0, y: 1000 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 1000 }}
-            transition={{
-              ease: "easeInOut",
-              duration: 0.5,
-            }}
             className="fixed inset-0 flex items-center justify-center min-w-full min-h-full "
           >
             <div className="p-6 bg-white h-fit rounded-xl border-b border-l border-r border-[#E1E1DF] text-[#7D7C77] mb-5">
               <div className="w-full h-fit flex justify-end items-center">
                 <button
                   onClick={() => {
-                    toggleReport();
-                    setTimeout(() => {
-                      closeReport();
-                    }, 600);
+                    closeReport();
                   }}
                   className="cursor-pointer"
                 >
@@ -272,9 +258,9 @@ const ReportModal = () => {
               </form>
             </div>
           </motion.div>
-        ) : null}
-      </AnimatePresence>
-    </Modal>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

@@ -16,7 +16,7 @@ const TransLatePage = () => {
   }
 
   //포지션 필터 버튼 관련
-  const docsCategories = ["ALL", "FRONTEND", "BACKEND", "DEVOPS", "DB"];
+  const docsCategories = ["ALL", "FRONTEND", "BACKEND", "DEVOPS", "DBSQL"];
   const [selectedCategory, setSelectedCategory] = useState("ALL");
 
   const {

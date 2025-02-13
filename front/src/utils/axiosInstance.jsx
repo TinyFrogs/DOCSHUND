@@ -1,7 +1,6 @@
 import axios from "axios";
 
 const BASE_URL = "https://i12a703.p.ssafy.io/api/v1/docshund/";
-//const BASE_URL = "http://i12a703.p.ssafy.io:8081/api/v1/docshund";
 
 // JSON 요청용 Axios 인스턴스
 const axiosJsonInstance = axios.create({

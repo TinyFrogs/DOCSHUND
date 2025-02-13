@@ -40,7 +40,6 @@ import MemoStore from "../../store/../store/myPageStore/memoStore.jsx";
 // 이미지 import
 import loadingGif from "../../assets/loading.gif";
 import { Trophy } from "lucide-react";
-import Korean from "../../assets/icon/korean.png";
 import { createPortal } from "react-dom";
 
 const TranslateViewer = () => {
@@ -254,6 +253,8 @@ const TranslateViewer = () => {
   // 메뉴 항목: 번역 기록
   const handleArchive = async ({ props }) => {
     const { part } = props;
+    const tmpTransList = await fetchBestTranslate(part.docsId, "");
+    setTransList(tmpTransList);
     setDocsPart(part.content);
     setDocsId(part.docsId);
     setOriginId(part.originId);
@@ -265,14 +266,14 @@ const TranslateViewer = () => {
 
   return (
     <div className="h-[99%] min-w-[800px] bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto shadow-xl">
-      <button
+      {/* <button
         onClick={async () => {
           navigate(`/translate/main/viewer/${docsId}/best`);
         }}
         className="fixed top-2 right-2 z-[1900] group rounded-full w-12 h-12 bg-gradient-to-r from-[#BC5B39] to-[#ff835a] flex justify-center items-center cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 border-2 border-white"
       >
         <img className="w-7 h-6" src={Korean} alt="전체 번역 보기" />
-      </button>
+      </button> */}
 
       <div className="flex flex-col gap-2">
         {docParts.map((part, index) => (
@@ -333,7 +334,7 @@ const TranslateViewer = () => {
                 }
                 toggleDocpart(part.id);
               }}
-              className="flex flex-col w-full h-fit rounded-md p-2 text-[#424242] hover:shadow-[0px_0px_15px_0px_rgba(149,_157,_165,_0.3)] hover:border-gray-200 cursor-pointer transition-all duration-250"
+              className="flex flex-col w-full h-fit rounded-md p-2 text-[#424242] hover:shadow-[0px_0px_15px_0px_rgba(149,_157,_165,_0.3)] hover:border-gray-200 cursor-pointer transition-all duration-250 ease-in-out"
             >
               <div
                 ref={(element) => {

@@ -59,16 +59,17 @@ const TranslateEditor = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          style={{ backdropFilter: "blur(10px)" }}
         >
           <motion.div
             key="editor-modal"
-            initial={{ opacity: 0, y: 1000 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 1000 }}
-            transition={{
-              ease: "easeOut",
-              duration: 0.3,
-            }}
+            // initial={{ opacity: 0, y: 1000 }}
+            // animate={{ opacity: 1, y: 0 }}
+            // exit={{ opacity: 0, y: 1000 }}
+            // transition={{
+            //   ease: "easeOut",
+            //   duration: 0.3,
+            // }}
             className="fixed inset-0 flex items-center justify-center min-w-full min-h-full "
           >
             <div className="relative m-5 p-4 w-full h-[95%] min-w-[768px] min-h-[80%] max-w-full max-h-[95%] rounded-lg bg-white shadow-sm">

@@ -7,6 +7,7 @@ const memoService = {
       const response = await axiosJsonInstance.get(
         `users/${userId}/memo?page=${page}&size=${size}`
       );
+      console.log(response.data);
       return response.data;
     } catch (error) {
       console.error("메모 목록을 가져오는 중 오류 발생:", error);

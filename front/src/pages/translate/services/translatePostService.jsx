@@ -1,10 +1,8 @@
 import { axiosJsonInstance } from "../../../utils/axiosInstance";
 
-const baseUrl = "http://i12a703.p.ssafy.io:8081/api/v1/docshund/docs";
-
 export const likeDocs = async (docsId) => {
   try {
-    const response = await axiosJsonInstance.post(`${baseUrl}/${docsId}/likes`);
+    const response = await axiosJsonInstance.post(`docs/${docsId}/likes`);
     console.log(response.data);
   } catch (error) {
     console.log("문서 좋아요 실패", error);
@@ -14,7 +12,7 @@ export const likeDocs = async (docsId) => {
 export const likeTranslate = async (docsId, transId) => {
   try {
     const response = await axiosJsonInstance.post(
-      `${baseUrl}/${docsId}/trans/paragraph/${transId}/votes`
+      `docs/${docsId}/trans/paragraph/${transId}/votes`
     );
     console.log(response.status);
     return response.status;
@@ -26,7 +24,7 @@ export const likeTranslate = async (docsId, transId) => {
 export const registTranslate = async (docsId, originId, content) => {
   try {
     const response = await axiosJsonInstance.post(
-      `${baseUrl}/${docsId}/trans/${originId}`,
+      `docs/${docsId}/trans/${originId}`,
       { content: content }
     );
     console.log(response.data.message);

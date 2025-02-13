@@ -63,6 +63,7 @@ const ManageDocs = () => {
         } else {
           setLoading(false);
           toast.error("파일 업로드에 실패했습니다.");
+          fetchAdminDocs();
         }
       } catch (error) {
         setLoading(false);
@@ -155,6 +156,7 @@ const ManageDocs = () => {
                     <div className="relative">
                       <input
                         type="file"
+                        // accept=".txt"
                         id="file"
                         name="file"
                         onChange={async (e) => {
