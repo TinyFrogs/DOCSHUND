@@ -1,19 +1,19 @@
 import { useState, useEffect } from "react";
-import { FaPlus } from "react-icons/fa6";
+import { jwtDecode } from "jwt-decode";
 import { NavLink, useNavigate } from "react-router-dom";
 import EditorModal from "../../pages/myPage/components/EditorModal.jsx";
 import RoundCornerBtn from "../button/roundCornerBtn.jsx";
-import { fetchDocsList } from "../../pages/translate/hooks/translateGetService.jsx";
+import { fetchDocsList } from "../../pages/translate/services/translateGetService.jsx";
+import memoService from "../../pages/myPage/services/memoService";
+import useMemoStore from "../../store/myPageStore/memoStore";
+import useMemoMode from "../../pages/myPage/hooks/useMemoMode";
 
 // 상태 import
 import useDocsStore from "../../store/translateStore/docsStore.jsx";
 import modalStore from "../../store/myPageStore/myPageModalStore.jsx";
-//
 
 //이미지 주소 import
 import Logo from "../../assets/logo.png";
-import menuDown from "../../assets/icon/menu-down.png";
-import menuUp from "../../assets/icon/menu-up.png";
 import {
   Bell,
   ScrollText,
@@ -23,12 +23,12 @@ import {
   Plus,
 } from "lucide-react";
 import navToggle2 from "../../assets/icon/navToggle2.png";
-//
 
 const LeftNav = () => {
+  const navigate = useNavigate();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [docs, setDocs] = useState([]);
-  const [memos, setMemo] = useState([]);
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [btnToggled, setBtnToggled] = useState(
     "absolute top-15 -right-6 transform"
@@ -37,27 +37,86 @@ const LeftNav = () => {
     "max-w-[15%] min-w-fit w-60 h-[80%] bg-[#F0EEE5] shadow-lg flex flex-col border-box border-1 border-[#E0DED9] absolute top-1/2 -translate-y-1/2 rounded-br-4xl rounded-tr-4xl transform transition-all duration-400 -translate-x-[90%] z-[1500]"
   ); // 배경색 및 테두리 색상 변경, 애니메이션 효과 조정
   const { isOpen, openModal, closeModal } = modalStore();
-  //메모 관련 상태
-  const [memoData, setMemoData] = useState({
-    title: "",
-    content: "",
-  });
+  const { memos, setMemos, deleteMemo } = useMemoStore();
+  const { memoData, setMemoData, handleOpenCreateModal, handleOpenEditModal } =
+    useMemoMode();
+  const [userId, setUserId] = useState(null);
 
-  const handleInputChange = (e) => {
-    setMemoData({
-      ...memoData,
-      [e.target.name]: e.target.value,
-    });
+  const token = localStorage.getItem("token");
+  useEffect(() => {
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      setUserId(decodedToken.userId);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    const fetchMemos = async (userId) => {
+      try {
+        const data = await memoService.fetchMemos(userId);
+        if (data) {
+          setMemos(data.reverse());
+        } else {
+          setMemos([]);
+        }
+      } catch (error) {
+        console.error("Error fetching memos:", error);
+      }
+    };
+
+    if (userId) {
+      fetchMemos(userId);
+    }
+  }, [userId, setMemos]);
+
+  const handleCreateMemo = async (memoData) => {
+    if (userId) {
+      try {
+        await memoService.createMemo(userId, memoData);
+        const data = await memoService.fetchMemos(userId);
+        if (data) {
+          setMemos(data.reverse());
+        } else {
+          setMemos([]);
+        }
+        closeModal();
+      } catch (error) {
+        console.error("Error creating memo:", error);
+      }
+    }
   };
 
-  const handleSubmit = (data) => {
-    // console.log("Memo Saved:", data); // 메모 저장 처리
-    // 예를 들어, 데이터를 서버로 전송하거나 상태 업데이트 처리
-    closeModal();
+  const handleEditMemo = async (memoId, memoData) => {
+    if (userId) {
+      try {
+        await memoService.updateMemo(userId, memoId, memoData);
+        const data = await memoService.fetchMemos(userId);
+        if (data) {
+          setMemos(data.reverse());
+        } else {
+          setMemos([]);
+        }
+        closeModal();
+      } catch (error) {
+        console.error("Error updating memo:", error);
+      }
+    }
+  };
+
+  const handleDeleteMemo = async (memoId) => {
+    if (userId) {
+      try {
+        await memoService.deleteMemo(userId, memoId);
+        deleteMemo(memoId);
+        closeModal();
+      } catch (error) {
+        console.error("Error deleting memo:", error);
+      }
+    }
   };
 
   //문서 목록 관련 상태
-  const { docsList } = useDocsStore();
+  const { docsList, setDocsList } = useDocsStore();
 
   useEffect(() => {
     fetchDocsList(true);
@@ -125,11 +184,9 @@ const LeftNav = () => {
                 <div className="px-5">
                   {docsList.map((doc, index) => (
                     <div
-                      onClick={() =>
-                        window.location.replace(
-                          `/translate/main/viewer/${doc.docsId}`
-                        )
-                      }
+                      onClick={async () => {
+                        navigate(`/translate/main/viewer/${doc.docsId}`);
+                      }}
                       key={index}
                       className="cursor-pointer py-2.5 flex justify-between items-center border-b border-[#E0DED9] hover:bg-[#F5F4F0] transition-colors duration-200"
                     >
@@ -156,22 +213,32 @@ const LeftNav = () => {
                 <StickyNote className="w-6 h-6 text-[#7E7C77]" />
                 <span className="ml-5 font-medium text-[#7E7C77]">메모장</span>
                 <Plus
-                  onClick={openModal}
+                  onClick={() => handleOpenCreateModal(openModal)}
                   className="cursor-pointer w-6 h-6 text-[#7E7C77] hover:text-[#4A4A4A] ml-auto"
                 />
               </div>
               <div className="px-5">
-                {memos.map((memo, index) => (
-                  <div
-                    key={index}
-                    className="py-2.5 flex justify-between items-center border-b border-[#E0DED9] hover:bg-[#F5F4F0] transition-colors duration-200"
-                  >
-                    <span className="text-[#7E7C77]">{memo}</span>
-                    <button className="text-[#7E7C77] hover:text-[#4A4A4A] underline cursor-pointer text-sm transition-colors duration-200">
-                      보기
-                    </button>
-                  </div>
-                ))}
+                {Array.isArray(memos) && memos.length === 0 ? (
+                  <p className="text-[#7E7C77]">작성된 메모가 없습니다.</p>
+                ) : (
+                  Array.isArray(memos) &&
+                  memos.slice(0, 3).map((memo, index) => (
+                    <div
+                      key={index}
+                      className="py-2.5 flex justify-between items-center border-b border-[#E0DED9] hover:bg-[#F5F4F0] transition-colors duration-200"
+                    >
+                      <span className="w-32 text-[#7E7C77] break-all line-clamp-1">
+                        {memo.title}
+                      </span>
+                      <button
+                        onClick={() => handleOpenEditModal(memo, openModal)}
+                        className="text-[#7E7C77] hover:text-[#4A4A4A] underline cursor-pointer text-sm transition-colors duration-200"
+                      >
+                        보기
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           )}
@@ -179,7 +246,7 @@ const LeftNav = () => {
         <div className="items-center justify-center flex mb-10">
           <RoundCornerBtn
             onClick={() => {
-              window.location.replace("/translate");
+              navigate("/translate");
             }}
             text="뷰어 나가기"
           />
@@ -187,22 +254,13 @@ const LeftNav = () => {
       </div>
       <div className="absolute z-[2500]">
         <EditorModal
-          title="새 메모"
-          fields={[
-            {
-              label: "제목",
-              name: "title",
-              type: "text",
-              placeholder: "제목을 입력하세요",
-              value: memoData.title,
-              onChange: handleInputChange,
-              required: true,
-            },
-          ]}
-          buttonText="작성 완료"
+          title={memoData ? "메모 수정" : "새 메모"}
+          buttonText={memoData ? "수정 완료" : "작성 완료"}
           isOpen={isOpen}
           closeModal={closeModal}
-          onSubmit={handleSubmit}
+          onSubmit={memoData ? handleEditMemo : handleCreateMemo}
+          memoData={memoData}
+          onDelete={memoData ? handleDeleteMemo : null}
         />
       </div>
     </div>

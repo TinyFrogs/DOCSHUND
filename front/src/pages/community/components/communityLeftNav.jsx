@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import docsStore from "../../../store/translateStore/docsStore";
 import docsCategoryStore from "../../../store/docsCategoryStore";
 import communityArticleStore from "../../../store/communityStore/communityArticleStore";
-import { fetchDocsList } from "../../translate/hooks/translateGetService";
+import { fetchDocsList } from "../../translate/services/translateGetService";
 
 import ListIcon from "../../../assets/icon/docsList.png";
 import { ChevronDown, ChevronUp, Layout } from "lucide-react";
@@ -120,14 +120,14 @@ const CommunityLeftNav = () => {
   }, [docsList, setPositions]); // 필요한 의존성만 추가
 
   return (
-    <div className="w-auto min-h-screen bg-[#F8F8F7] mr-4">
-      <nav className="p-4">
+    <div className="w-auto min-h-screen p-4">
+      <nav className="border-1 border-[#E1E1DF] rounded-xl px-4 py-5 bg-[#FFFFFF]">
         {/* navData에 있는 각 entry들 조회 */}
         {Object.entries(navData).map(([section, items]) => (
           <div key={section} className="mb-2">
             <button
               onClick={() => toggleSection(section)}
-              className="w-full flex items-center justify-between p-2 ml-2 bg-[#bc5b39] text-white rounded cursor-pointer"
+              className="w-full flex items-center justify-between p-2 bg-[#bc5b39] text-white rounded cursor-pointer"
             >
               <div className="flex items-center gap-2">
                 <Layout size={18} />

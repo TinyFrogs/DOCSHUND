@@ -5,16 +5,15 @@ import {
   addData,
   loadData,
   closeAllConnections,
-} from "./hooks/indexedDbService.jsx";
+} from "./services/indexedDbService.jsx";
 import {
   fetchTranslateData,
   fetchBestTranslate,
-} from "./hooks/translateGetService.jsx";
+} from "./services/translateGetService.jsx";
 // 컴포넌트 import
 import TranslateEditor from "./translateEditor.jsx";
 import TranslateArchive from "./translateArchive.jsx";
 import ToastViewer from "./components/toastViewer.jsx";
-import ChatBotBtn from "../chatBot/chatBotBtn.jsx";
 
 //이미지 import
 import loadingGif from "../../assets/loading.gif";

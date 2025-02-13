@@ -113,7 +113,7 @@ const WriteArticle = () => {
   // DOM 요소 반환
   return (
     <div className="flex justify-center w-full">
-      <main className="flex-1 p-8 max-w-[1280px]">
+      <main className="flex-1 p-4 max-w-[1280px]">
         {/* header */}
         <CommunityHeader />
 
@@ -154,11 +154,16 @@ const WriteArticle = () => {
                       value={mainCategory}
                     >
                       <option value="">대분류를 선택하세요</option>
-                      {Object.keys(documentNames).map((section) => (
-                        <option key={section} value={section}>
-                          {section}
-                        </option>
-                      ))}
+                      {Object.keys(documentNames).map(
+                        (section) => (
+                          console.log(section),
+                          (
+                            <option key={section} value={section}>
+                              {section}
+                            </option>
+                          )
+                        )
+                      )}
                     </select>
                     <select
                       className="flex-1 py-2 px-3 border bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
@@ -246,7 +251,7 @@ const WriteArticle = () => {
               <div className="flex justify-center">
                 <button
                   type="submit"
-                  className="py-2 px-8 bg-[#bc5b39] text-white rounded-md shadow-sm hover:bg-[#C96442]"
+                  className="py-2 px-8 bg-[#bc5b39] text-white rounded-md shadow-sm hover:bg-[#C96442] cursor-pointer"
                 >
                   작성완료
                 </button>

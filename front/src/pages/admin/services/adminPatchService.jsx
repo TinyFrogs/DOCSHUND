@@ -15,3 +15,17 @@ export const changeUserStatus = async (userId, status) => {
     console.log("유저 상태 변경 실패", error);
   }
 };
+
+export const modifyNotice = async (noticeId, title, content) => {
+  try {
+    const response = await axiosJsonInstance.patch(
+      `${baseUrl}/supports/notice/${noticeId}`,
+      { title, content }
+    );
+    const data = response.status;
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.log("공지사항 수정 실패", error);
+  }
+};

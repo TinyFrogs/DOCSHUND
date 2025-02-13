@@ -17,21 +17,23 @@ const EditorModal = ({
   memoData,
   onDelete,
 }) => {
-  const [formData, setFormData] = useState({ title: "" });
-  const { setCurrentUserText } = useEditorStore();
+  const [formData, setFormData] = useState({ title: "", content: "" });
+  const { currentUserText, setCurrentUserText } = useEditorStore();
 
   useEffect(() => {
     if (isOpen) {
-      console.log("Opening EditorModal with memoData:", memoData);
       if (memoData) {
-        setFormData({ title: memoData.title || "" });
-        setCurrentUserText(memoData.content || "");
+        setFormData({
+          title: memoData.title,
+          content: memoData.content,
+        });
+        setCurrentUserText(memoData.content);
       } else {
-        setFormData({ title: "" });
+        setFormData({ title: "", content: "" });
         setCurrentUserText("");
       }
     } else {
-      setFormData({ title: "" });
+      setFormData({ title: "", content: "" });
       setCurrentUserText("");
     }
   }, [isOpen, memoData, setCurrentUserText]);
@@ -40,12 +42,14 @@ const EditorModal = ({
     const { name, value } = e.target;
     if (name === "title" && value.length <= MAX_TITLE_LENGTH) {
       setFormData({ ...formData, [name]: value });
+    } else if (name === "content") {
+      setFormData({ ...formData, content: value });
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const editorContent = useEditorStore.getState().currentUserText;
+    const editorContent = currentUserText;
     const submitData = { ...formData, content: editorContent };
     if (memoData && memoData.memoId) {
       onSubmit(memoData.memoId, submitData);
@@ -106,7 +110,7 @@ const EditorModal = ({
                   {formData.title.length} / {MAX_TITLE_LENGTH}
                 </p>
               </div>
-              <EditorContent initialTextContent={memoData?.content || ""} />
+              <EditorContent initialTextContent={formData.content} />
 
               <div className="flex justify-end space-x-3">
                 {memoData && (

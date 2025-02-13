@@ -2,9 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { format, isSameDay } from "date-fns";
 import { jwtDecode } from "jwt-decode";
+import { ThumbsUp } from "lucide-react";
 
 import communityArticleStore from "../../store/communityStore/communityArticleStore";
+import useReportStore from "../../store/reportStore";
 import ArticleItemService from "./services/articleItemService";
+
+import ReportModal from "../../pages/report";
 import CommunityHeader from "./components/communityHeader";
 import ArticleFooter from "./components/articleFooter";
 import SkeletonArticleItem from "./components/skeletonArticleItem";
@@ -36,6 +40,26 @@ const ArticleItem = () => {
     (state) => state.clearArticleItems
   );
   const setArticleData = communityArticleStore((state) => state.setArticleData);
+
+  const toggleReport = useReportStore((state) => state.toggleReport);
+  const openReport = useReportStore((state) => state.openReport);
+
+  const handleReport = (data) => {
+    //TEST
+    console.log("data", data);
+
+    useReportStore.setState({
+      originContent: data.content,
+      reportedUser: data.userId,
+      commentId: null,
+      articleId: data.articleId,
+      transId: null,
+      chatId: null,
+    });
+
+    openReport();
+    toggleReport();
+  };
 
   // NOTE: 즉시 store에 접근하여 데이터를 가져오기 위해 useEffect 사용
   useEffect(() => {
@@ -88,7 +112,7 @@ const ArticleItem = () => {
 
   return (
     <div className="flex justify-center w-full">
-      <main className="flex-1 p-8 max-w-[1280px]">
+      <main className="flex-1 p-4 max-w-[1280px]">
         {/* header */}
         <CommunityHeader />
         {/* main content - bg-white와 rounded 스타일을 상위 div에 적용 */}
@@ -99,10 +123,12 @@ const ArticleItem = () => {
             {/* 게시글 헤더 */}
             <div className="border-b border-[#E1E1DF] pb-4 mb-4">
               <div className="flex w-full justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold">{articleItems.title}</h1>
-                <div className="flex gap-2 text-sm text-gray-500">
+                <h1 className="text-2xl font-bold flex-1 mr-4">
+                  {articleItems.title}
+                </h1>
+                <div className="flex gap-2 text-sm text-gray-500 flex-shrink-0">
                   <button
-                    className="hover:text-gray-700 cursor-pointer"
+                    className="text-[#7d7c77] underline hover:text-gray-700 cursor-pointer"
                     onClick={() => {
                       // 수정 페이지로 이동
                       navigate(`/community/modify/${articleId}`);
@@ -112,7 +138,7 @@ const ArticleItem = () => {
                   </button>
                   <span>|</span>
                   <button
-                    className="hover:text-gray-700 cursor-pointer"
+                    className="text-[#7d7c77] underline hover:text-gray-700 cursor-pointer"
                     onClick={async () => {
                       const response =
                         await ArticleItemService.deleteArticleItem(articleId);
@@ -131,7 +157,12 @@ const ArticleItem = () => {
                     ? jwtDecode(token)?.userId != articleItems.userId && (
                         <div className="flex gap-2 text-sm text-gray-500">
                           <span>|</span>
-                          <button className="hover:text-gray-700 cursor-pointer">
+                          <button
+                            className="text-[#7d7c77] underline hover:text-gray-700 cursor-pointer"
+                            onClick={() => {
+                              handleReport(articleItems);
+                            }}
+                          >
                             신고
                           </button>
                         </div>
@@ -140,7 +171,13 @@ const ArticleItem = () => {
                 </div>
               </div>
               <div className="flex justify-between items-center text-[#7d7c77]">
-                <div className="flex items-center gap-4">
+                <div
+                  className="flex items-center gap-4 cursor-pointer"
+                  onClick={() => {
+                    console.log("userId", articleItems.userId);
+                    navigate(`/userPage/${articleItems.userId}`);
+                  }}
+                >
                   <img
                     src={articleItems.profileImage}
                     alt={`${articleItems.nickname}의 프로필`}
@@ -192,7 +229,12 @@ const ArticleItem = () => {
                         window.alert("좋아요에 실패했습니다.");
                       }
                     }}
-                    text={`${likeCount}`} // 출력할 좋아요 수
+                    text={
+                      <div className="flex items-center gap-2">
+                        <ThumbsUp className="w-4 h-4" />
+                        {likeCount}
+                      </div>
+                    } // 출력할 좋아요 수
                     className="px-4 py-2 text-base"
                   ></RectBtn>
                 ) : null}

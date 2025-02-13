@@ -3,7 +3,7 @@ import { jwtDecode } from "jwt-decode";
 
 import TranslationStore from "../../../../store/myPageStore/translationStore";
 import MyTranslationService from "../../services/myTranslationService";
-import { fetchTranslateData } from "../../../translate/hooks/translateGetService";
+import { fetchTranslateData } from "../../../translate/services/translateGetService";
 import ListRender from "../../../../components/pagination/listRender";
 import MyTranslationModal from "../../components/myTranslationModal";
 import like from "../../../../assets/icon/heartFilled24.png";

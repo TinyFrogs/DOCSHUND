@@ -32,3 +32,14 @@ export const fetchInquiryList = async () => {
     console.log("문의 목록 조회 실패", error);
   }
 };
+
+export const fetchNoticeList = async () => {
+  try {
+    const response = await axiosJsonInstance.get(`${baseUrl}/supports/notice`);
+    const data = response.data;
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.log("공지 목록 조회 실패", error);
+  }
+};

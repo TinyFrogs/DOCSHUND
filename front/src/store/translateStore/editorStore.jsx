@@ -5,6 +5,7 @@ const editorStore = create((set) => ({
   bestTrans: "",
   docsId: 0,
   originId: 0,
+  porder: 0,
   currentUserText: "",
   currentPartHeight: 0,
   tempSave: "",
@@ -21,6 +22,9 @@ const editorStore = create((set) => ({
   },
   setOriginId: (id) => {
     set({ originId: id });
+  },
+  setPorder: (id) => {
+    set({ porder: id });
   },
   setCurrentUserText: (text) => {
     set({ currentUserText: text });
