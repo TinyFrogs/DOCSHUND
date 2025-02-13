@@ -2,14 +2,12 @@ import {
   axiosJsonInstance,
   axiosMultipartInstance,
 } from "../../../utils/axiosInstance";
-import axios from "axios";
-const baseUrl = "http://i12a703.p.ssafy.io:8081/api/v1/docshund";
 
 // 좋아요한 문서 조회
 export const withdrawReport = async (reportId) => {
   try {
     const response = await axiosJsonInstance.post(
-      `${baseUrl}/supports/reports/${reportId}/withdraw`
+      `supports/reports/${reportId}/withdraw`
     );
     const data = response.status;
     console.log(data);
@@ -21,13 +19,10 @@ export const withdrawReport = async (reportId) => {
 
 export const registDocument = async (documentData) => {
   try {
-    const response = await axiosJsonInstance.post(
-      `${baseUrl}/docs`,
-      documentData
-    );
-    const data = response.data;
+    const response = await axiosJsonInstance.post(`docs`, documentData);
+    const data = response.status;
     console.log(data);
-    return data.status;
+    return data;
   } catch (error) {
     console.log("문서 등록 실패", error);
   }
@@ -36,12 +31,12 @@ export const registDocument = async (documentData) => {
 export const registDocumentContent = async (docsId, originDocumentData) => {
   try {
     const response = await axiosMultipartInstance.post(
-      `${baseUrl}/docs/${docsId}/origin`,
+      `docs/${docsId}/origin`,
       originDocumentData
     );
-    const data = response.data;
+    const data = response.status;
     console.log(data);
-    return data.status;
+    return data;
   } catch (error) {
     console.log("문서 원본 업로드 실패", error);
   }
@@ -50,13 +45,28 @@ export const registDocumentContent = async (docsId, originDocumentData) => {
 export const respondInquiry = async (inquiryId, answer) => {
   try {
     const response = await axiosJsonInstance.post(
-      `${baseUrl}/supports/inquiry/${inquiryId}/answer`,
+      `supports/inquiry/${inquiryId}/answer`,
       answer
     );
-    const data = response.data;
+    const data = response.status;
     console.log(data);
-    return data.status;
+    return data;
   } catch (error) {
     console.log("문의 응답 실패", error);
+  }
+};
+
+export const registNotification = async (title, content) => {
+  const noticeData = { title, content };
+  try {
+    const response = await axiosJsonInstance.post(
+      `supports/notice`,
+      noticeData
+    );
+    const data = response.status;
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.log("공지 등록 실패", error);
   }
 };

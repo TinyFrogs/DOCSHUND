@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { format, isSameDay } from "date-fns";
 
 import articleListService from "./services/articleListService";
 import ListRender from "../../components/pagination/listRender.jsx";
@@ -33,7 +34,7 @@ const ArticleList = () => {
   // 정렬 옵션
   const sortOptions = [
     { value: "latest", label: "최신순" },
-    { value: "likes", label: "좋아요 순" },
+    { value: "likes", label: "좋아요순" },
     { value: "views", label: "조회수순" },
   ];
 
@@ -101,7 +102,13 @@ const ArticleList = () => {
           {item.title}
         </Link>
         <p className="text-base line-clamp-1 break-all">{item.content}</p>
-        <p className="text-base">{item.createdAt}</p>
+        <p className="text-base">
+          {item.createdAt
+            ? isSameDay(new Date(item.createdAt), new Date())
+              ? format(new Date(item.createdAt), "HH:mm")
+              : format(new Date(item.createdAt), "yyyy-MM-dd")
+            : "표시할 수 없는 날짜입니다."}
+        </p>
       </div>
       <div className="flex space-x-6 items-bottom">
         <p className="self-end">{item.nickname}</p>
@@ -125,7 +132,7 @@ const ArticleList = () => {
 
   return (
     <div className="w-full">
-      <main className="flex-1">
+      <main className="flex-1 p-4">
         <CommunityHeader />
         <div>
           {/* 2-2. 글 목록 */}
@@ -137,7 +144,7 @@ const ArticleList = () => {
                 <input
                   type="text"
                   placeholder="검색어를 입력하세요"
-                  className="border p-2 ml-10 rounded w-full h-8"
+                  className="border p-2 ml-10 rounded-full w-full h-8 focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39]"
                   onChange={(e) => setTmpKeyword(e.target.value)} // 검색어 입력에 따라 임시 검색어 변경
                   onKeyDown={(e) => {
                     // 엔터키 입력 시 검색어로 검색
@@ -172,7 +179,7 @@ const ArticleList = () => {
               <select
                 value={sortType}
                 onChange={(e) => handleSort(e.target.value)}
-                className="px-2 ml-8 mr-8 rounded-lg border bg-white"
+                className="px-2 h-8 ml-8 mr-8 rounded-full border bg-white focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39]"
                 style={{ height: "30px" }}
               >
                 {sortOptions.map((option) => (
@@ -185,6 +192,7 @@ const ArticleList = () => {
           </div>
         </div>
         {/* 글 목록, 페이지네이션 */}
+
         <div className="p-10 bg-white rounded-bl-xl rounded-br-xl border-b border-l border-r border-[#E1E1DF] text-[#7D7C77]">
           <ListRender
             data={articles}

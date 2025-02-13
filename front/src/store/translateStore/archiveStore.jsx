@@ -2,6 +2,7 @@ import { create } from "zustand";
 
 const archiveStore = create((set) => ({
   transList: [],
+  transUserList: [],
   orderByLike: true,
   orderByUpdatedAt: false,
   orderBy: "like",
@@ -10,6 +11,9 @@ const archiveStore = create((set) => ({
   setTransList: (contents) => {
     console.log("새로운 데이터", contents);
     set({ transList: contents });
+  },
+  setTransUserList: (list) => {
+    set({ transUserList: list });
   },
   setOrderBy: (text) => {
     set({ orderBy: text });

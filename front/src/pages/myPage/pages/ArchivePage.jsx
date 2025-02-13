@@ -5,7 +5,7 @@ import ArticleItemService from "../../community/services/articleItemService";
 import {
   likeDocs,
   likeTranslate,
-} from "../../translate/hooks/translatePostService";
+} from "../../translate/services/translatePostService";
 
 const ArchivePage = () => {
   const tabs = [

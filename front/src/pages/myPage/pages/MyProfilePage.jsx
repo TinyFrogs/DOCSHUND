@@ -191,7 +191,7 @@ const MyProfilePage = () => {
 
   return (
     <div>
-      <div className="flex justify-between mb-5">
+      <div className="flex justify-between mt-4 mb-5">
         <h1 className="font-bold text-2xl">내 프로필</h1>
         {!isEditing ? (
           <button

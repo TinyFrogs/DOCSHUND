@@ -7,6 +7,11 @@ const ChatStore = create((set) => ({
     set((state) => ({
       isChatVisible: !state.isChatVisible,
     })),
+
+  closeChat: () =>
+    set(() => ({
+      isChatVisible: false,
+    })),
 }));
 
 export default ChatStore;

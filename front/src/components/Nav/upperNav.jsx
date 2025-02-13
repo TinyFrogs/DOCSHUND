@@ -27,13 +27,18 @@ const UpperNav = () => {
   const { token, isAuthenticated, logout } = authService();
   const { profile, fetchProfile } = useUserProfileStore();
   const { openModal } = useModalStore();
-  const { toggleModal, isOpen } = notificationModalStore();
+  const {
+    toggleNotificationModal,
+    isNotificationModalOpen,
+    closeNotificationModal,
+  } = notificationModalStore();
 
   // 게시글 작성 페이지로 이동 시 페이지 초기화
   const { clearArticles } = communityArticleStore();
 
   const [profileImgUrl, setProfileImgUrl] = useState(profile?.profileImage);
 
+  // 프로필 정보 불러오기
   useEffect(() => {
     if (isAuthenticated() && token) {
       try {
@@ -46,9 +51,15 @@ const UpperNav = () => {
     }
   }, [isAuthenticated, token, fetchProfile]);
 
+  // 프로필 이미지 변경 시 반영
   useEffect(() => {
     setProfileImgUrl(profile?.profileImage);
   }, [profile]);
+
+  // 다른 위치 이동 시 알림 모달 상태 초기화
+  useEffect(() => {
+    closeNotificationModal();
+  }, [location]);
 
   // 로그인 버튼 동작
   const handleLoginClick = () => {
@@ -146,11 +157,11 @@ const UpperNav = () => {
                 className="w-[clamp(20px,2.1vw,32px)] h-auto cursor-pointer"
                 src={notification}
                 alt="알림 아이콘"
-                onClick={() => toggleModal()}
+                onClick={() => toggleNotificationModal()}
               />
               <div
                 className={`absolute left-1/2 -translate-x-1/2 top-[calc(100%+1.8rem)] z-[1000] transition-all duration-300 transform ${
-                  isOpen
+                  isNotificationModalOpen
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 -translate-y-2 pointer-events-none"
                 }`}

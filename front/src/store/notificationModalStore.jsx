@@ -2,15 +2,15 @@ import { create } from "zustand";
 
 const notificationModalStore = create((set) => ({
   // 모달 열림 상태
-  isOpen: false,
+  isNotificationModalOpen: false,
 
   // 모달 열기
-  openModal: () => set({ isOpen: true }),
+  openNotificationModal: () => set({ isNotificationModalOpen: true }),
   // 모달 닫기
-  closeModal: () => set({ isOpen: false }),
-  toggleModal: () => {
+  closeNotificationModal: () => set({ isNotificationModalOpen: false }),
+  toggleNotificationModal: () => {
     set((state) => ({
-      isOpen: !state.isOpen,
+      isNotificationModalOpen: !state.isNotificationModalOpen,
     }));
   },
 
@@ -18,7 +18,7 @@ const notificationModalStore = create((set) => ({
   notifications: [],
   addNotification: (notification) =>
     set((state) => ({
-      notifications: [...state.notifications, notification],
+      notifications: [notification, ...state.notifications],
     })),
   clearNotifications: () => set({ notifications: [] }),
   setNotifications: (notifications) => set({ notifications }),

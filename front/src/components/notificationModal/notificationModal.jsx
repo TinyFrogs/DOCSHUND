@@ -84,22 +84,23 @@ const NotificationModal = () => {
   const handleReadAllNotifications = async () => {
     try {
       // 알림 읽음 처리 확인
-      window.confirm("모든 알림을 읽으시겠습니까?");
+      if (window.confirm("모든 알림을 읽으시겠습니까?")) {
+        const response = await NotificationService.readAllNotifications();
 
-      const response = await NotificationService.readAllNotifications();
+        if (response != 200) {
+          toast.warn("알림을 읽는 중 오류가 발생했습니다.");
+          return;
+        }
 
-      if (response != 200) {
-        toast.warn("알림을 읽는 중 오류가 발생했습니다.");
-        return;
-      }
+        toast.info("모든 알림을 읽음 처리했습니다.");
 
-      toast.info("모든 알림을 읽음 처리했습니다.");
+        // 알림 읽음 처리 후, 알림 목록 갱신
+        const data = await NotificationService.fetchNotifications();
 
-      // 알림 읽음 처리 후, 알림 목록 갱신
-      const data = await NotificationService.fetchNotifications();
-
-      if (data) {
-        setNotifications(data);
+        // OPTIMIZE: 알림 데이터 최신순 정렬인가?
+        if (data) {
+          setNotifications(data.reverse());
+        }
       }
     } catch (err) {
       toast.error(err.message);
@@ -112,41 +113,41 @@ const NotificationModal = () => {
 
     try {
       // 알림 삭제 확인
-      window.confirm("알림을 삭제하시겠습니까?");
+      if (window.confirm("알림을 삭제하시겠습니까?")) {
+        const response = await NotificationService.deleteNotification(alertId);
 
-      const response = await NotificationService.deleteNotification(alertId);
+        if (response != 200) {
+          toast.warn("알림을 삭제하는 중 오류가 발생했습니다.");
+          return;
+        }
 
-      if (response != 200) {
-        toast.warn("알림을 삭제하는 중 오류가 발생했습니다.");
-        return;
+        toast.info("알림이 삭제되었습니다.");
+
+        // 알림 삭제 후, 알림 목록 갱신
+        const newNotifications = notifications.filter(
+          (notification) => notification.alertId !== alertId
+        ); // 삭제한 알림을 제외한 나머지 알림들
+
+        setNotifications(newNotifications); // 알림 목록 갱신
       }
-
-      toast.info("알림이 삭제되었습니다.");
-
-      // 알림 삭제 후, 알림 목록 갱신
-      const newNotifications = notifications.filter(
-        (notification) => notification.alertId !== alertId
-      ); // 삭제한 알림을 제외한 나머지 알림들
-
-      setNotifications(newNotifications); // 알림 목록 갱신
     } catch (err) {
       toast.error(err.message);
     }
   };
 
   const handleDeleteAllNotifications = async () => {
-    window.confirm("모든 알림을 삭제하시겠습니까?");
+    if (window.confirm("모든 알림을 삭제하시겠습니까?")) {
+      const response = await NotificationService.deleteAllNotifications();
 
-    const response = await axiosJsonInstance.deleteAllNotifications();
+      if (response != 200) {
+        toast.warn("알림을 삭제하는 중 오류가 발생했습니다.");
+        return;
+      }
 
-    if (response != 200) {
-      toast.warn("알림을 삭제하는 중 오류가 발생했습니다.");
-      return;
+      toast.info("모든 알림이 삭제되었습니다.");
+
+      setNotifications([]); // 알림 목록 갱신
     }
-
-    toast.info("모든 알림이 삭제되었습니다.");
-
-    setNotifications([]); // 알림 목록 갱신
   };
 
   return (

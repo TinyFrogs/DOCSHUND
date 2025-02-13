@@ -81,7 +81,7 @@ const ReportModal = () => {
     try {
       // 문의 제출 API 호출
       await ReportService.submitReport(formData);
-      toast.success("문의가 성공적으로 제출되었습니다.");
+      toast.success("신고가 성공적으로 제출되었습니다.");
       setCategory("");
       setTitle("");
       setEmail("");
@@ -90,8 +90,8 @@ const ReportModal = () => {
 
       // 문의 제출 후 마이페이지로 이동
     } catch (error) {
-      toast.error("문의 제출 중 오류가 발생했습니다.");
-      console.log("문의 등록 실패", error);
+      toast.error("신고 제출 중 오류가 발생했습니다.");
+      console.log("신고 등록 실패", error);
     }
 
     toggleReport();
@@ -116,38 +116,24 @@ const ReportModal = () => {
   };
 
   return (
-    <Modal
-      isOpen={isReportOpen}
-      closeTimeoutMS={0}
-      style={{
-        overlay: {
-          backgroundColor: "rgba(240,238,229,0.8)",
-          zIndex: 3000,
-        },
-      }}
-      className="border-box w-full h-full flex items-center justify-center"
-    >
-      <AnimatePresence>
-        {isReportVisible ? (
+    <AnimatePresence>
+      {isReportOpen && (
+        <motion.div
+          className="fixed inset-0 flex items-center justify-center z-[2200] backdrop-brightness-60 border-box w-full h-full"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          style={{ backdropFilter: "blur(10px)" }}
+        >
           <motion.div
             key="editor-modal"
-            initial={{ opacity: 0, y: 1000 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 1000 }}
-            transition={{
-              ease: "easeInOut",
-              duration: 0.5,
-            }}
             className="fixed inset-0 flex items-center justify-center min-w-full min-h-full "
           >
             <div className="p-6 bg-white h-fit rounded-xl border-b border-l border-r border-[#E1E1DF] text-[#7D7C77] mb-5">
               <div className="w-full h-fit flex justify-end items-center">
                 <button
                   onClick={() => {
-                    toggleReport();
-                    setTimeout(() => {
-                      closeReport();
-                    }, 600);
+                    closeReport();
                   }}
                   className="cursor-pointer"
                 >
@@ -209,18 +195,6 @@ const ReportModal = () => {
                     <option value="OTHER">기타</option>
                   </select>
                 </div>
-                {/* <div className="mb-6">
-                  <label className="block text-lg font-medium text-black mb-2">
-                    원본
-                  </label>
-                  <textarea
-                    type="text"
-                    value={originContent}
-                    readOnly={true}
-                    className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
-                    style={{ height: "150px" }}
-                  />
-                </div> */}
 
                 <div className="mb-6">
                   <label className="block text-lg font-medium text-black mb-2">
@@ -284,9 +258,9 @@ const ReportModal = () => {
               </form>
             </div>
           </motion.div>
-        ) : null}
-      </AnimatePresence>
-    </Modal>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

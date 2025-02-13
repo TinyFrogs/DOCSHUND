@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import useDocsStore from "../../store/translateStore/docsStore";
-import { fetchDocsList } from "./hooks/translateGetService";
-import { likeDocs } from "./hooks/translatePostService";
+import { fetchDocsList } from "./services/translateGetService";
+import { likeDocs } from "./services/translatePostService";
 import { motion } from "framer-motion";
+
+import useModalStore from "../../store/translateStore/translateModalStore";
+import useDocsStore from "../../store/translateStore/docsStore";
+import chatStore from "../../store/chatStore";
 
 const TransLatePage = () => {
   const userId = useRef(0);
@@ -15,8 +18,9 @@ const TransLatePage = () => {
   }
 
   //포지션 필터 버튼 관련
-  const docsCategories = ["ALL", "FRONTEND", "BACKEND", "DB"];
+  const docsCategories = ["ALL", "FRONTEND", "BACKEND", "DEVOPS", "DBSQL"];
   const [selectedCategory, setSelectedCategory] = useState("ALL");
+  const closeChat = chatStore((state) => state.closeChat);
 
   const {
     docsList,
@@ -28,12 +32,37 @@ const TransLatePage = () => {
 
   const navigate = useNavigate();
 
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const filteredBestDocsList =
+    windowWidth < 768
+      ? bestDocsList.slice(0, 2)
+      : windowWidth < 1024
+      ? bestDocsList.slice(0, 3)
+      : bestDocsList.slice(0, 4);
+
   useEffect(() => {
     const fetchData = async () => {
       const tmpDocsList = await fetchDocsList();
       setDocsList(tmpDocsList);
       setBestDocsList(tmpDocsList);
+      console.log("tmpDocsList", tmpDocsList);
     };
+
+    // 채팅 모달 상태 초기화
+    closeChat();
+
     fetchData();
   }, []);
 
@@ -79,13 +108,17 @@ const TransLatePage = () => {
               인기 번역 문서
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-12">
-              {bestDocsList.slice(0, 4).map((items, index) => (
+              {filteredBestDocsList.map((items, index) => (
                 <motion.div
                   key={items.docsId}
                   className="relative w-48 h-64 bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transform transition-transform hover:scale-105 border border-[#E8E5E1]"
-                  onClick={() =>
-                    navigate(`/translate/main/viewer/${items.docsId}`)
-                  }
+                  onClick={async () => {
+                    useModalStore.setState({
+                      isEditorOpen: false,
+                      isArchiveOpen: false,
+                    });
+                    navigate(`/translate/main/viewer/${items.docsId}`);
+                  }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1, duration: 0.5 }}
@@ -173,8 +206,17 @@ const TransLatePage = () => {
                     {docs.documentName}
                   </h3>
                   <button
-                    onClick={() => {
+                    onClick={async () => {
+                      useModalStore.setState({
+                        isEditorOpen: false,
+                        isArchiveOpen: false,
+                      });
                       navigate(`/translate/main/viewer/${docs.docsId}`);
+
+                      console.log("docs", docs.documentName);
+                      useDocsStore.setState({
+                        documentName: docs.documentName,
+                      });
                     }}
                     className="cursor-pointer mt-4 px-6 py-2 bg-[rgba(188,91,57,1)] text-white rounded-lg hover:bg-[rgba(188,91,57,0.8)] transition-colors duration-200 font-medium"
                   >

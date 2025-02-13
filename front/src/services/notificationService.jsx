@@ -6,7 +6,7 @@ const NotificationService = {
   async fetchNotifications() {
     try {
       const response = await axiosJsonInstance.get(
-        `http://i12a703.p.ssafy.io:8081/api/v1/docshund//alerts` // 유저 ID로 알림 불러오기
+        `http://i12a703.p.ssafy.io:8081/api/v1/docshund/alerts` // 유저 ID로 알림 불러오기
       );
 
       const data = response.data;

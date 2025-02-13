@@ -11,13 +11,11 @@ const ArticleItemService = {
       // axios 헤더 json에 token을 담아주는 객체를 사용하여 서버에 GET 요청
       const response = await axiosJsonInstance.get(`forums/${articleId}`);
       const data = response.data;
+
+      console.log("fetchArticleItem", articleId, data);
+
       // 가져온 데이터를 반환
       return data;
-
-      // console.log("articleId : ", articleId);
-      // const data = tmpDataDetail;
-
-      // return data;
     } catch (error) {
       //TODO: error handling -> 에러 페이지 제작후 연결까지 구현
       console.log(error);

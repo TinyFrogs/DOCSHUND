@@ -2,6 +2,8 @@ import { useState } from "react";
 import Proptypes from "prop-types";
 import { jwtDecode } from "jwt-decode";
 
+import ReportModal from "../../report";
+import useReportStore from "../../../store/reportStore";
 import communityArticleStore from "../../../store/communityStore/communityArticleStore";
 import ReplyTextarea from "./replyTextarea";
 import ReplyItemService from "../services/replyItemService";
@@ -19,9 +21,25 @@ const ReplyRenderItem = ({
   const replyId = communityArticleStore((state) => state.replyId);
 
   const setReplyId = communityArticleStore((state) => state.setReplyId);
-  const setCommentCount = communityArticleStore(
-    (state) => state.setCommentCount
-  );
+  const openReport = useReportStore((state) => state.openReport);
+  const toggleReport = useReportStore((state) => state.toggleReport);
+
+  const handleReport = (data) => {
+    //TEST
+    console.log("data", data);
+
+    useReportStore.setState({
+      originContent: data.content,
+      reportedUser: data.userId,
+      commentId: data.commentId,
+      articleId: data.articleId,
+      transId: null,
+      chatId: null,
+    });
+
+    openReport();
+    toggleReport();
+  };
 
   // TODO: 댓글 레이아웃 다듬기
   return (
@@ -53,7 +71,7 @@ const ReplyRenderItem = ({
             {token
               ? jwtDecode(token)?.userId === item.userId && (
                   <button
-                    className="hover:text-gray-700 cursor-pointer"
+                    className="text-[#7d7c77] underline cursor-pointer"
                     onClick={async () => {
                       await ReplyItemService.deleteReplyItem(
                         item.articleId,
@@ -71,14 +89,17 @@ const ReplyRenderItem = ({
 
             {token
               ? jwtDecode(token)?.userId != item.userId && (
-                  <button className="hover:text-gray-700 cursor-pointer">
+                  <button
+                    className="text-[#7d7c77] underline text-sm cursor-pointer"
+                    onClick={() => handleReport(item)}
+                  >
                     신고
                   </button>
                 )
               : null}
 
             <button
-              className="hover:text-gray-700 cursor-pointer"
+              className="text-[#7d7c77] underline text-sm cursor-pointer"
               onClick={() => {
                 setReCommentFlag(true); // 대댓글 작성 여부를 알기 위한 flag
                 setReplyId(item.commentId); // 대댓글 작성 시 대댓글을 작성하는 원댓글의 id
@@ -88,6 +109,7 @@ const ReplyRenderItem = ({
             </button>
           </div>
         </div>
+        <ReportModal />
       </div>
 
       {/* 유저고, 대댓글이고, 원댓글의 밑에 대해서 */}
@@ -100,6 +122,7 @@ const ReplyRenderItem = ({
           />
         </div>
       )}
+      <ReportModal />
     </div>
   );
 };

@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { axiosJsonInstance } from "./utils/axiosInstance.jsx";
+
 import UseSSE from "./hooks/useSSE.jsx";
 
 //네비게이션 바
@@ -19,13 +19,13 @@ import ToastModal from "./components/alertModal/toastModal.jsx";
 import notificationModalStore from "./store/notificationModalStore.jsx";
 import NotificationService from "./services/notificationService.jsx";
 
-//챗봇
-import ChatBotStore from "./store/chatBotStore.jsx";
-
 //문서채팅
 import Chat from "./pages/chat/chat.jsx";
 import ChatStore from "./store/chatStore.jsx";
 import chatImg from "./assets/icon/chat.png";
+
+//챗봇
+import ChatBotStore from "./store/chatBotStore.jsx";
 
 Modal.setAppElement("#root");
 
@@ -55,21 +55,29 @@ function App() {
 
   useEffect(() => {
     // NOTE: 로그인 성공 시, 기존에 밀려있던 알림을 불러옴
+    const fetchNotifications = async () => {
+      try {
+        if (token) {
+          // 로그인 or 로그인 상태의 접속시 알림 불러오기
+          const data = await NotificationService.fetchNotifications();
 
-    if (token) {
-      // 로그인 or 로그인 상태의 접속시 알림 불러오기
-      const data = NotificationService.fetchNotifications();
-
-      if (data) {
-        setNotifications(data);
+          if (data) {
+            // NOTE: 알림 데이터가 id 오름차순으로 들어오므로 최신순으로 정렬하기 위해서 reverse() 적용
+            setNotifications(data.reverse());
+          }
+        }
+      } catch (error) {
+        console.error(error);
       }
-    }
+    };
+
+    fetchNotifications();
   }, [token, location]);
 
   // 유저 ID가 없으면 알림을 불러올 수 없음
   // 유저 ID로 SSE 연결
-  // TODO: SSE 테스트
-  // UseSSE(token ? jwtDecode(token).userId : null);
+
+  UseSSE(token ? jwtDecode(token).userId : null);
 
   return (
     <div
@@ -84,23 +92,8 @@ function App() {
         <AppRouter />
       </div>
       {isTranslateViewerPage ? (
-        <div className="fixed bottom-4 right-4 z-[1900] group">
-          {localStorage.getItem("token") && (
-            <div
-              onClick={toggleChat}
-              className="rounded-full w-16 h-16 bg-gradient-to-r from-[#BC5B39] to-[#E4DCD4] flex justify-center items-center cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 border-2 border-white"
-            >
-              <img
-                className="group-hover:rotate-12 transition-transform duration-300"
-                src={chatImg}
-                alt="채팅 아이콘"
-              />
-            </div>
-          )}
-        </div>
+        <div className="fixed bottom-4 right-3 z-[1900] group"></div>
       ) : null}
-
-      {isChatVisible && <Chat />}
       {isTranslateViewerPage || isAdminPage ? null : <Footer />}
       <LoginModal />
     </div>
