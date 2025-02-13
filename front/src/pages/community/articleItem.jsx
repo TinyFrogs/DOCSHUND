@@ -4,7 +4,7 @@ import { format, isSameDay } from "date-fns";
 import { jwtDecode } from "jwt-decode";
 import { ThumbsUp } from "lucide-react";
 import { toast } from "react-toastify";
-import _, { set } from "lodash";
+import _ from "lodash";
 
 import communityArticleStore from "../../store/communityStore/communityArticleStore";
 import useReportStore from "../../store/reportStore";
@@ -17,8 +17,6 @@ import SkeletonArticleItem from "./components/skeletonArticleItem";
 import ReplyList from "./replyList";
 import RectBtn from "../../components/button/rectBtn";
 import ToastViewer from "../translate/components/toastViewer";
-import logo from "../../assets/logo.png";
-import { article } from "motion/react-client";
 
 const ArticleItem = () => {
   const navigate = useNavigate();
@@ -65,8 +63,6 @@ const ArticleItem = () => {
 
   // NOTE: 즉시 store에 접근하여 데이터를 가져오기 위해 useEffect 사용
   useEffect(() => {
-    console.log("useEffect 실행 -> ", articleId);
-
     const fetchArticleItems = async (articleId) => {
       // 데이터를 가져오기 전에 로딩 상태를 true로 변경
       setLoading(true);
@@ -76,10 +72,9 @@ const ArticleItem = () => {
       // 데이터 가져오기
       try {
         //NOTE: updatedAt이 업데이트 되는 도중에 새로고침해서 데이터를 가져오려 하면 에러 발생
-        console.log("articleItems -> ", articleItems);
 
         // 게시글 아이템을 가져오는 fetchArticleItems 함수 호출
-        if (articleId && _.isEqual(articleItems, {})) {
+        if (articleId) {
           const data = await ArticleItemService.fetchArticleItem(articleId);
           // NOTE: data 호출에 길어봐야 200ms, 0.2초 밖에 안걸림
           // -> 로딩하는 동안 이전 값들이 보이는 것은 store에 상태를 다시 세팅하는 시간이 걸리기 때문으로 추측
@@ -106,17 +101,15 @@ const ArticleItem = () => {
     };
   }, [articleId]);
 
-  const handleDeleteClick = () => async () => {
-    async () => {
-      if (window.confirm("게시글을 삭제하시겠습니까?")) {
-        const response = await ArticleItemService.deleteArticleItem(articleId);
+  const handleDeleteClick = async () => {
+    if (window.confirm("게시글을 삭제하시겠습니까?")) {
+      const response = await ArticleItemService.deleteArticleItem(articleId);
 
-        if (response.status == 204) {
-          toast.info("게시글이 삭제되었습니다.");
-          navigate("/community");
-        }
+      if (response.status == 204) {
+        toast.info("게시글이 삭제되었습니다.");
+        navigate("/community");
       }
-    };
+    }
   };
 
   // NOTE: isInitialLoad가 true일 때만 실행. 로딩중일 때의 깜빡임 현상을 줄여 UX 개선하기 위함
@@ -131,11 +124,44 @@ const ArticleItem = () => {
     );
   }
 
+  // TEST
+  const renderActionButtons = () => {
+    console.log("articleItems => ", articleItems);
+
+    try {
+      if (!token || !articleItems) return null;
+
+      const decodedToken = jwtDecode(token);
+      const isAuthor = decodedToken?.userId === articleItems.userId;
+
+      if (!isAuthor) return null;
+
+      return (
+        <div className="flex gap-2 text-sm text-gray-500 flex-shrink-0">
+          <button
+            className="text-[#7d7c77] underline hover:text-gray-700 cursor-pointer"
+            onClick={() => navigate(`/community/modify/${articleId}`)}
+          >
+            수정
+          </button>
+          <span>|</span>
+          <button
+            className="text-[#7d7c77] underline hover:text-gray-700 cursor-pointer"
+            onClick={handleDeleteClick}
+          >
+            삭제
+          </button>
+        </div>
+      );
+    } catch (error) {
+      console.error("권한 확인 중 에러:", error);
+      return null;
+    }
+  };
+  // TEST
+
   return (
     <div className="flex justify-center w-full">
-      {/* TEST */}
-      {console.log("DOM -> ", articleItems)}
-
       <main className="flex-1 p-4 max-w-[1280px]">
         {/* header */}
         <CommunityHeader />
@@ -150,9 +176,8 @@ const ArticleItem = () => {
                 <h1 className="text-2xl font-bold flex-1 mr-4">
                   {articleItems.title}
                 </h1>
-                {/* TODO: 본인이 작성한 게 아니면 보이지 않도록 + 불가능하도록 하기 */}
                 <div className="flex gap-2 text-sm text-gray-500 flex-shrink-0">
-                  {token
+                  {/* {token
                     ? jwtDecode(token)?.userId === articleItems.userId && (
                         <div className="flex gap-2 text-sm text-gray-500 flex-shrink-0">
                           <button
@@ -177,7 +202,8 @@ const ArticleItem = () => {
                             : null}
                         </div>
                       )
-                    : null}
+                    : null} */}
+                  {renderActionButtons()}
                   {/* INFO: 신고 */}
                   {token
                     ? jwtDecode(token)?.userId != articleItems.userId && (

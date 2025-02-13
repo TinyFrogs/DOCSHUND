@@ -62,10 +62,6 @@ const ArticleList = () => {
           itemsPerPage // 페이지당 보여줄 게시글 수
         );
 
-        if (data.content) {
-          console.log(data.content);
-        }
-
         // 가져온 데이터를 store에 저장
         // 데이터가 비어있지 않을 때
         if (data.content.length > 0) {

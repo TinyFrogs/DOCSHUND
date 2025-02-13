@@ -68,9 +68,6 @@ const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
             }
           });
 
-          console.log("replyData -> ", data);
-          console.log("tmpReplyCount ->", tmpReplyCount);
-
           setCommentCount(tmpReplyCount); // 전체 댓글 개수를 state에 저장
           setArticleId(articleId); // articleId를 state에 저장
         }

@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
+import { ChevronDown, ChevronUp, Layout } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import docsStore from "../../../store/translateStore/docsStore";
 import docsCategoryStore from "../../../store/docsCategoryStore";
 import communityArticleStore from "../../../store/communityStore/communityArticleStore";
 import { fetchDocsList } from "../../translate/services/translateGetService";
-
-import ListIcon from "../../../assets/icon/docsList.png";
-import { ChevronDown, ChevronUp, Layout } from "lucide-react";
 
 // TODO: 디자인 수정(패딩, 마진 등)
 
@@ -16,17 +15,18 @@ const CommunityLeftNav = () => {
   const setDocsList = docsStore((state) => state.setDocsList);
 
   // 대분류 목록과 소분류 목록을 가져옴
-  const positions = docsCategoryStore((state) => state.positions); // 대분류 목록
   const setPositions = docsCategoryStore((state) => state.setPositions);
   const category = communityArticleStore((state) => state.category); // 소분류 카테고리(단일)
   const setCategory = communityArticleStore((state) => state.setCategory);
-  const documentNames = docsCategoryStore((state) => state.documentNames); // 소분류 목록
   const setDocumentNames = docsCategoryStore((state) => state.setDocumentNames);
 
   // 대분류와 소분류 목록을 저장할 Map
   const [positionMap, setPositionMap] = useState(new Map());
   const [expandedSections, setExpandedSections] = useState({});
   const [navData, setNavData] = useState({});
+
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // 섹션 토글 hook
   const toggleSection = (section) => {
@@ -35,25 +35,6 @@ const CommunityLeftNav = () => {
       [section]: !prev[section],
     }));
   };
-
-  // Map에 데이터 추가하는 hook
-  // const handleAddDataToMap = (key, value, mapCategory) => {
-  //   if (key && value) {
-  //     if (mapCategory === "position") {
-  //       if (!positionMap.has(key)) {
-  //         // 새로운 키의 경우 빈 Set으로 초기화
-  //         setPositionMap((prev) => new Map(prev.set(key, new Set([value]))));
-  //       } else {
-  //         // 기존 키의 경우 Set에 값을 추가
-  //         setPositionMap((prev) => {
-  //           const existingSet = prev.get(key);
-  //           existingSet.add(value);
-  //           return new Map(prev.set(key, existingSet));
-  //         });
-  //       }
-  //     }
-  //   }
-  // };
 
   // 카테고리 및 문서 목록 가져오기
   useEffect(() => {
@@ -151,10 +132,12 @@ const CommunityLeftNav = () => {
                     onClick={() => {
                       // 문서(소분류) 제목 변경
                       setCategory(item);
+                      if (!location.pathname.includes("list")) {
+                        // 카테고리에 해당하는 articleList 호출
+                        navigate(`/community/list`);
+                      }
                     }}
                   >
-                    {/* TODO: 게시글 상세 페이지에서 카테고리 누르면 카테고리에 해당하는 articleList로 */}
-
                     {item}
                   </li>
                 ))}

@@ -36,9 +36,6 @@ const ModifyArticle = () => {
       try {
         // articleItems가 비어있거나 현재 articleId와 다른 경우에만 데이터를 새로 불러옵니다
         if (!articleItems?.articleId && articleItems.articleId !== articleId) {
-          console.log("articleItems api 호출 -> ");
-          console.log(title, mainCategory, subCategory, content);
-
           const data = await ArticleItemService.fetchArticleItem(articleId);
           setArticleItems(data); // store에 데이터 저장
 
@@ -103,31 +100,44 @@ const ModifyArticle = () => {
   const handleSubmit = async (e) => {
     e.preventDefault(); // 기본 동작 방지
 
-    const content = useEditorStore.getState().currentUserText; // 에디터 내용
-
-    // 제목, 대분류, 소분류, 내용, 파일이 모두 입력되었는지 확인
-    if (!title || !mainCategory || !subCategory || !content) {
-      toast.warn("모든 항목을 입력해주세요.");
-      return;
-    } else {
-      const response = await ArticleItemService.patchArticleItem(
-        articleId,
-        title,
-        subCategory,
-        content
-      );
-
-      if (response.status === 204) {
-        setArticleItems({
-          ...articleItems,
+    try {
+      // 제목, 대분류, 소분류, 내용, 파일이 모두 입력되었는지 확인
+      if (!title || !mainCategory || !subCategory || !content) {
+        console.log(
+          "title:",
+          !title,
+          "mainCategory:",
+          !mainCategory,
+          "subCategory:",
+          !subCategory,
+          "contentValue:",
+          !content
+        );
+        toast.warn("모든 항목을 입력해주세요.");
+        return;
+      } else {
+        const response = await ArticleItemService.patchArticleItem(
+          articleId,
           title,
-          position: mainCategory,
-          documentName: subCategory,
-          content,
-        });
-        toast.info("글 수정이 완료되었습니다.");
-        navigate(`/community/article/${articleId}`);
+          subCategory,
+          content
+        );
+
+        if (response.status === 204) {
+          setArticleItems({
+            ...articleItems,
+            title,
+            position: mainCategory,
+            documentName: subCategory,
+            content,
+          });
+          toast.info("글 수정이 완료되었습니다.");
+          navigate(`/community/article/${articleId}`);
+        }
       }
+    } catch (error) {
+      console.error("Failed to modify article:", error);
+      toast.error("게시글 수정에 실패했습니다.");
     }
   };
 

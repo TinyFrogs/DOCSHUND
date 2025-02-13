@@ -12,12 +12,9 @@ const ArticleItemService = {
       const response = await axiosJsonInstance.get(`forums/${articleId}`);
       const data = response.data;
 
-      console.log("fetchArticleItem", articleId, data);
-
       // 가져온 데이터를 반환
       return data;
     } catch (error) {
-      //TODO: error handling -> 에러 페이지 제작후 연결까지 구현
       console.log(error);
       return error;
     }

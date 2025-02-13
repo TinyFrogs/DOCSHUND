@@ -89,7 +89,6 @@ const WriteArticle = () => {
       toast.info("모든 항목을 입력해주세요.");
       return;
     } else {
-      console.log(content.length);
       if (content.length > 10000) {
         toast.info("글 내용은 10000자 이하로 작성해주세요.");
         return;
@@ -154,16 +153,11 @@ const WriteArticle = () => {
                       value={mainCategory}
                     >
                       <option value="">대분류를 선택하세요</option>
-                      {Object.keys(documentNames).map(
-                        (section) => (
-                          console.log(section),
-                          (
-                            <option key={section} value={section}>
-                              {section}
-                            </option>
-                          )
-                        )
-                      )}
+                      {Object.keys(documentNames).map((section) => (
+                        <option key={section} value={section}>
+                          {section}
+                        </option>
+                      ))}
                     </select>
                     <select
                       className="flex-1 py-2 px-3 border bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"

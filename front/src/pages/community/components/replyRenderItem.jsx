@@ -25,9 +25,6 @@ const ReplyRenderItem = ({
   const toggleReport = useReportStore((state) => state.toggleReport);
 
   const handleReport = (data) => {
-    //TEST
-    console.log("data", data);
-
     useReportStore.setState({
       originContent: data.content,
       reportedUser: data.userId,

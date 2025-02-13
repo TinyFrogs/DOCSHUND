@@ -65,13 +65,13 @@ axiosMultipartInstance.interceptors.request.use(requestInterceptor, (error) =>
   Promise.reject(error)
 );
 
-// axiosJsonInstance.interceptors.response.use(
-//   (response) => response,
-//   responseInterceptor
-// );
-// axiosMultipartInstance.interceptors.response.use(
-//   (response) => response,
-//   responseInterceptor
-// );
+axiosJsonInstance.interceptors.response.use(
+  (response) => response,
+  responseInterceptor
+);
+axiosMultipartInstance.interceptors.response.use(
+  (response) => response,
+  responseInterceptor
+);
 
 export { axiosJsonInstance, axiosMultipartInstance };
