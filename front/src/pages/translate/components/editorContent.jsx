@@ -27,6 +27,7 @@ const EditorContent = ({ initialTextContent, maxLength = 15000 }) => {
     if (editorRef.current) {
       const editorInstance = editorRef.current.getInstance();
       const markdownContent = editorInstance.getMarkdown();
+
       if (markdownContent?.length <= maxLength) {
         setCurrentUserText(markdownContent);
         setContentLength(markdownContent.length);
@@ -46,10 +47,6 @@ const EditorContent = ({ initialTextContent, maxLength = 15000 }) => {
   };
 
   useEffect(() => {
-    setCurrentUserText(docsPart);
-  }, [docsPart]);
-
-  useEffect(() => {
     if (fileUrl) {
       handleInsertImage(fileUrl);
       setFileUrl("");
@@ -64,14 +61,7 @@ const EditorContent = ({ initialTextContent, maxLength = 15000 }) => {
         height="100%"
         previewStyle="tab"
         onChange={handleEditorChange}
-        theme="dark"
-        toolbarItems={[
-          ["heading", "bold", "italic", "strike"],
-          ["hr", "quote"],
-          ["ul", "ol", "task"],
-          ["table", "link"],
-          ["code", "codeblock"],
-        ]}
+        toolbarItems={[["ul", "ol", "task"], ["link"], ["codeblock"]]}
         useImageUpload={false}
         placeholder={"내용을 입력하세요"}
       />

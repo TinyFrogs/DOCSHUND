@@ -55,6 +55,7 @@ const TransLatePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       const tmpDocsList = await fetchDocsList();
+      tmpDocsList.sort((a, b) => b.likeCount - a.likeCount);
       setDocsList(tmpDocsList);
       setBestDocsList(tmpDocsList);
       console.log("tmpDocsList", tmpDocsList);

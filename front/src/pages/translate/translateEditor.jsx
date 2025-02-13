@@ -12,6 +12,7 @@ import RectBtn from "../../components/button/rectBtn";
 //상태 관련
 import useModalStore from "../../store/translateStore/translateModalStore";
 import useEditorStore from "../../store/translateStore/editorStore";
+import useArchiveStore from "../../store/translateStore/archiveStore";
 //
 
 const TranslateEditor = () => {
@@ -30,11 +31,14 @@ const TranslateEditor = () => {
     clearSubmitData,
   } = useEditorStore();
 
+  const { setTransList } = useArchiveStore();
+
   //에디터 내용 변경 상태
   const { setTempSave, setSubmitData } = useEditorStore();
 
   const handleSubmit = async (docsId, originId, currentUserText) => {
-    registTranslate(docsId, originId, currentUserText);
+    const status = await registTranslate(docsId, originId, currentUserText);
+    return status;
   };
 
   const handleClose = () => {
@@ -48,7 +52,7 @@ const TranslateEditor = () => {
     <AnimatePresence>
       {isEditorOpen && (
         <motion.div
-          className="fixed inset-0 flex items-center justify-center z-[2200] backdrop-brightness-60 border-box w-full h-full"
+          className="fixed inset-0 flex items-center justify-center z-[2100] backdrop-brightness-60 border-box w-full h-full"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -90,15 +94,6 @@ const TranslateEditor = () => {
                 <div className="flex space-x-6 ">
                   <RectBtn
                     onClick={async () => {
-                      setTempSave(currentUserText);
-                      toast.success("임시 저장 완료");
-                      setIsVisible(true);
-                      setTimeout(() => setIsVisible(false), 1500);
-                    }}
-                    text="임시저장"
-                  />
-                  <RectBtn
-                    onClick={async () => {
                       if (
                         currentUserText === "" ||
                         currentUserText === null ||
@@ -114,12 +109,18 @@ const TranslateEditor = () => {
                         originId,
                         currentUserText
                       );
-                      const isRegist = status;
-                      if (isRegist === null) {
+
+                      if (status !== 200) {
                         toast.error("제출 실패");
                       } else {
                         toast.success("제출 완료");
-                        fetchBestTranslate(docsId, "", false);
+                        const tmpTransList = await fetchBestTranslate(
+                          docsId,
+                          "",
+                          false
+                        );
+                        tmpTransList.sort((a, b) => b.likeCount - a.likeCount);
+                        setTransList(tmpTransList);
                         setIsVisible(true);
                         setTimeout(() => setIsVisible(false), 1500);
                         setTimeout(() => closeEditor(), 2000);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import * as motion from "motion/react-client";
 import { AnimatePresence } from "motion/react";
@@ -9,7 +9,7 @@ import ReportModal from "../report.jsx";
 // 서비스
 import { fetchBestTranslate } from "./services/translateGetService.jsx";
 import { likeTranslate } from "./services/translatePostService.jsx";
-import userProfileService from "../myPage/services/userProfileService.jsx";
+
 //상태관리
 import useEditorStore from "../../store/translateStore/editorStore.jsx";
 import useArchiveStore from "../../store/translateStore/archiveStore.jsx";
@@ -18,15 +18,12 @@ import useModalStore from "../../store/translateStore/translateModalStore.jsx";
 
 const TranslateArchive = () => {
   let userId = 0;
-  const tmpUserList = useRef([]);
-  const [isLiked, setIsLiked] = useState(false);
   if (localStorage.getItem("token")) {
     const token = localStorage.getItem("token");
     userId = jwtDecode(token).userId;
   }
 
   const [transStates, setTransStates] = useState({});
-  const [status, setStatus] = useState(0);
 
   const {
     docsId,
@@ -43,7 +40,6 @@ const TranslateArchive = () => {
   const {
     transList,
     transUserList,
-    orderBy,
     orderByLike,
     defaultStyle,
     toggledStyle,
@@ -53,16 +49,7 @@ const TranslateArchive = () => {
     setOrderByLike,
     setOrderByUpdatedAt,
   } = useArchiveStore();
-  const {
-    openReport,
-    toggleReport,
-    originContent,
-    reportedUser,
-    chatId,
-    articleId,
-    transId,
-    commentId,
-  } = useReportStore();
+  const { openReport, toggleReport } = useReportStore();
 
   //모달 관련 상태
   const { isArchiveOpen, closeArchive } = useModalStore();
@@ -112,6 +99,7 @@ const TranslateArchive = () => {
     const fetchData = async () => {
       if (isArchiveOpen) {
         const tmpTransList = await fetchBestTranslate(docsId, "");
+        tmpTransList.sort((a, b) => b.likeCount - a.likeCount);
         console.log(docsId, "번역 전체", tmpTransList);
         setTransList(tmpTransList);
         changeOrderBy("like", tmpTransList);

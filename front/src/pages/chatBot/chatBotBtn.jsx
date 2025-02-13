@@ -86,7 +86,7 @@ const ChatBotBtn = () => {
   return (
     <div>
       {localStorage.getItem("token") && (
-        <div className="fixed z-[2500] bottom-15 right-3 flex">
+        <div className="fixed z-[2600] bottom-17 right-1 flex">
           <AnimatePresence>
             {isChatBotVisible && (
               <motion.div
@@ -189,7 +189,7 @@ const ChatBotBtn = () => {
               toggleChatBot();
               ChatStore.setState({ isChatVisible: false });
             }}
-            className="fixed bottom-15 right-3 rounded-full w-10 h-10 bg-gradient-to-r from-[#BC5B39] to-[#ff835a] flex justify-center items-center cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 border-2 border-white"
+            className="fixed bottom-15 right-2 rounded-full w-10 h-10 bg-gradient-to-r from-[#BC5B39] to-[#ff835a] flex justify-center items-center cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 border-2 border-white"
           >
             <Bot className="h-8 w-8 text-white group-hover:rotate-12 transition-transform duration-300" />
           </div>

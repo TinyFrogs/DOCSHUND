@@ -27,8 +27,8 @@ export const registTranslate = async (docsId, originId, content) => {
       `docs/${docsId}/trans/${originId}`,
       { content: content }
     );
-    console.log(response.data.message);
-    return response.data.message;
+    console.log(response.status);
+    return response.status;
   } catch (error) {
     console.log("번역 등록 실패", error);
   }

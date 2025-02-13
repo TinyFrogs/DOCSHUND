@@ -48,18 +48,17 @@ const TranslateViewer = () => {
     const token = localStorage.getItem("token");
     userId = jwtDecode(token).userId;
   }
-  const navigate = useNavigate();
+
   const { docsId } = useParams();
   const [docParts, setDocParts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [processedCount, setProcessedCount] = useState(0);
   // 각 문단 별 상태 저장 및 추적
-  const [buttonStates, setButtonStates] = useState({});
+
   const [docpartStates, setDocpartStates] = useState({});
   const [heightStates, setHeightStates] = useState({});
   // 마우스 위치 저장 (컨텍스트 메뉴 위치 조정용)
-  const [mousePositions, setMousePositions] = useState({});
   const [checkComplete, setCheckComplete] = useState(false);
   const docData = useRef([]);
   const loadingRef = useRef(null);
@@ -67,7 +66,6 @@ const TranslateViewer = () => {
   // 문단 높이 조절을 위한 초기 높이 저장 ref
   const initialHeights = useRef({});
   //우클릭메뉴 커스텀을 위한 상태
-
   const [contextMenuPorder, setContextMenuPorder] = useState(0);
 
   // indexedDB 관련 변수
@@ -266,15 +264,6 @@ const TranslateViewer = () => {
 
   return (
     <div className="h-[99%] min-w-[800px] bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto shadow-xl">
-      {/* <button
-        onClick={async () => {
-          navigate(`/translate/main/viewer/${docsId}/best`);
-        }}
-        className="fixed top-2 right-2 z-[1900] group rounded-full w-12 h-12 bg-gradient-to-r from-[#BC5B39] to-[#ff835a] flex justify-center items-center cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 border-2 border-white"
-      >
-        <img className="w-7 h-6" src={Korean} alt="전체 번역 보기" />
-      </button> */}
-
       <div className="flex flex-col gap-2">
         {docParts.map((part, index) => (
           <div

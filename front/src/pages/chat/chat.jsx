@@ -213,7 +213,7 @@ const Chat = () => {
             ease: "easeInOut",
             duration: 0.5,
           }}
-          className="fixed bottom-22 right-5 w-[400px] h-[600px] bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col z-[2600] -translate-x-[12.5%] translate-y-[16%]"
+          className="fixed bottom-26 right-3.5 w-[400px] h-[600px] bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col z-[2600] -translate-x-[12.5%] translate-y-[16%]"
           onClick={(e) => e.stopPropagation()}
         >
           <ReportModal />

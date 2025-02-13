@@ -33,13 +33,41 @@ export const fetchDocsList = async () => {
 };
 
 // 영어 원문 조회
+// export const fetchTranslateData = async (docsId, originId) => {
+//   try {
+//     console.log(docsId, originId);
+//     const response = await axiosJsonInstance.get(
+//       `docs/${docsId}/origin?originId=${originId}`
+//     );
+//     console.log(response);
+//     const data = response.data;
+//     console.log(data);
+//     return data;
+//   } catch (error) {
+//     console.log(error);
+//     return null;
+//   }
+// };
 export const fetchTranslateData = async (docsId, originId) => {
   try {
     console.log(docsId, originId);
-
     const response = await axiosJsonInstance.get(
-      `docs/${docsId}/origin?originId=${originId}`
+      `docs/${docsId}/origin?originId=${originId}`,
+      {
+        onDownloadProgress: (progressEvent) => {
+          console.log("로딩 중...");
+          console.log(progressEvent);
+          if (progressEvent.total) {
+            console.log("로드율을 출력합니다.");
+            const progress = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            console.log(`로드율: ${progress}%`);
+          }
+        },
+      }
     );
+    console.log(response);
     const data = response.data;
     console.log(data);
     return data;

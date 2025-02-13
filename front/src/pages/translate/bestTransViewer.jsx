@@ -195,10 +195,6 @@ const BestTransViewer = () => {
                 ) : (
                   <ToastViewer content={""} />
                 )}
-
-                {/* {tmpBestTransList.current[part.id] && (
-                  <Trophy className="w-6 h-6 shrink-0 m-2 text-yellow-500" />
-                )} */}
               </div>
             </div>
           </div>
