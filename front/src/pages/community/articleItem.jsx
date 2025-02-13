@@ -71,14 +71,15 @@ const ArticleItem = () => {
       // 데이터를 가져오기 전에 로딩 상태를 true로 변경
       setLoading(true);
 
-      clearArticleItems(); // store의 articleItems 초기화
+      // clearArticleItems(); // store의 articleItems 초기화
 
       // 데이터 가져오기
       try {
         //NOTE: updatedAt이 업데이트 되는 도중에 새로고침해서 데이터를 가져오려 하면 에러 발생
+        console.log("articleItems -> ", articleItems);
 
         // 게시글 아이템을 가져오는 fetchArticleItems 함수 호출
-        if (articleId) {
+        if (articleId && _.isEqual(articleItems, {})) {
           const data = await ArticleItemService.fetchArticleItem(articleId);
           // NOTE: data 호출에 길어봐야 200ms, 0.2초 밖에 안걸림
           // -> 로딩하는 동안 이전 값들이 보이는 것은 store에 상태를 다시 세팅하는 시간이 걸리기 때문으로 추측
@@ -101,7 +102,7 @@ const ArticleItem = () => {
 
     // 컴포넌트가 언마운트 될 때 store의 articleItems 초기화
     return () => {
-      clearArticleItems();
+      if (articleId !== storeArticleId) clearArticleItems();
     };
   }, [articleId]);
 
@@ -132,6 +133,9 @@ const ArticleItem = () => {
 
   return (
     <div className="flex justify-center w-full">
+      {/* TEST */}
+      {console.log("DOM -> ", articleItems)}
+
       <main className="flex-1 p-4 max-w-[1280px]">
         {/* header */}
         <CommunityHeader />

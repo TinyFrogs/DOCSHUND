@@ -33,7 +33,7 @@ const UseSSE = (userId) => {
 
         // INFO: EventSource 객체 생성 -> stream 주소, 헤더 설정
         eventSource = new EventSource(
-          `http://i12a703.p.ssafy.io:8081/api/v1/docshund/alerts/stream`,
+          `https://i12a703.p.ssafy.io:8081/api/v1/docshund/alerts/stream`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
