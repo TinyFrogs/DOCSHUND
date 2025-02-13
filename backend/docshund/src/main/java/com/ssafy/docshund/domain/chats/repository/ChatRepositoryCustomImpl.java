@@ -13,7 +13,6 @@ import com.ssafy.docshund.domain.chats.dto.ChatInfoDto;
 import com.ssafy.docshund.domain.chats.dto.QChatInfoDto;
 import com.ssafy.docshund.domain.chats.entity.QChat;
 import com.ssafy.docshund.domain.chats.entity.Status;
-import com.ssafy.docshund.domain.docs.entity.QDocument;
 import com.ssafy.docshund.domain.users.entity.QUser;
 
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,6 @@ public class ChatRepositoryCustomImpl implements ChatRepositoryCustom {
 
 		QChat chat = QChat.chat;
 		QUser user = QUser.user;
-		QDocument document = QDocument.document;
 
 		List<ChatInfoDto> result = queryFactory
 			.select(new QChatInfoDto(
@@ -41,10 +39,9 @@ public class ChatRepositoryCustomImpl implements ChatRepositoryCustom {
 				chat.user.profileImage
 			))
 			.from(chat)
-			.join(document).on(chat.document.docsId.eq(document.docsId))
-			.join(user).on(chat.user.userId.eq(user.userId))
+			.join(user).on(chat.user.userId.eq(user.userId)) // ✅ user 조인은 필요함!
 			.where(chat.document.docsId.eq(docsId),
-				chat.status.eq(Status.VISIBLE))
+				chat.status.eq(Status.VISIBLE)) // ✅ docsId 필터링 및 Status 체크
 			.orderBy(chat.createdAt.desc())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
@@ -54,10 +51,12 @@ public class ChatRepositoryCustomImpl implements ChatRepositoryCustom {
 				queryFactory
 					.select(chat.count())
 					.from(chat)
-					.where(chat.document.docsId.eq(docsId))
+					.where(chat.document.docsId.eq(docsId),
+						chat.status.eq(Status.VISIBLE)) // ✅ total도 동일한 조건으로 필터링
 					.fetchOne())
 			.orElse(0L);
 
 		return new PageImpl<>(result, pageable, total);
 	}
+
 }
