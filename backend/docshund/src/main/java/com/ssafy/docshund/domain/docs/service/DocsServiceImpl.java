@@ -334,6 +334,12 @@ public class DocsServiceImpl implements DocsService {
 		if (file == null || file.isEmpty()) {
 			throw new DocsException(DocsExceptionCode.REQUIRED_IS_EMPTY);
 		}
+
+		String fileName = file.getOriginalFilename();
+		if (fileName == null || !fileName.toLowerCase().endsWith(".txt")) {
+			throw new DocsException(DocsExceptionCode.INVALID_FILE_TYPE);
+		}
+
 		log.info("[Service] 업로드된 파일 크기: {} bytes", file.getSize());
 		log.info("[Service] 파이썬 스크립트 실행 준비중...");
 

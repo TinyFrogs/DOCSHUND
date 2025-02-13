@@ -22,7 +22,8 @@ public enum DocsExceptionCode implements ExceptionCode {
 	TOO_MANY_REQUEST(TOO_MANY_REQUESTS, "D-C-009", "요청이 너무 많습니다."),
 	ILLEGAL_ARGUMENT(BAD_REQUEST, "D-C-010", "잘못된 인자거나 필수 인자가 누락되었습니다."),
 	PYTHON_ERROR(INTERNAL_SERVER_ERROR, "D-C-011", "파이썬 서버와의 통신 중 오류가 발생했습니다."),
-	ALREADY_EXIST_ORIGIN(BAD_REQUEST, "D-C-012", "문서에 이미 연결된 원본이 존재합니다.");
+	ALREADY_EXIST_ORIGIN(BAD_REQUEST, "D-C-012", "문서에 이미 연결된 원본이 존재합니다."),
+	INVALID_FILE_TYPE(BAD_REQUEST, "D-C-013", "지원하지 않는 파일 형식입니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;
