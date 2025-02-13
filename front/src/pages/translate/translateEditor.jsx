@@ -20,14 +20,7 @@ const TranslateEditor = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   //모달 관련 상태
-  const {
-    isEditorOpen,
-    closeEditor,
-    openArchive,
-    isEditorVisible,
-    toggleEditor,
-    toggleArchive,
-  } = useModalStore();
+  const { isEditorOpen, closeEditor, openArchive } = useModalStore();
 
   const {
     clearDocsPart,
@@ -129,10 +122,8 @@ const TranslateEditor = () => {
                         fetchBestTranslate(docsId, "", false);
                         setIsVisible(true);
                         setTimeout(() => setIsVisible(false), 1500);
-                        setTimeout(() => toggleEditor(), 1500);
                         setTimeout(() => closeEditor(), 2000);
                         setTimeout(() => openArchive(), 2000);
-                        setTimeout(() => toggleArchive(), 2200);
                       }
                     }}
                     text="제출하기"
@@ -141,7 +132,6 @@ const TranslateEditor = () => {
                     onClick={async () => {
                       closeEditor();
                       handleClose();
-                      setTimeout(() => toggleEditor(), 300);
                     }}
                     text="나가기"
                   />

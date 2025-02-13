@@ -298,7 +298,10 @@ const TranslateViewer = () => {
                 const filteredTranslations = tmpTransList.filter(
                   (item) => item.originId === part.originId
                 );
-                if (filteredTranslations.length > 0) {
+                if (
+                  filteredTranslations.length > 0 &&
+                  filteredTranslations[0].likeCount > 0
+                ) {
                   setBestTrans(filteredTranslations[0].content);
                 } else {
                   setBestTrans("");

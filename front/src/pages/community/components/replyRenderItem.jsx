@@ -122,6 +122,7 @@ const ReplyRenderItem = ({
           />
         </div>
       )}
+      <ReportModal />
     </div>
   );
 };
