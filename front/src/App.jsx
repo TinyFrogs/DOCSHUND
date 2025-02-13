@@ -23,7 +23,6 @@ import NotificationService from "./services/notificationService.jsx";
 import Chat from "./pages/chat/chat.jsx";
 import ChatStore from "./store/chatStore.jsx";
 import chatImg from "./assets/icon/chat.png";
-import { MessageCircle } from "lucide-react";
 
 //챗봇
 import ChatBotStore from "./store/chatBotStore.jsx";
@@ -40,8 +39,6 @@ function App() {
 
   const { isChatVisible, toggleChat } = ChatStore();
   const { setNotifications } = notificationModalStore();
-
-  const { isChatBotVisible, toggleChatBot } = ChatBotStore();
 
   useEffect(() => {
     console.log("토큰 세팅 실행");
@@ -95,24 +92,8 @@ function App() {
         <AppRouter />
       </div>
       {isTranslateViewerPage ? (
-        <div className="fixed bottom-4 right-3 z-[1900] group">
-          {localStorage.getItem("token") && (
-            <div
-              onClick={() => {
-                toggleChat();
-                ChatBotStore.setState({
-                  isChatBotVisible: false,
-                });
-              }}
-              className="rounded-full w-10 h-10 bg-gradient-to-r from-[#BC5B39] to-[#ff835a] flex justify-center items-center cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 border-2 border-white"
-            >
-              <MessageCircle className="text-white w-6 h-6 transition-transform duration-300" />
-            </div>
-          )}
-        </div>
+        <div className="fixed bottom-4 right-3 z-[1900] group"></div>
       ) : null}
-
-      {isChatVisible && <Chat />}
       {isTranslateViewerPage || isAdminPage ? null : <Footer />}
       <LoginModal />
     </div>
