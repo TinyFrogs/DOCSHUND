@@ -22,42 +22,42 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ChatRepositoryCustomImpl implements ChatRepositoryCustom {
 
-    private final JPAQueryFactory queryFactory;
+	private final JPAQueryFactory queryFactory;
 
-    @Override
-    public Page<ChatInfoDto> findAllByDocsId(Integer docsId, Pageable pageable) {
+	@Override
+	public Page<ChatInfoDto> findAllByDocsId(Integer docsId, Pageable pageable) {
 
-        QChat chat = QChat.chat;
-        QUser user = QUser.user;
-        QDocument document = QDocument.document;
+		QChat chat = QChat.chat;
+		QUser user = QUser.user;
+		QDocument document = QDocument.document;
 
-        List<ChatInfoDto> result = queryFactory
-                .select(new QChatInfoDto(
-                        chat.document.docsId,
-                        chat.chatId,
-                        chat.content,
-                        chat.user.userId,
-                        chat.user.nickname,
-                        chat.user.profileImage
-                ))
-                .from(chat)
-                .join(document).on(chat.document.docsId.eq(document.docsId))
-                .join(user).on(chat.user.userId.eq(user.userId))
-                .where(chat.document.docsId.eq(document.docsId),
-                        chat.status.eq(Status.VISIBLE))
-                .orderBy(chat.createdAt.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+		List<ChatInfoDto> result = queryFactory
+			.select(new QChatInfoDto(
+				chat.document.docsId,
+				chat.chatId,
+				chat.content,
+				chat.user.userId,
+				chat.user.nickname,
+				chat.user.profileImage
+			))
+			.from(chat)
+			.join(document).on(chat.document.docsId.eq(document.docsId))
+			.join(user).on(chat.user.userId.eq(user.userId))
+			.where(chat.document.docsId.eq(docsId),
+				chat.status.eq(Status.VISIBLE))
+			.orderBy(chat.createdAt.desc())
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.fetch();
 
-        Long total = Optional.ofNullable(
-                queryFactory
-                        .select(chat.count())
-                        .from(chat)
-                        .where(chat.document.docsId.eq(docsId))
-                        .fetchOne())
-                .orElse(0L);
+		Long total = Optional.ofNullable(
+				queryFactory
+					.select(chat.count())
+					.from(chat)
+					.where(chat.document.docsId.eq(docsId))
+					.fetchOne())
+			.orElse(0L);
 
-        return new PageImpl<>(result, pageable, total);
-    }
+		return new PageImpl<>(result, pageable, total);
+	}
 }
