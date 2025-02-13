@@ -24,6 +24,8 @@ const LikeArticlePage = () => {
   const [itemsPerPage, setItmesPerPage] = useState(15);
   const [likedItems, setLikedItems] = useState({});
 
+  const { handleLikeToggle } = useOutletContext();
+
   useEffect(() => {
     const fetchArticles = async () => {
       setLoading(true);

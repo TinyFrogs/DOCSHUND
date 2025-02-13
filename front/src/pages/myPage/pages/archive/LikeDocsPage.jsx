@@ -95,7 +95,7 @@ const LikeDocsPage = () => {
       <ListRender
         data={currentData}
         renderItem={renderDocs}
-        totalPages={totalPages}
+        totalPages={docs.length > 0 ? totalPages : 0}
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
         itemCategory="docs"

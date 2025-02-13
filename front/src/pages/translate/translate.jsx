@@ -107,11 +107,11 @@ const TransLatePage = () => {
             <h2 className="text-left text-2xl font-semibold text-[#BC5B39] mb-8">
               인기 번역 문서
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-12">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
               {filteredBestDocsList.map((items, index) => (
                 <motion.div
                   key={items.docsId}
-                  className="relative w-48 h-64 bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transform transition-transform hover:scale-105 border border-[#E8E5E1]"
+                  className="relative w-full sm:w-48 h-64 bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transform transition-transform hover:scale-105 border border-[#E8E5E1]"
                   onClick={async () => {
                     useModalStore.setState({
                       isEditorOpen: false,
@@ -128,9 +128,9 @@ const TransLatePage = () => {
                     <img
                       src={items.documentLogo}
                       alt="문서 로고"
-                      className="w-32 h-32 object-contain rounded-full border border-[#E8E5E1]"
+                      className="w-24 h-24 sm:w-32 sm:h-32 object-contain rounded-full border border-[#E8E5E1]"
                     />
-                    <div className="w-32 text-center text-[#BC5B39] text-base font-semibold p-4 break-words">
+                    <div className="w-24 sm:w-32 text-center text-[#BC5B39] text-base font-semibold p-4 break-words">
                       {items.documentName}
                     </div>
                   </div>
@@ -164,7 +164,7 @@ const TransLatePage = () => {
           </div>
 
           {/* 전체 문서 카드 리스트 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 mt-8">
             {docsList.map((docs, index) => (
               <div
                 key={index}
@@ -200,7 +200,11 @@ const TransLatePage = () => {
                 )}
                 <div className="p-6 flex flex-col items-center">
                   <div className="bg-gray-50 rounded-lg flex items-center justify-center mb-4">
-                    <img src={docs.documentLogo} alt="문서 아이콘" />
+                    <img
+                      src={docs.documentLogo}
+                      alt="문서 아이콘"
+                      className="w-24 h-24 sm:w-32 sm:h-32"
+                    />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-3">
                     {docs.documentName}

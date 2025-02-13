@@ -162,7 +162,7 @@ const MyTranslationPage = () => {
       <ListRender
         data={currentData}
         renderItem={renderTranslation}
-        totalPages={totalPages}
+        totalPages={myTranslations.length > 0 ? totalPages : 0}
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
         itemCategory={"trans"}

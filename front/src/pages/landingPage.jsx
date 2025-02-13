@@ -168,7 +168,7 @@ const LandingPage = () => {
                 step: "2",
                 title: "사용자 참여 번역",
                 description:
-                  "AI 번역 초안을 수정·보완하여 번역 품질을 높이세요",
+                  "첫 번역의 영광을 누리세요 그리고 유저들과 함께 번역해보세요",
                 image:
                   "https://i.pinimg.com/736x/55/37/40/553740a0c11fd9afb5b83be406fe7b69.jpg",
               },
@@ -188,14 +188,14 @@ const LandingPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.2 }}
               >
-                <div className="relative mb-6">
-                  <div className="absolute -top-4 -left-4 w-8 h-8 bg-[#bc5b39] text-white rounded-full flex items-center justify-center">
+                <div className="relative mb-6 mx-auto">
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 sm:left-4 sm:transform-none w-8 h-8 bg-[#bc5b39] text-white rounded-full flex items-center justify-center">
                     {item.step}
                   </div>
                   <img
                     src={item.image}
                     alt={item.title}
-                    className="rounded-lg shadow-lg w-full"
+                    className="rounded-lg shadow-lg w-full sm:w-3/4 md:w-full max-w-xs mx-auto"
                   />
                 </div>
                 <h3 className="text-xl font-bold mb-2 text-[#424242]">

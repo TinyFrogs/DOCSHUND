@@ -25,6 +25,7 @@ const Chat = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [loadingInitialMessages, setLoadingInitialMessages] = useState(true);
+  const [lastSentTime, setLastSentTime] = useState(0);
 
   const stompClient = useRef(null);
   const containerRef = useRef(null);
@@ -153,16 +154,25 @@ const Chat = () => {
   };
 
   const handleInputChange = (event) => {
-    if (event.target.value.length <= 255) {
+    if (event.target.value.length <= 200) {
       setInputValue(event.target.value);
     }
   };
 
   const handleKeyDown = (event) => {
-    if (event.key === "Enter") sendMessage();
+    if (event.key === "Enter") {
+      event.preventDefault();
+      sendMessage();
+      setInputValue("");
+    }
   };
 
   const sendMessage = () => {
+    const now = Date.now();
+    if (now - lastSentTime < 1000) {
+      toast.info("너무 빠른 메시지 전송은 제한됩니다.");
+      return;
+    }
     if (inputValue.length > 200) {
       toast.error("200자 이상 메세지는 보낼 수 없습니다.");
       return;
@@ -175,6 +185,7 @@ const Chat = () => {
         JSON.stringify(body)
       );
       setInputValue("");
+      setLastSentTime(now); // 마지막 전송 시점 업데이트
       setTimeout(() => {
         if (containerRef.current) {
           containerRef.current.scrollTop = containerRef.current.scrollHeight;

@@ -46,7 +46,7 @@ const MyProfilePage = () => {
 
   // 3. 프로필 변경 시 편집 중이 아닐 때만 로컬 상태 업데이트
   useEffect(() => {
-    if (profile && !isEditing) {
+    if (profile && !isEditing && !editedProfile.nickname) {
       setEditedProfile({ ...profile });
       console.log("원본 카피완료", profile);
     }

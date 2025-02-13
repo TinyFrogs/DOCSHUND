@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+import { format, isSameDay } from "date-fns";
 
 import MyCommentService from "../../services/myCommentService";
 import myCommentStore from "../../../../store/myPageStore/myCommentStore";
@@ -71,7 +72,13 @@ const MyCommentPage = () => {
           {item.content}
         </Link>
       </div>
-      <p className="whitespace-nowrap">{item.createdAt}</p>
+      <p className="whitespace-nowrap">
+        {item.createdAt
+          ? isSameDay(new Date(item.createdAt), new Date())
+            ? format(new Date(item.createdAt), "HH:mm")
+            : format(new Date(item.createdAt), "yyyy-MM-dd")
+          : "표시할 수 없는 날짜입니다."}
+      </p>
     </div>
   );
 
@@ -80,7 +87,7 @@ const MyCommentPage = () => {
       <ListRender
         data={currentData}
         renderItem={renderComment}
-        totalPages={totalPages}
+        totalPages={comments.length > 0 ? totalPages : 0}
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
         itemCategory="comment"
