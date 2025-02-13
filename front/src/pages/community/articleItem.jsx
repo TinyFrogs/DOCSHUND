@@ -4,7 +4,7 @@ import { format, isSameDay } from "date-fns";
 import { jwtDecode } from "jwt-decode";
 import { ThumbsUp } from "lucide-react";
 import { toast } from "react-toastify";
-import _ from "lodash";
+import _, { set } from "lodash";
 
 import communityArticleStore from "../../store/communityStore/communityArticleStore";
 import useReportStore from "../../store/reportStore";
@@ -18,6 +18,7 @@ import ReplyList from "./replyList";
 import RectBtn from "../../components/button/rectBtn";
 import ToastViewer from "../translate/components/toastViewer";
 import logo from "../../assets/logo.png";
+import { article } from "motion/react-client";
 
 const ArticleItem = () => {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ const ArticleItem = () => {
 
   // stroe의 데이터를 가져오기 위해 정의
   const articleItems = communityArticleStore((state) => state.articleItems);
+  const storeArticleId = communityArticleStore((state) => state.articleId);
   const likeCount = communityArticleStore((state) => state.likeCount);
 
   // store의 메소드를 가져오기 위해 정의
@@ -63,9 +65,12 @@ const ArticleItem = () => {
 
   // NOTE: 즉시 store에 접근하여 데이터를 가져오기 위해 useEffect 사용
   useEffect(() => {
+    console.log("useEffect 실행 -> ", articleId);
+
     const fetchArticleItems = async (articleId) => {
       // 데이터를 가져오기 전에 로딩 상태를 true로 변경
       setLoading(true);
+
       clearArticleItems(); // store의 articleItems 초기화
 
       // 데이터 가져오기
@@ -74,7 +79,6 @@ const ArticleItem = () => {
 
         // 게시글 아이템을 가져오는 fetchArticleItems 함수 호출
         if (articleId) {
-          // detailedArticleService.fetchDetailedArticle 함수를 호출하여 데이터를 가져옴
           const data = await ArticleItemService.fetchArticleItem(articleId);
           // NOTE: data 호출에 길어봐야 200ms, 0.2초 밖에 안걸림
           // -> 로딩하는 동안 이전 값들이 보이는 것은 store에 상태를 다시 세팅하는 시간이 걸리기 때문으로 추측
@@ -84,15 +88,12 @@ const ArticleItem = () => {
             setArticleData(data);
             setIsInitialLoad(false);
           }
-        } else {
-          setTimeout(() => {
-            setIsInitialLoad(false);
-          }, 500);
         }
       } catch (error) {
         setError(error);
       } finally {
         setLoading(false);
+        setIsInitialLoad(false);
       }
     };
 
