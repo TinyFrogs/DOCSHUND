@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --font-family-sans: "Inter", sans-serif;
+}
+::-webkit-scrollbar {
+  width: 8px; /* 세로축 스크롤바 폭 너비 */
+  height: 20px; /* 가로축 스크롤바 폭 너비 */
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(228, 220, 212, 1); /* 스크롤바 막대 색상 */
+  border: 0px solid #9b6a2f; /* 스크롤바 막대 테두리 설정  */
+  border-radius: 12px 12px 12px 12px;
+  cursor: pointer;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #c96442;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(220, 20, 60, 0);
+}
+
+/* 예: src/index.css 또는 src/App.css */
+:root {
+  --contexify-bg-color: #e4dcd4;
+  --contexify-separator-bg: #4c4c4c;
+  --contexify-item-color: #424242;
+  --contexify-activeItem-bgColor: #bc5b39;
+  --contexify-hover-bg: #bc5b39;
+  --contexify-hover-text: #fff;
+  --contexify-submenu-arrow-color: #773131;
+}
+
+.contexify {
+  background-color: var(--contexify-bg-color) !important;
+  width: 100px !important;
+  color: var(--contexify-item-color) !important;
+  border-radius: 12px !important;
+}
+
+.contexify__activeItem {
+  background-color: var(--contexify-activeItem-bgColor) !important;
+  color: var(--contexify-hover-text) !important;
+}
