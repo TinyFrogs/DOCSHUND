@@ -111,7 +111,7 @@ const Chat = () => {
       const initialMessages = content.reverse();
       setMessages(initialMessages);
       setCurrentPage(0);
-      setHasMore(!last); // last가 false면 더 불러올 메시지가 있음
+      setHasMore(!last && initialMessages.length > 0); // last가 false면 더 불러올 메시지가 있음
 
       // 스크롤을 맨 아래로 이동
       setTimeout(() => {
@@ -219,7 +219,7 @@ const Chat = () => {
             >
               {!loadingInitialMessages && (
                 <div className="text-center mb-2">
-                  {hasMore ? (
+                  {hasMore && messages.length > 0 ? (
                     <button
                       onClick={loadPreviousMessages}
                       className="px-3 py-1 text-gray-400 underline rounded hover:text-gray-800"
@@ -227,9 +227,11 @@ const Chat = () => {
                       이전 채팅 더 불러오기
                     </button>
                   ) : (
-                    <span className="text-xs text-gray-500">
-                      더 이상 불러올 메세지가 없습니다.
-                    </span>
+                    messages.length > 0 && (
+                      <span className="text-xs text-gray-500">
+                        더 이상 불러올 메세지가 없습니다.
+                      </span>
+                    )
                   )}
                 </div>
               )}

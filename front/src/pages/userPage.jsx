@@ -63,6 +63,7 @@ const UserPage = () => {
     fetchData();
   }, [
     userId,
+    setUserId,
     setUserProfile,
     setArticles,
     setComments,

@@ -79,7 +79,7 @@ const TransLatePage = () => {
               인기 번역 문서
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-12">
-              {bestDocsList.slice(0, 4).map((items, index) => (
+              {bestDocsList?.slice(0, 4).map((items, index) => (
                 <motion.div
                   key={items.docsId}
                   className="relative w-48 h-64 bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transform transition-transform hover:scale-105 border border-[#E8E5E1]"

@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
 import { FaPlus } from "react-icons/fa6";
 import { NavLink, useNavigate } from "react-router-dom";
 import EditorModal from "../../pages/myPage/components/EditorModal.jsx";
 import RoundCornerBtn from "../button/roundCornerBtn.jsx";
 import { fetchDocsList } from "../../pages/translate/hooks/translateGetService.jsx";
+import memoService from "../../pages/myPage/services/memoService";
+import useMemoStore from "../../store/myPageStore/memoStore";
 
 // 상태 import
 import useDocsStore from "../../store/translateStore/docsStore.jsx";
@@ -37,6 +40,34 @@ const LeftNav = () => {
     "max-w-[15%] min-w-fit w-60 h-[80%] bg-[#F0EEE5] shadow-lg flex flex-col border-box border-1 border-[#E0DED9] absolute top-1/2 -translate-y-1/2 rounded-br-4xl rounded-tr-4xl transform transition-all duration-400 -translate-x-[90%] z-[1500]"
   ); // 배경색 및 테두리 색상 변경, 애니메이션 효과 조정
   const { isOpen, openModal, closeModal } = modalStore();
+  const { setMemos } = useMemoStore();
+  const token = localStorage.getItem("token");
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      setUserId(decodedToken.userId);
+    }
+  }, [token]);
+
+  const handleCreateMemo = async (memoData) => {
+    if (userId) {
+      try {
+        await memoService.createMemo(userId, memoData);
+        const data = await memoService.fetchMemos(userId);
+        if (data) {
+          setMemos(data.reverse());
+        } else {
+          setMemos([]);
+        }
+        closeModal();
+      } catch (error) {
+        console.error("Error creating memo:", error);
+      }
+    }
+  };
+
   //메모 관련 상태
   const [memoData, setMemoData] = useState({
     title: "",
@@ -188,21 +219,10 @@ const LeftNav = () => {
       <div className="absolute z-[2500]">
         <EditorModal
           title="새 메모"
-          fields={[
-            {
-              label: "제목",
-              name: "title",
-              type: "text",
-              placeholder: "제목을 입력하세요",
-              value: memoData.title,
-              onChange: handleInputChange,
-              required: true,
-            },
-          ]}
           buttonText="작성 완료"
           isOpen={isOpen}
           closeModal={closeModal}
-          onSubmit={handleSubmit}
+          onSubmit={handleCreateMemo}
         />
       </div>
     </div>

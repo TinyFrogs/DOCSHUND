@@ -3,6 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import useNoticeStore from "../../store/helpDeskStore/noticeStore";
 import NoticeService from "../../services/helpDeskServices/noticeService";
 import { format, isSameDay } from "date-fns";
+import { Viewer } from "@toast-ui/react-editor";
+import "@toast-ui/editor/dist/toastui-editor-viewer.css";
 
 const NoticeDetail = () => {
   const { noticeId } = useParams();
@@ -14,6 +16,7 @@ const NoticeDetail = () => {
       setLoading(true);
       try {
         const data = await NoticeService.fetchNoticeDetail(noticeId);
+        console.log("Fetched notice detail:", data); // Debug log
         setNoticeDetail(data);
       } catch (error) {
         setError(error);
@@ -53,7 +56,11 @@ const NoticeDetail = () => {
             </div>
             <div className="border-b border-[#E1E1DF] pb-4 mb-4">
               <div className="min-h-[200px] whitespace-pre-wrap mb-6">
-                {noticeDetail.content}
+                {noticeDetail.content ? (
+                  <Viewer initialValue={noticeDetail.content} />
+                ) : (
+                  <p></p>
+                )}
               </div>
             </div>
           </div>
