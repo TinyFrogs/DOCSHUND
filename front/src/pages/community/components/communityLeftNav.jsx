@@ -154,6 +154,7 @@ const CommunityLeftNav = () => {
                     }}
                   >
                     {/* TODO: 게시글 상세 페이지에서 카테고리 누르면 카테고리에 해당하는 articleList로 */}
+
                     {item}
                   </li>
                 ))}
