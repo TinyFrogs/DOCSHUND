@@ -43,7 +43,7 @@ const Chat = () => {
 
     // socketFactory 내부에서 웹소켓 에러 이벤트를 처리
     const socketFactory = () => {
-      const socket = new WebSocket("wss://i12a703.p.ssafy.io:8081/ws-connect");
+      const socket = new WebSocket("wss://i12a703.p.ssafy.io/ws-connect");
 
       // 웹소켓 자체 에러 처리
       socket.onerror = (event) => {
