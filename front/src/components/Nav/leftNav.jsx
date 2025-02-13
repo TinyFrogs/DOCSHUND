@@ -8,9 +8,13 @@ import memoService from "../../pages/myPage/services/memoService";
 import useMemoStore from "../../store/myPageStore/memoStore";
 import useMemoMode from "../../pages/myPage/hooks/useMemoMode";
 
+import NotificationModal from "../notificationModal/notificationModal";
+
 // 상태 import
+
 import useDocsStore from "../../store/translateStore/docsStore.jsx";
 import modalStore from "../../store/myPageStore/myPageModalStore.jsx";
+import notificationModalStore from "../../store/notificationModalStore";
 
 //이미지 주소 import
 import Logo from "../../assets/logo.png";
@@ -41,6 +45,11 @@ const LeftNav = () => {
   const { memoData, setMemoData, handleOpenCreateModal, handleOpenEditModal } =
     useMemoMode();
   const [userId, setUserId] = useState(null);
+  const {
+    toggleNotificationModal,
+    isNotificationModalOpen,
+    closeNotificationModal,
+  } = notificationModalStore();
 
   const token = localStorage.getItem("token");
   useEffect(() => {
@@ -118,12 +127,15 @@ const LeftNav = () => {
   //문서 목록 관련 상태
   const { docsList, setDocsList } = useDocsStore();
 
+  // 문서 목록 불러오기
   useEffect(() => {
-    const fetchData = async () => {
-      const tmpDocsList = await fetchDocsList();
-      setDocsList(tmpDocsList);
-    };
-    fetchData();
+    fetchDocsList(true);
+  }, [docsList]);
+
+  // 알림 모달 상태 초기화
+  useEffect(() => {
+    console.log("알림 모달 상태 초기화");
+    closeNotificationModal();
   }, []);
 
   function toggleNav() {
@@ -204,9 +216,21 @@ const LeftNav = () => {
           {/* 알림 리스트 */}
           {localStorage.getItem("token") && (
             <div className="flex-1 overflow-y-auto">
-              <div className="px-5 py-2.5 mb-2 flex items-center hover:bg-[#F5F4F0] transition-colors duration-200">
+              <div
+                className="px-5 py-2.5 mb-2 flex items-center hover:bg-[#F5F4F0] cursor-pointer transition-colors duration-200"
+                onClick={() => toggleNotificationModal()}
+              >
                 <Bell className="w-6 h-6 text-[#7E7C77]" />
                 <span className="ml-5 font-medium text-[#7E7C77]">알림</span>
+              </div>
+              <div
+                className={`absolute z-[1000] transition-all duration-300 transform ${
+                  isNotificationModalOpen
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 -translate-y-2 pointer-events-none"
+                }`}
+              >
+                <NotificationModal />
               </div>
             </div>
           )}

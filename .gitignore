@@ -282,3 +282,26 @@ $RECYCLE.BIN/
 /backend/docshund/src/main/resources/application-API-KEY.properties
 /backend/docshund/gradle/wrapper/gradle-wrapper.jar
 /backend/docshund/build
+/backend/docshund/.gradle/
+/backend/docshund/.idea/
+
+
+/backend/**/generated
+
+# Gradle 캐시
+.gradle/
+
+# IntelliJ IDEA 설정
+.idea/
+
+# IntelliJ 특정 파일
+*.iml
+*.ipr
+*.iws
+
+# 자동 생성 파일
+*.bin
+*.lock
+*.probe
+/backend/docshund/.gradle/
+/backend/docshund/.idea/

@@ -24,7 +24,8 @@ const InquiryFormPage = () => {
     setLoading(true);
     if (!category || !title || !email || !content) {
       toast.info("문의 카테고리, 제목, 이메일, 내용을 모두 입력해주세요.");
-      return;
+      setLoading(false); // Stop loading
+      return; // Prevent form submission
     }
 
     let userId = null;
