@@ -37,7 +37,7 @@ public class TranslatedDocument extends BaseTimeEntityWithUpdatedAt {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;  // 유저 정보 (user 테이블과 연결)
 
-	@Column(name = "content", nullable = false, columnDefinition = "TEXT")
+	@Column(name = "content", nullable = false, columnDefinition = "LONGTEXT")
 	private String content;  // 유저가 작성한 코드의 마크업 형태로 저장
 
 	@Column(name = "report_count", nullable = false, columnDefinition = "INT DEFAULT 0")
@@ -70,7 +70,7 @@ public class TranslatedDocument extends BaseTimeEntityWithUpdatedAt {
 	public void decreaseReportCount() {
 		this.reportCount--;
 	}
-	
+
 	public void modifyStatus(Status status) {
 		this.status = status;
 	}
