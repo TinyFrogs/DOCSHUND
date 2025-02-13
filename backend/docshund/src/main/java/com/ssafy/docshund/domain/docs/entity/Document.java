@@ -1,10 +1,17 @@
 package com.ssafy.docshund.domain.docs.entity;
 
 import com.ssafy.docshund.global.audit.BaseTimeEntity;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "document")
@@ -30,7 +37,6 @@ public class Document extends BaseTimeEntity {
 	private String documentLink;
 
 	@Column(name = "view_count", nullable = false, columnDefinition = "INT DEFAULT 0")
-	@Setter
 	private Integer viewCount;
 
 	@Column(name = "document_version", nullable = false, length = 80)
@@ -55,6 +61,10 @@ public class Document extends BaseTimeEntity {
 		this.position = position;
 		this.license = license;
 		this.documentLink = documentLink;
+	}
+
+	public void increaseViewCount() {
+		this.viewCount++;
 	}
 
 }

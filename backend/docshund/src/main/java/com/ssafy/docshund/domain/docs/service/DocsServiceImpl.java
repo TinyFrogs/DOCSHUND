@@ -179,7 +179,7 @@ public class DocsServiceImpl implements DocsService {
 			.orElseThrow(() -> new DocsException(DocsExceptionCode.DOCS_NOT_FOUND));
 
 		// 조회수 증가
-		document.setViewCount(document.getViewCount() + 1);
+		document.increaseViewCount();
 		documentRepository.save(document);
 
 		// 좋아요한 유저들 조회
@@ -287,6 +287,7 @@ public class DocsServiceImpl implements DocsService {
 
 	// 문서 원본(origin_document) 조회
 	@Override
+	@Transactional
 	public List<OriginDocumentDto> getAllOriginDocuments(Integer docsId) {
 		if (docsId == null) {
 			throw new DocsException(DocsExceptionCode.ILLEGAL_ARGUMENT);
@@ -294,7 +295,7 @@ public class DocsServiceImpl implements DocsService {
 		Document document = documentRepository.findById(docsId)
 			.orElseThrow(() -> new DocsException(DocsExceptionCode.DOCS_NOT_FOUND));
 		List<OriginDocument> originDocuments = originDocumentRepository.findByDocument_DocsId(docsId);
-		document.setViewCount(document.getViewCount() + 1);
+		document.increaseViewCount();
 		documentRepository.save(document);
 
 		return originDocuments.stream()
