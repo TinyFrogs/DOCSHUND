@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
 
 import com.ssafy.docshund.domain.users.exception.auth.AuthExceptionCode;
 
@@ -17,6 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
@@ -25,24 +27,19 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
 		if (exception == null) {
 			log.info("잘못된 요청");
-			setResponse(response, BAD_REQUEST_EXCEPTION);
+			setResponse(response, UNTRUSTED_CREDENTIAL);
 			return;
 		}
 
 		if (exception.equals(REQUEST_TOKEN_NOT_FOUND.getCode())) {
 			log.info("AccessToken이 없음");
-			setResponse(response, REQUEST_TOKEN_NOT_FOUND);
-			return;
-		}
-
-		if (exception.equals(AUTH_MEMBER_NOT_FOUND.getCode())) {
-			setResponse(response, AUTH_MEMBER_NOT_FOUND);
+			setResponse(response, INVALID_TOKEN);
 			return;
 		}
 
 		if (exception.equals(EXPIRED_TOKEN.getCode())) {
-			log.info("토큰 만료됨, http://localhost:5173로 리다이렉트");
-			response.sendRedirect("http://localhost:5173"); // ✅ 만료된 토큰이면 리다이렉트
+			log.info("토큰 만료됨, 401 Unauthorized 반환");
+			setResponse(response, EXPIRED_TOKEN);  //
 			return;
 		}
 
@@ -55,13 +52,14 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 		String timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
 		response.setContentType("application/json;charset=UTF-8");
-		response.setStatus(errorCode.getHttpStatus().value());
+		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // ✅ 401 Unauthorized 강제 반환
 		response.getWriter().println(
 			"{ " +
-				"\"statusCode\" : \"" + errorCode.getHttpStatus()
-				+ "\", \"code\" : \"" + errorCode.getCode()
-				+ "\", \"message\" : \"" + errorCode.getMessage()
-				+ "\", \"timestamp\" : \"" + timestamp + "\""
-				+ "}");
+				"\"statusCode\" : \"" + HttpServletResponse.SC_UNAUTHORIZED + "\", " + // ✅ 401 상태 코드 고정
+				"\"code\" : \"" + errorCode.getCode() + "\", " +
+				"\"message\" : \"" + errorCode.getMessage() + "\", " +
+				"\"timestamp\" : \"" + timestamp + "\"" +
+				"}"
+		);
 	}
 }
