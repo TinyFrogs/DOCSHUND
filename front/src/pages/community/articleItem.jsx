@@ -267,6 +267,7 @@ const ArticleItem = () => {
         {/* 댓글 리스트 */}
         <ReplyList replyCount={articleItems.commentCount} />
       </main>
+      <ReportModal />
     </div>
   );
 };

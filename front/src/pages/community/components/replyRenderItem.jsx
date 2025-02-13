@@ -21,9 +21,8 @@ const ReplyRenderItem = ({
   const replyId = communityArticleStore((state) => state.replyId);
 
   const setReplyId = communityArticleStore((state) => state.setReplyId);
-  const setCommentCount = communityArticleStore(
-    (state) => state.setCommentCount
-  );
+  const openReport = useReportStore((state) => state.openReport);
+  const toggleReport = useReportStore((state) => state.toggleReport);
 
   const handleReport = (data) => {
     //TEST
@@ -38,8 +37,8 @@ const ReplyRenderItem = ({
       chatId: null,
     });
 
-    useReportStore.openReport();
-    useReportStore.toggleReport();
+    openReport();
+    toggleReport();
   };
 
   // TODO: 댓글 레이아웃 다듬기
@@ -110,6 +109,7 @@ const ReplyRenderItem = ({
             </button>
           </div>
         </div>
+        <ReportModal />
       </div>
 
       {/* 유저고, 대댓글이고, 원댓글의 밑에 대해서 */}
