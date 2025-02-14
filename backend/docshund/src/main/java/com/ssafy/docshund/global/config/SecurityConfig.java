@@ -22,6 +22,7 @@ import com.ssafy.docshund.global.util.jwt.JwtAuthenticationEntryPoint;
 import com.ssafy.docshund.global.util.jwt.JwtFilter;
 import com.ssafy.docshund.global.util.jwt.JwtUtil;
 import com.ssafy.docshund.global.util.oauth2.CustomSuccessHandler;
+import com.ssafy.docshund.global.util.oauth2.OAuth2AuthenticationFailureHandler;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-	// private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+	private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 	private final CustomSuccessHandler customSuccessHandler;
 	private final UserAuthServiceImpl userAuthServiceImpl;
@@ -51,7 +52,7 @@ public class SecurityConfig {
 				)
 				.userInfoEndpoint(userInfo -> userInfo.userService(userAuthServiceImpl))
 				.successHandler(customSuccessHandler)
-				.failureHandler(authenticationFailureHandler())
+				.failureHandler(oAuth2AuthenticationFailureHandler)
 			)
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/login")
