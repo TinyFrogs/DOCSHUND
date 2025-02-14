@@ -1,3 +1,4 @@
+import { find } from "lodash";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
@@ -44,12 +45,14 @@ const communityArticleStore = create(
       articleItems: {},
       likeCount: 0,
       contentLength: 0,
+      isLikedArticleIds: [],
 
       // article item의 메소드 설정
       setArticleId: (articleId) => set({ articleId }),
       setArticleItems: (articleItems) => set({ articleItems }),
       setLikeCount: (likeCount) => set({ likeCount }),
       setContentLength: (contentLength) => set({ contentLength }),
+      setIsLikedArticleIds: (isLikedArticleIds) => set({ isLikedArticleIds }),
 
       // article item의 전체 메소드 설정
       setArticleData: (data) =>
@@ -109,7 +112,7 @@ const communityArticleStore = create(
       getStorage: () => createJSONStorage(), // storage 설정
       partialize: (state) => ({
         articleItems: state.articleItems,
-        // 다른 유지하고 싶은 상태들
+        isLikedArticleIds: state.isLikedArticleIds,
       }),
     }
   )
