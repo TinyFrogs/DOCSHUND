@@ -1,13 +1,11 @@
 package com.ssafy.docshund.domain.chats.service;
 
+import static com.ssafy.docshund.domain.chats.exception.WebSocketExceptionCode.*;
 import static com.ssafy.docshund.domain.docs.exception.DocsExceptionCode.DOCS_NOT_FOUND;
-import static com.ssafy.docshund.domain.users.exception.user.UserExceptionCode.USER_NOT_FOUND;
-
-import java.util.NoSuchElementException;
+import static com.ssafy.docshund.domain.users.exception.user.UserExceptionCode.*;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +13,7 @@ import com.ssafy.docshund.domain.chats.dto.ChatDto;
 import com.ssafy.docshund.domain.chats.dto.ChatInfoDto;
 import com.ssafy.docshund.domain.chats.entity.Chat;
 import com.ssafy.docshund.domain.chats.entity.Status;
+import com.ssafy.docshund.domain.chats.exception.WebSocketException;
 import com.ssafy.docshund.domain.chats.repository.ChatRepository;
 import com.ssafy.docshund.domain.docs.entity.Document;
 import com.ssafy.docshund.domain.docs.exception.DocsException;
@@ -54,10 +53,9 @@ public class ChatServiceImpl implements ChatService {
 	@Transactional(readOnly = true)
 	public Page<ChatInfoDto> getChatsByDocsId(Integer docsId, Pageable pageable) {
 
-		if(!documentRepository.existsById(docsId)){
+		if (!documentRepository.existsById(docsId)) {
 			throw new DocsException(DOCS_NOT_FOUND);
 		}
-
 		return chatRepository.findAllByDocsId(docsId, pageable);
 	}
 
@@ -65,11 +63,10 @@ public class ChatServiceImpl implements ChatService {
 	public void modifyChatStatus(Long chatId, Status status) {
 		User user = userUtil.getUser();
 		if (!userUtil.isAdmin(user)) {
-			throw new RuntimeException("어드민이 아닙니다.");
+			throw new UserException(USER_NOT_ADMIN);
 		}
 
-		Chat chat = chatRepository.findById(chatId).orElseThrow(() -> new RuntimeException("해당 채팅을 찾을 수 없습니다."));
-
+		Chat chat = chatRepository.findById(chatId).orElseThrow(() -> new WebSocketException(CHAT_NOT_FOUND));
 		chat.modifyStatus(status);
 	}
 }
