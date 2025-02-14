@@ -263,7 +263,7 @@ const TranslateViewer = () => {
   };
 
   return (
-    <div className="h-full min-w-[800px] bg-white fixed top-[50%] left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto shadow-xl">
+    <div className="h-screen min-w-[130vh] bg-white fixed top-[50%] left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto shadow-xl">
       <div className="flex flex-col gap-2">
         {docParts.map((part, index) => (
           <div

@@ -172,7 +172,7 @@ const LeftNav = () => {
           />
         </button>
         <div className="p-5 flex justify-center">
-          <NavLink to="/translate">
+          <NavLink to="/">
             <img
               className="w-[clamp(120px,10vw,148px)] h-auto hover:opacity-80 transition-opacity duration-200"
               src={Logo}

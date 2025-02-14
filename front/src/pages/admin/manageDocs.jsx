@@ -156,7 +156,7 @@ const ManageDocs = () => {
                     <div className="relative">
                       <input
                         type="file"
-                        // accept=".txt"
+                        accept=".txt"
                         id="file"
                         name="file"
                         onChange={async (e) => {

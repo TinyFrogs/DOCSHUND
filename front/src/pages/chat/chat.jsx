@@ -292,7 +292,7 @@ const Chat = () => {
                           : "bg-gray-100"
                       }`}
                     >
-                      <p className="text-sm">{item.content}</p>
+                      <p className="text-sm break-words">{item.content}</p>
                       {item.userId !== userId && (
                         <button
                           onClick={(e) => {

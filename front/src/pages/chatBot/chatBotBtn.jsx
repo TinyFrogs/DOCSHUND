@@ -140,7 +140,7 @@ const ChatBotBtn = () => {
                             : "bg-gray-100 text-gray-800 rounded-bl-none"
                         }`}
                       >
-                        <p className="text-sm">{message.text}</p>
+                        <p className="text-sm break-words">{message.text}</p>
                         <p className="text-xs mt-1 opacity-70">
                           {message.timestamp}
                         </p>
@@ -178,7 +178,7 @@ const ChatBotBtn = () => {
                       value={inputMessage}
                       onChange={(e) => setInputMessage(e.target.value)}
                       placeholder="메시지를 입력하세요..."
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:border-[#C96442]"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:border-[#C96442] flex-wrap"
                     />
                     <button
                       type="submit"
