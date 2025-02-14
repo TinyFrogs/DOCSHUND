@@ -19,7 +19,7 @@ const ProtectedRoute = ({ isAdminRoute }) => {
 
     // Admin 라우트인데, 관리자가 아니면 권한 없음 페이지로 리다이렉트
     if (isAdminRoute && !isAdmin) {
-      return <Navigate to="/unauthorized" replace />; // 권한 없음 페이지
+      return <Navigate to="/error" replace />; // 권한 없음 페이지
     }
 
     // 인증되어 있고, Admin 라우트가 아니거나, Admin이고 Admin 라우트인 경우 자식 라우트 렌더링

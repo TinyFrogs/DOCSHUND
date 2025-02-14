@@ -73,7 +73,7 @@ const LeftNav = () => {
       }
     };
 
-    if (userId) {
+    if (userId !== null) {
       fetchMemos(userId);
     }
   }, [userId, setMemos]);

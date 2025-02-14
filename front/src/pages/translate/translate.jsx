@@ -47,7 +47,7 @@ const TransLatePage = () => {
 
   const filteredBestDocsList =
     windowWidth < 768
-      ? bestDocsList.slice(0, 2)
+      ? bestDocsList.slice(0, 4)
       : windowWidth < 1024
       ? bestDocsList.slice(0, 3)
       : bestDocsList.slice(0, 4);

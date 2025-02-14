@@ -180,7 +180,7 @@ const UpperNav = () => {
             <img
               onClick={() => handleImageClick()}
               // onClick={() => navigate("/myPage/profile")}
-              className="w-[clamp(40px,4vw,64px)] border-1 border-[#c5afa7] shadow-sm rounded-full h-auto cursor-pointer"
+              className="w-[clamp(40px,4vw,64px)] h-[clamp(40px,4vw,64px)] border-1 border-[#c5afa7] shadow-sm rounded-full cursor-pointer"
               src={profileImgUrl}
               alt="프로필 이미지"
             />

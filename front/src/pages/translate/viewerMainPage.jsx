@@ -23,7 +23,6 @@ const ViewerMainPage = () => {
   const navigate = useNavigate();
   const { docsId } = useParams();
   const location = useLocation().pathname;
-  console.log(location);
 
   const { isArchiveOpen, isEditorOpen } = useModalStore();
   const { setDocsList, setBestDocsList } = useDocsStore();
@@ -33,7 +32,6 @@ const ViewerMainPage = () => {
       const tmpDocsList = await fetchDocsList();
       setDocsList(tmpDocsList);
       setBestDocsList(tmpDocsList);
-      console.log("tmpDocsList", tmpDocsList);
     };
 
     fetchData();
