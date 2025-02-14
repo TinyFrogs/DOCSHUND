@@ -17,7 +17,7 @@ export const fetchLikedList = async (docsId) => {
     const data = response.data;
     return data;
   } catch (error) {
-    console.log("좋아요한 문서 조회 실패", error);
+    // console.log("좋아요한 문서 조회 실패", error);
   }
 };
 
@@ -28,7 +28,7 @@ export const fetchDocsList = async () => {
     const data = response.data;
     return data;
   } catch (error) {
-    console.log(error);
+    // console.log(error);
   }
 };
 
@@ -50,29 +50,29 @@ export const fetchDocsList = async () => {
 // };
 export const fetchTranslateData = async (docsId, originId) => {
   try {
-    console.log(docsId, originId);
+    // console.log(docsId, originId);
     const response = await axiosJsonInstance.get(
       `docs/${docsId}/origin?originId=${originId}`,
       {
         onDownloadProgress: (progressEvent) => {
-          console.log("로딩 중...");
-          console.log(progressEvent);
+          // console.log("로딩 중...");
+          // console.log(progressEvent);
           if (progressEvent.total) {
-            console.log("로드율을 출력합니다.");
+            // console.log("로드율을 출력합니다.");
             const progress = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total
             );
-            console.log(`로드율: ${progress}%`);
+            // console.log(`로드율: ${progress}%`);
           }
         },
       }
     );
-    console.log(response);
+    // console.log(response);
     const data = response.data;
-    console.log(data);
+    // console.log(data);
     return data;
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return null;
   }
 };
@@ -86,7 +86,7 @@ export const fetchBestTranslate = async (docsId, isBest) => {
         `docs/${docsId}/trans?status=${status}`
       );
       const data = response.data;
-      console.log(data);
+      // console.log(data);
       return data;
     } else {
       const response = await axiosJsonInstance.get(
@@ -96,7 +96,7 @@ export const fetchBestTranslate = async (docsId, isBest) => {
       return data;
     }
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return null;
   }
 };
@@ -110,7 +110,7 @@ export const fetchLikedTranslateList = async (userId) => {
     const data = response.data;
     return data;
   } catch (error) {
-    console.log("좋아요 번역 조회 실패", error);
+    // console.log("좋아요 번역 조회 실패", error);
   }
 };
 

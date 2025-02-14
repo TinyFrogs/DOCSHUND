@@ -10,10 +10,10 @@ export const withdrawReport = async (reportId) => {
       `supports/reports/${reportId}/withdraw`
     );
     const data = response.status;
-    console.log(data);
+    // console.log(data);
     return data;
   } catch (error) {
-    console.log("신고 취소 처리 실패", error);
+    // console.log("신고 취소 처리 실패", error);
   }
 };
 
@@ -21,10 +21,10 @@ export const registDocument = async (documentData) => {
   try {
     const response = await axiosJsonInstance.post(`docs`, documentData);
     const data = response.status;
-    console.log(data);
+    // console.log(data);
     return data;
   } catch (error) {
-    console.log("문서 등록 실패", error);
+    // console.log("문서 등록 실패", error);
   }
 };
 
@@ -35,10 +35,10 @@ export const registDocumentContent = async (docsId, originDocumentData) => {
       originDocumentData
     );
     const data = response.status;
-    console.log(data);
+    // console.log(data);
     return data;
   } catch (error) {
-    console.log("문서 원본 업로드 실패", error);
+    // console.log("문서 원본 업로드 실패", error);
   }
 };
 
@@ -49,10 +49,10 @@ export const respondInquiry = async (inquiryId, answer) => {
       answer
     );
     const data = response.status;
-    console.log(data);
+    // console.log(data);
     return data;
   } catch (error) {
-    console.log("문의 응답 실패", error);
+    // console.log("문의 응답 실패", error);
   }
 };
 
@@ -64,9 +64,9 @@ export const registNotification = async (title, content) => {
       noticeData
     );
     const data = response.status;
-    console.log(data);
+    // console.log(data);
     return data;
   } catch (error) {
-    console.log("공지 등록 실패", error);
+    // console.log("공지 등록 실패", error);
   }
 };

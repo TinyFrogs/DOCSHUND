@@ -9,6 +9,6 @@ export const deleteNotification = async (notificationId) => {
     const data = response.status;
     return data;
   } catch (error) {
-    console.log("공지 목록 삭제 실패", error);
+    // console.log("공지 목록 삭제 실패", error);
   }
 };
