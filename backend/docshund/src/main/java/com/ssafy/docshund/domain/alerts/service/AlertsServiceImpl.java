@@ -78,13 +78,10 @@ public class AlertsServiceImpl implements AlertsService {
 	 ☆ SSE 연결 관련 로직 ☆
 	 */
 	public SseEmitter subscribe() {
-		User user = userUtil.getUser();
-		if (user == null) {
+		Long userId = userUtil.getUserId();
+		if (userId == null) {
 			throw new AlertsException(AlertsExceptionCode.USER_NOT_AUTHORIZED);
 		}
-		Long userId = user.getUserId();
-
-		entityManager.detach(user);
 
 		SseEmitter emitter = new SseEmitter(10 * 60 * 1000L); // 10분
 		SseEmitter oldEmitter = emitters.put(userId, emitter);

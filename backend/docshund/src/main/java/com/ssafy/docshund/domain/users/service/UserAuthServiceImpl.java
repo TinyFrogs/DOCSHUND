@@ -93,9 +93,11 @@ public class UserAuthServiceImpl extends DefaultOAuth2UserService {
 
 	private void validateUser(User findUser) {
 		if (findUser.getStatus() == Status.BANNED) {
+			log.info("user status BANNED");
 			throw new OAuth2AuthenticationException("USER_BANNED: 해당 계정은 정지되었습니다.");
 		}
 		if (findUser.getStatus() == Status.WITHDRAWN) {
+			log.info("user status WITHDRAW");
 			throw new OAuth2AuthenticationException("USER_WITHDRAW: 해당 계정은 탈퇴되었습니다.");
 		}
 	}

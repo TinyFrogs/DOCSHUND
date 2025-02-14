@@ -11,7 +11,9 @@ import org.springframework.stereotype.Component;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
@@ -21,6 +23,9 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
 
 		String message = exception.getMessage();
 		String redirectUrl;
+
+		log.info("exception {}", exception.toString());
+		log.info("message {}", message);
 
 		if (message.startsWith("USER_BANNED")) {
 			redirectUrl = "https://i12a703.p.ssafy.io/error?status=403&message=" + URLEncoder.encode("계정이 정지되었습니다.",

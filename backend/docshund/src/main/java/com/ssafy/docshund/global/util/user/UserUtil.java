@@ -81,4 +81,14 @@ public class UserUtil {
 		return true;
 	}
 
+	@Transactional(readOnly = true)
+	public Long getUserId() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Object principal = authentication.getPrincipal();
+		CustomOAuth2User customUser = (CustomOAuth2User)principal;
+		String personalId = customUser.getPersonalId();
+		return userRepository.findUserIdByPersonalId(personalId)
+			.orElse(null);
+	}
+
 }
