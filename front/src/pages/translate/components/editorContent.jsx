@@ -59,11 +59,11 @@ const EditorContent = ({ initialTextContent, maxLength = 15000 }) => {
         ref={editorRef}
         initialValue={initialTextContent}
         height="100%"
-        previewStyle="tab"
+        previewStyle="vertical"
         onChange={handleEditorChange}
         toolbarItems={[["ul", "ol", "task"], ["link"], ["codeblock"]]}
         useImageUpload={false}
-        placeholder={"내용을 입력하세요"}
+        placeholder={"내용을 입력하기"}
       />
       <div className="text-xs text-gray-500 mt-1 mr-2 text-right">
         {contentLength} / {maxLength}

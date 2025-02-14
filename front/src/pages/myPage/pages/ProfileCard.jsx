@@ -134,8 +134,10 @@ const ProfileCard = ({
             className="border p-2 rounded focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39]"
           >
             <option value="">관심분야를 선택해주세요</option>
-            <option value="Frontend">Frontend</option>
-            <option value="Backend">Backend</option>
+            <option value="FRONTEND">Frontend</option>
+            <option value="BACKEND">Backend</option>
+            <option value="DEVOPS">DevOps</option>
+            <option value="DBSQL">DBSQL</option>
           </select>
         ) : (
           <p>{profile.hobby}</p>

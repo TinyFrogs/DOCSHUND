@@ -42,7 +42,7 @@ const ViewerMainPage = () => {
       onContextMenu={(e) => {
         e.preventDefault();
       }}
-      className="min-w-[768px] flex"
+      className="md:min-w-[768px] h-full flex"
     >
       <Information />
       <ChatBotBtn />
@@ -65,7 +65,6 @@ const ViewerMainPage = () => {
           )}
         </button>
       )}
-      ;
       {localStorage.getItem("token") && (
         <div
           onClick={() => {
@@ -80,7 +79,7 @@ const ViewerMainPage = () => {
         </div>
       )}
       {isChatVisible && <Chat />}
-      <Outlet className="min-w-[768px] pr-16" />
+      <Outlet className="md:min-w-[768px] h-fit pr-16" />
     </div>
   );
 };

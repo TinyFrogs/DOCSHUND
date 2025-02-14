@@ -149,7 +149,6 @@ const TranslateViewer = () => {
     setCheckComplete(false);
     setIsDbInitialized(false);
     MemoStore.setState({ memos: useMemoService.fetchMemos(userId) });
-    console.log(MemoStore.getState().memos);
     docData.current = [];
 
     async function checkDB() {
@@ -252,6 +251,7 @@ const TranslateViewer = () => {
   const handleArchive = async ({ props }) => {
     const { part } = props;
     const tmpTransList = await fetchBestTranslate(part.docsId, "");
+    console.log(tmpTransList);
     setTransList(tmpTransList);
     setDocsPart(part.content);
     setDocsId(part.docsId);
@@ -263,7 +263,7 @@ const TranslateViewer = () => {
   };
 
   return (
-    <div className="h-[99%] min-w-[800px] bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto shadow-xl">
+    <div className="h-full min-w-[800px] bg-white fixed top-[50%] left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto shadow-xl">
       <div className="flex flex-col gap-2">
         {docParts.map((part, index) => (
           <div
@@ -274,7 +274,6 @@ const TranslateViewer = () => {
                 return;
               }
 
-              console.log("contextMenuDocsName", documentName);
               setContextMenuPorder(part.pOrder);
               handleContextMenu(e, part);
               const tmpTransList = await fetchBestTranslate(
@@ -324,7 +323,9 @@ const TranslateViewer = () => {
                 } else {
                   setBestTrans("");
                 }
-                toggleDocpart(part.id);
+                setTimeout(() => {
+                  toggleDocpart(part.id);
+                }, 100);
               }}
               className="flex flex-col w-full h-fit rounded-md p-2 text-[#424242] hover:shadow-[0px_0px_15px_0px_rgba(149,_157,_165,_0.3)] hover:border-gray-200 cursor-pointer transition-all duration-250 ease-in-out"
             >

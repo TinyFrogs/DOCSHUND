@@ -53,7 +53,7 @@ const BestTransViewer = () => {
       await new Promise((resolve) => setTimeout(resolve, 600));
       const data = docData.current;
       if (!data || data.length === 0) {
-        console.log("오류 발생 : 데이터 없음");
+        // console.log("오류 발생 : 데이터 없음");
         return;
       }
       const newChunk = data.slice(processedCount, processedCount + chunk_size);
@@ -90,17 +90,18 @@ const BestTransViewer = () => {
     const fetchData = async () => {
       const data = await fetchBestTranslate(docsId, "best");
       tmpTransList.current = data;
-      console.log("tmpTransList.current", tmpTransList.current);
+      // console.log("tmpTransList.current", tmpTransList.current);
       tmpTransList.current.forEach((element) => {
         tmpBestTransList.current[element.originId] = {
           element,
           key: element.originId,
         };
+        console.log(tmpBestTransList.current);
       });
-      console.log(
-        "번역 전체 보기 데이터를 불러왔습니다.: ",
-        tmpBestTransList.current
-      );
+      // console.log(
+      //   "번역 전체 보기 데이터를 불러왔습니다.: ",
+      //   tmpBestTransList.current
+      // );
     };
 
     // const processFetchedData = async () => {
@@ -112,22 +113,22 @@ const BestTransViewer = () => {
       setLoading(true);
 
       try {
-        console.log("Initializing DB for docsId:", docsId); // 디버깅용
+        // console.log("Initializing DB for docsId:", docsId); // 디버깅용
         await initDB(dbName, objectStoreName);
         const loadedData = await loadData(objectStoreName);
-        console.log("Loaded data from DB:", loadedData.length); // 디버깅용
+        // console.log("Loaded data from DB:", loadedData.length); // 디버깅용
 
         if (!isMounted) return; // 비동기 작업 후 마운트 상태 다시 확인
 
         if (!loadedData || loadedData.length === 0) {
-          console.log("Fetching data from server for docsId:", docsId); // 디버깅용
+          // console.log("Fetching data from server for docsId:", docsId); // 디버깅용
           try {
             const data = await fetchTranslateData(docsId, false);
             if (!isMounted) return;
             if (data && Array.isArray(data)) {
               docData.current = data;
               await addData(data, objectStoreName);
-              console.log("Server data saved, length:", data.length); // 디버깅용
+              // console.log("Server data saved, length:", data.length); // 디버깅용
               if (isMounted) {
                 setIsDbInitialized(true);
                 await loadMore(); // 여기서 바로 loadMore 실행
@@ -140,7 +141,7 @@ const BestTransViewer = () => {
             console.error("Failed to fetch data from server:", error);
           }
         } else {
-          console.log("Using cached data from IndexedDB"); // 디버깅용
+          // console.log("Using cached data from IndexedDB"); // 디버깅용
           if (isMounted) {
             docData.current = loadedData;
             setIsDbInitialized(true);
@@ -188,9 +189,11 @@ const BestTransViewer = () => {
           <div key={index} className="paragraph flex flex-row gap-4 relative">
             <div className="flex flex-col w-full p-1 rounded-sm text-[#424242]">
               <div className="flex justify-between">
-                {tmpBestTransList.current[part.id] ? (
+                {tmpBestTransList.current[part.originId] ? (
                   <ToastViewer
-                    content={tmpBestTransList.current[part.id].element.content}
+                    content={
+                      tmpBestTransList.current[part.originId].element.content
+                    }
                   />
                 ) : (
                   <ToastViewer content={""} />

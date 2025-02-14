@@ -5,7 +5,7 @@
 }
 ::-webkit-scrollbar {
   width: 8px; /* 세로축 스크롤바 폭 너비 */
-  height: 20px; /* 가로축 스크롤바 폭 너비 */
+  height: 8px; /* 가로축 스크롤바 폭 너비 */
 }
 
 ::-webkit-scrollbar-thumb {

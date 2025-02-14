@@ -58,18 +58,18 @@ const TransLatePage = () => {
       tmpDocsList.sort((a, b) => b.likeCount - a.likeCount);
       setDocsList(tmpDocsList);
       setBestDocsList(tmpDocsList);
-      console.log("tmpDocsList", tmpDocsList);
+      // console.log("tmpDocsList", tmpDocsList);
     };
 
     // 채팅 모달 상태 초기화
     closeChat();
-
     fetchData();
   }, []);
 
   const handleLike = async (docsId) => {
     await likeDocs(docsId);
     const tmpDocsList = await fetchDocsList();
+    tmpDocsList.sort((a, b) => b.viewCount - a.viewCount);
     setDocsList(tmpDocsList);
   };
 
@@ -79,7 +79,9 @@ const TransLatePage = () => {
       tmpDocsList = await tmpDocsList.filter(
         (docs) => docs.position === position
       );
-      tmpDocsList.sort((a, b) => b.likeCount - a.likeCount);
+      tmpDocsList.sort((a, b) => b.viewCount - a.viewCount);
+    } else {
+      tmpDocsList.sort((a, b) => b.viewCount - a.viewCount);
     }
     setDocsList(tmpDocsList);
   };
@@ -218,7 +220,7 @@ const TransLatePage = () => {
                       });
                       navigate(`/translate/main/viewer/${docs.docsId}`);
 
-                      console.log("docs", docs.documentName);
+                      // console.log("docs", docs.documentName);
                       useDocsStore.setState({
                         documentName: docs.documentName,
                       });

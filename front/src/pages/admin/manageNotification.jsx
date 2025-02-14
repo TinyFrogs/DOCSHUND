@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { fetchNoticeList } from "./services/adminGetService";
 import { registNotification } from "./services/adminPostService";
 import { deleteNotification } from "./services/adminDeleteService";
 import { modifyNotice } from "./services/adminPatchService";
 import { toast } from "react-toastify";
+import debounce from "lodash/debounce";
 
 const ManageNotification = () => {
   const [notifications, setNotifications] = useState([]);
@@ -28,16 +29,18 @@ const ManageNotification = () => {
     }
   };
 
-  const handleAddNotification = () => {
-    setIsEditorOpen(true);
-    setIsEditing(false);
-    setNewNotification({
-      title: "",
-      content: "",
-      createdAt: new Date().toISOString().split("T")[0],
-      updatedAt: new Date().toISOString().split("T")[0],
-    });
-  };
+  const debouncedHandleAddNotification = useMemo(() =>
+    debounce(async () => {
+      setIsEditorOpen(true);
+      setIsEditing(false);
+      setNewNotification({
+        title: "",
+        content: "",
+        createdAt: new Date().toISOString().split("T")[0],
+        updatedAt: new Date().toISOString().split("T")[0],
+      });
+    }, 400)
+  );
 
   const handleSaveNotification = async (title, content) => {
     const response = await registNotification(title, content);
@@ -83,6 +86,14 @@ const ManageNotification = () => {
     }
   };
 
+  const handleUTC = (time) => {
+    const date = new Date(time);
+    const kor = date.getHours() + 9;
+    date.setHours(kor);
+    console.log(date);
+    return date;
+  };
+
   useEffect(() => {
     fetchNoticeData();
   }, []);
@@ -93,7 +104,7 @@ const ManageNotification = () => {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-gray-800">공지사항 관리</h1>
         <button
-          onClick={handleAddNotification}
+          onClick={debouncedHandleAddNotification}
           className="bg-[#bc5b39] text-white px-4 py-2 rounded-lg hover:bg-[#a34b2b] transition-colors duration-200"
         >
           + 공지사항 등록
@@ -212,10 +223,10 @@ const ManageNotification = () => {
                     {notification.title}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(notification.createdAt).toLocaleString()}
+                    {handleUTC(notification.createdAt).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(notification.updatedAt).toLocaleString()}
+                    {handleUTC(notification.updatedAt).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                     <button

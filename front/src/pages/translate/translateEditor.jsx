@@ -1,10 +1,10 @@
-import Modal from "react-modal";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import * as motion from "motion/react-client";
 import { fetchBestTranslate } from "./services/translateGetService";
 import { registTranslate } from "./services/translatePostService";
 import { AnimatePresence } from "motion/react";
 import { toast } from "react-toastify";
+import debounce from "lodash/debounce";
 import TextContent from "./components/textContent";
 import EditorContent from "./components/editorContent";
 import RectBtn from "../../components/button/rectBtn";
@@ -16,6 +16,7 @@ import useArchiveStore from "../../store/translateStore/archiveStore";
 //
 
 const TranslateEditor = () => {
+  let disabled = false;
   const { docsPart, bestTrans, docsId, originId, porder, currentUserText } =
     useEditorStore();
   const [isVisible, setIsVisible] = useState(false);
@@ -36,10 +37,25 @@ const TranslateEditor = () => {
   //에디터 내용 변경 상태
   const { setTempSave, setSubmitData } = useEditorStore();
 
-  const handleSubmit = async (docsId, originId, currentUserText) => {
-    const status = await registTranslate(docsId, originId, currentUserText);
-    return status;
-  };
+  const debouncedHandleSubmit = useMemo(
+    () =>
+      debounce(async (docsId, originId, currentUserText) => {
+        const status = await registTranslate(docsId, originId, currentUserText);
+        if (status !== 200) {
+          toast.error("제출 실패");
+        } else {
+          toast.success("제출 완료");
+          const tmpTransList = await fetchBestTranslate(docsId, "", false);
+          tmpTransList.sort((a, b) => b.likeCount - a.likeCount);
+          setTransList(tmpTransList);
+          setIsVisible(true);
+          setTimeout(() => setIsVisible(false), 1500);
+          setTimeout(() => closeEditor(), 2000);
+          setTimeout(() => openArchive(), 2000);
+        }
+      }, 400),
+    [docsId, originId, currentUserText]
+  );
 
   const handleClose = () => {
     clearDocsPart();
@@ -103,29 +119,13 @@ const TranslateEditor = () => {
                         toast.error("내용을 입력해주세요.");
                         return;
                       }
+
                       setSubmitData(currentUserText);
-                      const status = await handleSubmit(
+                      const status = await debouncedHandleSubmit(
                         docsId,
                         originId,
                         currentUserText
                       );
-
-                      if (status !== 200) {
-                        toast.error("제출 실패");
-                      } else {
-                        toast.success("제출 완료");
-                        const tmpTransList = await fetchBestTranslate(
-                          docsId,
-                          "",
-                          false
-                        );
-                        tmpTransList.sort((a, b) => b.likeCount - a.likeCount);
-                        setTransList(tmpTransList);
-                        setIsVisible(true);
-                        setTimeout(() => setIsVisible(false), 1500);
-                        setTimeout(() => closeEditor(), 2000);
-                        setTimeout(() => openArchive(), 2000);
-                      }
                     }}
                     text="제출하기"
                   />
@@ -140,12 +140,12 @@ const TranslateEditor = () => {
               </div>
               <div className="border-t border-slate-200 pt-2 leading-normal text-slate-600 h-[calc(100%-3rem)] w-full flex gap-2">
                 {/* 에디터 모달 안에 들어갈 컨텐츠 */}
-                <div className="h-full w-1/2 flex flex-col space-y-2 overflow-hidden">
+                <div className="h-full w-4/10 flex flex-col space-y-2 overflow-hidden">
                   <TextContent tag="공식문서 원본" textContent={docsPart} />
                   <TextContent tag="베스트 번역" textContent={bestTrans} />
                 </div>
 
-                <div className="h-full w-1/2 right-1/2">
+                <div className="h-full w-6/10 right-1/2">
                   <EditorContent initialTextContent={docsPart} />
                 </div>
               </div>
