@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -50,6 +51,7 @@ public class SecurityConfig {
 				)
 				.userInfoEndpoint(userInfo -> userInfo.userService(userAuthServiceImpl))
 				.successHandler(customSuccessHandler)
+				.failureHandler(authenticationFailureHandler())
 			)
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/login")
@@ -97,5 +99,12 @@ public class SecurityConfig {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
 		return source;
+	}
+
+	@Bean
+	public AuthenticationFailureHandler authenticationFailureHandler() {
+		return (request, response, exception) -> {
+			response.sendRedirect("https://i12a703.p.ssafy.io/");
+		};
 	}
 }

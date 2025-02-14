@@ -4,6 +4,8 @@ import static com.ssafy.docshund.domain.users.entity.Provider.GITHUB;
 import static com.ssafy.docshund.domain.users.entity.Provider.GOOGLE;
 import static com.ssafy.docshund.domain.users.exception.auth.AuthExceptionCode.AUTH_MEMBER_NOT_FOUND;
 import static com.ssafy.docshund.domain.users.exception.auth.AuthExceptionCode.LOGIN_PROVIDER_MISMATCH;
+import static com.ssafy.docshund.domain.users.exception.user.UserExceptionCode.USER_BANNED;
+import static com.ssafy.docshund.domain.users.exception.user.UserExceptionCode.USER_WITHDRAW;
 
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -17,9 +19,11 @@ import com.ssafy.docshund.domain.users.dto.auth.GithubResponse;
 import com.ssafy.docshund.domain.users.dto.auth.GoogleResponse;
 import com.ssafy.docshund.domain.users.dto.auth.OAuth2Response;
 import com.ssafy.docshund.domain.users.dto.auth.UserDto;
+import com.ssafy.docshund.domain.users.entity.Status;
 import com.ssafy.docshund.domain.users.entity.User;
 import com.ssafy.docshund.domain.users.entity.UserInfo;
 import com.ssafy.docshund.domain.users.exception.auth.AuthException;
+import com.ssafy.docshund.domain.users.exception.user.UserException;
 import com.ssafy.docshund.domain.users.repository.UserInfoRepository;
 import com.ssafy.docshund.domain.users.repository.UserRepository;
 import com.ssafy.docshund.global.util.user.UserUtil;
@@ -54,6 +58,7 @@ public class UserAuthServiceImpl extends DefaultOAuth2UserService {
 				return saveUser;
 			});
 
+		validateUser(findUser);
 		findUser.updateLastLogin();
 
 		userDto.setRole(findUser.getRole().toString());
@@ -87,5 +92,15 @@ public class UserAuthServiceImpl extends DefaultOAuth2UserService {
 		String prefix = oAuth2Response.getProvider().equals(GITHUB) ? "gh" : "gg";
 		String reversedId = new StringBuilder(oAuth2Response.getProviderId()).reverse().toString();
 		return prefix + "_" + reversedId.substring(0, Math.min(reversedId.length(), 6));
+	}
+
+	private void validateUser(User findUser) {
+		if (findUser.getStatus() == Status.BANNED) {
+			throw new UserException(USER_BANNED);
+		}
+		if (findUser.getStatus() == Status.WITHDRAWN) {
+			throw new UserException(USER_WITHDRAW);
+		}
+
 	}
 }
