@@ -30,6 +30,7 @@ const WriteArticle = () => {
   const setContentLength = communityArticleStore(
     (state) => state.setContentLength
   );
+  const fileUrl = communityArticleStore((state) => state.fileUrl);
   const setFileUrl = communityArticleStore((state) => state.setFileUrl);
 
   // 제목 입력 핸들러
@@ -53,12 +54,16 @@ const WriteArticle = () => {
   const handleFileChange = _.debounce(async (e) => {
     const selectedFile = e.target.files[0];
 
+    // TODO: 파일 헤더 확인 <- 이미지 일때만 업로드 가능하도록
+    console.log("파일 타입 체크 -> ", selectedFile.type);
+
     if (selectedFile) {
       if (selectedFile.size > 5 * 1024 * 1024) {
         // 5MB 제한
         toast.info("사진진 크기는 최대 5MB까지 업로드 가능합니다.");
         return;
       }
+
       setFile(selectedFile);
 
       // S3에 파일 업로드 후 url 받아오기
@@ -79,7 +84,12 @@ const WriteArticle = () => {
     const content = currentUserText; // 에디터 내용
 
     // 제목, 대분류, 소분류, 내용, 파일이 모두 입력되었는지 확인
-    if (!title || !mainCategory || !subCategory || !content) {
+    if (
+      !title.trim() ||
+      !mainCategory.trim() ||
+      !subCategory.trim() ||
+      !content.trim()
+    ) {
       toast.info("모든 항목을 입력해주세요.");
       return;
     } else {
@@ -89,9 +99,9 @@ const WriteArticle = () => {
       }
 
       const response = await ArticleItemService.postArticleItem(
-        title,
-        subCategory,
-        content
+        title.trim(),
+        subCategory.trim(),
+        content.trim()
       );
 
       const data = response.data;
@@ -194,7 +204,7 @@ const WriteArticle = () => {
                 <div className="mb-6">
                   <div className="flex items-center mb-2">
                     <label className="block text-lg font-medium text-black">
-                      파일 첨부
+                      사진 첨부
                     </label>
                     {file && (
                       <p className="text-sm text-gray-800 ml-6">

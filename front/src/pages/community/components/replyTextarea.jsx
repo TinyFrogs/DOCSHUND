@@ -21,7 +21,7 @@ const ReplyTextarea = ({ reCommentFlag, commentId }) => {
         toast.warn("댓글을 입력해주세요.");
         return;
       } else if (content.length > 5000) {
-        toast.warn("댓글은 10,000자 이하로 입력해주세요.");
+        toast.warn("댓글은 5,000자 이하로 입력해주세요.");
         return;
       }
 

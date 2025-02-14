@@ -73,7 +73,7 @@ const NotificationModal = () => {
         navigate(`/community/article/${notificationOriginCategoryId}`);
         // NOTE: 4. 문의 알림 -> 문의 페이지로 이동
       } else if (notificationCategory === "INQUIRY") {
-        navigate(`/helpDesk/myPage/inquiry`);
+        navigate(`/myPage/inquiry`);
       }
     } catch (err) {
       toast.error(err.message);

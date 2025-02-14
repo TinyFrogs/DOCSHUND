@@ -56,7 +56,7 @@ const UseSSE = (userId) => {
         eventSource.addEventListener("alert", (event) => {
           try {
             const notification = JSON.parse(event.data);
-            console.log("새로운 알림 수신:", notification);
+
             addNotification(notification);
           } catch (err) {
             console.error("알림 데이터 파싱 오류:", err);
