@@ -27,7 +27,6 @@ const ArticleItemService = {
 
       return response;
     } catch (error) {
-      // TODO: error handling -> 에러 페이지 제작후 연결까지 구현
       console.log(error);
       return error;
     }
@@ -68,7 +67,6 @@ const ArticleItemService = {
   // 게시글 작성 요청 함수
   async postArticleItem(title, category, content) {
     try {
-      console.log(title, category, content);
       const response = await axiosJsonInstance.post("/forums", {
         title,
         category,

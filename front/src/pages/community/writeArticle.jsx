@@ -111,8 +111,8 @@ const WriteArticle = () => {
 
   // DOM 요소 반환
   return (
-    <div className="flex justify-center w-full">
-      <main className="flex-1 p-4 max-w-[1280px]">
+    <div className="flex justify-center w-full min-w-[768px]">
+      <main className="flex-1 p-8 max-w-[1280px] min-w-[768px]">
         {/* header */}
         <CommunityHeader />
 

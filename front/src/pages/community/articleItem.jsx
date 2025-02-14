@@ -64,7 +64,6 @@ const ArticleItem = () => {
     openReport();
     toggleReport();
   };
-  console.log(isLikedArticleIds);
 
   const handleLikeClick = async () => {
     // 좋아요 api 날리기
@@ -155,10 +154,7 @@ const ArticleItem = () => {
     );
   }
 
-  // TEST
   const renderActionButtons = () => {
-    console.log("articleItems => ", articleItems);
-
     try {
       if (!token || !articleItems) return null;
 

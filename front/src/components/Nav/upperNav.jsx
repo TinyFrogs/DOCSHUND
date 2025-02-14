@@ -83,7 +83,7 @@ const UpperNav = () => {
     if (token) {
       const decodedToken = jwtDecode(token);
       const role = decodedToken.role;
-      console.log(role);
+
       if (role === "ROLE_ADMIN") setIsAdmin(true); // 로그인 상태와 관리자 여부를 판단
     }
   }, [localStorage.getItem("token")]);
