@@ -8,6 +8,7 @@ import static com.ssafy.docshund.domain.users.exception.auth.AuthExceptionCode.L
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,11 +95,11 @@ public class UserAuthServiceImpl extends DefaultOAuth2UserService {
 	private void validateUser(User findUser) {
 		if (findUser.getStatus() == Status.BANNED) {
 			log.info("user status BANNED");
-			throw new OAuth2AuthenticationException("USER_BANNED: 해당 계정은 정지되었습니다.");
+			throw new OAuth2AuthenticationException(new OAuth2Error("USER_BANNED"), "USER_BANNED: 해당 계정은 정지되었습니다.");
 		}
 		if (findUser.getStatus() == Status.WITHDRAWN) {
 			log.info("user status WITHDRAW");
-			throw new OAuth2AuthenticationException("USER_WITHDRAW: 해당 계정은 탈퇴되었습니다.");
+			throw new OAuth2AuthenticationException(new OAuth2Error("USER_WITHDRAW"), "USER_WITHDRAW: 해당 계정은 탈퇴되었습니다.");
 		}
 	}
 }
