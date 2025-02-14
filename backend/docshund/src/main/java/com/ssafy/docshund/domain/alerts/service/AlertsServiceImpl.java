@@ -34,6 +34,12 @@ public class AlertsServiceImpl implements AlertsService {
 	private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
 	private final UserUtil userUtil;
 
+	// 알림 단일 조회 시 사용하는 메소드
+	private Alert getAlert1(Long alertId) {
+		return alertRepository.findById(alertId)
+				.orElseThrow(() -> new AlertsException(AlertsExceptionCode.ALERT_NOT_FOUND));
+	}
+
 	// 알림 전체 조회
 	@SuppressWarnings("checkstyle:WhitespaceAround")
 	@Override
@@ -51,8 +57,7 @@ public class AlertsServiceImpl implements AlertsService {
 	// 알림 단일 조회
 	@Override
 	public AlertOutputDto getAlert(Long alertId) {
-		Alert alert = alertRepository.findById(alertId)
-			.orElseThrow(() -> new AlertsException(AlertsExceptionCode.ALERT_NOT_FOUND));
+		Alert alert = getAlert1(alertId);
 		User currentUser = userUtil.getUser();
 		if (!currentUser.equals(alert.getUser()) && !userUtil.isAdmin(currentUser)) {
 			throw new AlertsException(AlertsExceptionCode.NOT_YOUR_ALERT);
@@ -165,13 +170,11 @@ public class AlertsServiceImpl implements AlertsService {
 		if (user == null) {
 			throw new AlertsException(AlertsExceptionCode.USER_NOT_AUTHORIZED);
 		}
-		Alert alert = alertRepository.findById(alertId)
-			.orElseThrow(() -> new AlertsException(AlertsExceptionCode.ALERT_NOT_FOUND));
-		if (!alert.getUser().getUserId().equals(userUtil.getUser().getUserId())) {
+		Alert alert = getAlert1(alertId);
+		if (!alert.getUser().getUserId().equals(user.getUserId())) {
 			throw new AlertsException(AlertsExceptionCode.NOT_YOUR_ALERT);
 		}
 		alertRepository.delete(alert);
-
 	}
 
 	// 알림 일괄 삭제
@@ -193,12 +196,11 @@ public class AlertsServiceImpl implements AlertsService {
 		if (user == null) {
 			throw new AlertsException(AlertsExceptionCode.USER_NOT_AUTHORIZED);
 		}
-		Alert alert = alertRepository.findById(alertId)
-			.orElseThrow(() -> new AlertsException(AlertsExceptionCode.ALERT_NOT_FOUND));
+		Alert alert = getAlert1(alertId);
 		if (alert.getCheckedAt() != null) {
 			throw new AlertsException(AlertsExceptionCode.ALREADY_REQUESTED);
 		}
-		if (!alert.getUser().getUserId().equals(userUtil.getUser().getUserId())) {
+		if (!alert.getUser().getUserId().equals(user.getUserId())) {
 			throw new AlertsException(AlertsExceptionCode.NOT_YOUR_ALERT);
 		}
 		alert.setCheckedAt(LocalDateTime.now()); // 읽은 시간을 현재로 지정 후 저장
