@@ -1,5 +1,17 @@
 package com.ssafy.docshund.domain.alerts.service;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 import com.ssafy.docshund.domain.alerts.dto.AlertOutputDto;
 import com.ssafy.docshund.domain.alerts.dto.Category;
 import com.ssafy.docshund.domain.alerts.entity.Alert;
@@ -12,21 +24,11 @@ import com.ssafy.docshund.domain.forums.entity.Comment;
 import com.ssafy.docshund.domain.supports.entity.Inquiry;
 import com.ssafy.docshund.domain.users.entity.User;
 import com.ssafy.docshund.global.util.user.UserUtil;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class AlertsServiceImpl implements AlertsService {
 
 	private final AlertRepository alertRepository;
@@ -35,14 +37,16 @@ public class AlertsServiceImpl implements AlertsService {
 	private final UserUtil userUtil;
 
 	// 알림 단일 조회 시 사용하는 메소드
-	private Alert getAlert1(Long alertId) {
+	@Transactional(readOnly = true)
+	public Alert getAlert1(Long alertId) {
 		return alertRepository.findById(alertId)
-				.orElseThrow(() -> new AlertsException(AlertsExceptionCode.ALERT_NOT_FOUND));
+			.orElseThrow(() -> new AlertsException(AlertsExceptionCode.ALERT_NOT_FOUND));
 	}
 
 	// 알림 전체 조회
 	@SuppressWarnings("checkstyle:WhitespaceAround")
 	@Override
+	@Transactional(readOnly = true)
 	public List<AlertOutputDto> getAllAlerts() {
 		User currentUser = userUtil.getUser();
 		if (currentUser == null) {
@@ -56,6 +60,7 @@ public class AlertsServiceImpl implements AlertsService {
 
 	// 알림 단일 조회
 	@Override
+	@Transactional(readOnly = true)
 	public AlertOutputDto getAlert(Long alertId) {
 		Alert alert = getAlert1(alertId);
 		User currentUser = userUtil.getUser();
@@ -68,18 +73,18 @@ public class AlertsServiceImpl implements AlertsService {
 	/*
 	 ☆ SSE 연결 관련 로직 ☆
 	 */
-	@Override
 	public SseEmitter subscribe(Long userId) {
-		emitters.remove(userId);
-		SseEmitter emitter = new SseEmitter(10 * 60 * 1000L);    // 10분 적용
-		emitters.put(userId, emitter);
+		SseEmitter emitter = new SseEmitter(10 * 60 * 1000L); // 10분
+		SseEmitter oldEmitter = emitters.put(userId, emitter);
+		if (oldEmitter != null) {
+			oldEmitter.complete(); // 기존 연결 종료 후 새로운 연결 생성
+		}
 		emitter.onCompletion(() -> emitters.remove(userId));
-		emitter.onTimeout(() -> {
-			emitters.remove(userId);
-		});
+		emitter.onTimeout(() -> emitters.remove(userId));
 		return emitter;
 	}
 
+	@Transactional
 	public void sendAlert(Alert alert) {
 		alertRepository.save(alert);
 		sendToClient(alert.getUser().getUserId(), convertToOutputDto(alert));
@@ -91,6 +96,7 @@ public class AlertsServiceImpl implements AlertsService {
 			try {
 				emitter.send(SseEmitter.event().name("alert").data(data));
 			} catch (IOException e) {
+				emitter.completeWithError(e); // 에러 처리 후 제거
 				emitters.remove(userId);
 			}
 		}
@@ -215,13 +221,19 @@ public class AlertsServiceImpl implements AlertsService {
 		if (user == null) {
 			throw new AlertsException(AlertsExceptionCode.USER_NOT_AUTHORIZED);
 		}
+
 		List<Alert> alerts = alertRepository.findByUserUserId(user.getUserId());
+
+		// 체크되지 않은 알림 업데이트
+		List<Alert> updatedAlerts = new ArrayList<>();
 		for (Alert alert : alerts) {
 			if (alert.getCheckedAt() == null) {
 				alert.setCheckedAt(LocalDateTime.now());
-				alertRepository.save(alert);
+				updatedAlerts.add(alert);
 			}
 		}
+
+		alertRepository.saveAll(updatedAlerts);
 	}
 
 	// 번역 좋아요 알림 전송
@@ -264,6 +276,7 @@ public class AlertsServiceImpl implements AlertsService {
 
 	// 게시글 댓글 알림 전송
 	@Override
+	@Transactional
 	public void sendCommentAlert(Article article, User user) {
 		// 게시글 작성자
 		User author = article.getUser();
@@ -290,6 +303,7 @@ public class AlertsServiceImpl implements AlertsService {
 
 	// 게시글 대댓글 알림 전송
 	@Override
+	@Transactional
 	public void sendCommentReplyAlert(Comment parentComment, User user) {
 		// 댓글 작성자
 		User author = parentComment.getUser();
@@ -314,6 +328,7 @@ public class AlertsServiceImpl implements AlertsService {
 
 	// 문의에 답변이 달렸을 시 알림 전송
 	@Override
+	@Transactional
 	public void sendInquiryAnswerAlert(Inquiry inquiry) {
 		// 문의 작성자
 		User author = inquiry.getUser();
