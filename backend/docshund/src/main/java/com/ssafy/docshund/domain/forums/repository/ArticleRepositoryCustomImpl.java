@@ -268,7 +268,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
 			.from(article)
 			.join(document).on(article.document.docsId.eq(document.docsId))
 			.join(article.user, user)
-			.leftJoin(articleLike).on(article.articleId.eq(articleLike.article.articleId)
+			.join(articleLike).on(article.articleId.eq(articleLike.article.articleId)
 				.and(articleLike.user.userId.eq(userId)))
 			.leftJoin(comment).on(article.articleId.eq(comment.article.articleId)
 				.and(comment.status.eq(Status.VISIBLE)))
