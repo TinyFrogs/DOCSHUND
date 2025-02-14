@@ -20,6 +20,11 @@ public class StompErrorHandler extends StompSubProtocolErrorHandler {
 
         log.error("STOMP ERROR: {}", ex.getMessage());
 
+        if ("Session closed.".equals(ex.getMessage())) {
+            log.info("Ignoring normal session close event.");
+            return null;
+        }
+
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(clientMessage);
         String errorMessage = "Unexpected error occurred";
 
