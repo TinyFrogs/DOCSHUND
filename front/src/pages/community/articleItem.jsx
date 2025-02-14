@@ -17,10 +17,6 @@ import SkeletonArticleItem from "./components/skeletonArticleItem";
 import ReplyList from "./replyList";
 import RectBtn from "../../components/button/rectBtn";
 import ToastViewer from "../translate/components/toastViewer";
-<<<<<<< HEAD
-import logo from "../../assets/logo.png";
-=======
->>>>>>> 06971b7ec7ea03e986f8be591d5ec23d61747c3e
 
 const ArticleItem = () => {
   const navigate = useNavigate();
