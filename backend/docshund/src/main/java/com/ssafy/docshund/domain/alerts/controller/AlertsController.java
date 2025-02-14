@@ -1,19 +1,23 @@
 package com.ssafy.docshund.domain.alerts.controller;
 
-import com.ssafy.docshund.domain.alerts.dto.AlertOutputDto;
-import com.ssafy.docshund.domain.alerts.exception.AlertsException;
-import com.ssafy.docshund.domain.alerts.exception.AlertsExceptionCode;
-import com.ssafy.docshund.domain.alerts.service.AlertsService;
-import com.ssafy.docshund.domain.users.entity.User;
-import com.ssafy.docshund.global.util.user.UserUtil;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import com.ssafy.docshund.domain.alerts.dto.AlertOutputDto;
+import com.ssafy.docshund.domain.alerts.service.AlertsService;
+import com.ssafy.docshund.global.util.user.UserUtil;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/docshund/alerts")
@@ -79,11 +83,6 @@ public class AlertsController {
 	// 알림 받기 (SSE 연결)
 	@GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public SseEmitter subscribe() {
-		User user = userUtil.getUser();
-		if(user == null) {
-			throw new AlertsException(AlertsExceptionCode.USER_NOT_AUTHORIZED);
-		}
-		Long userId = user.getUserId();
-		return alertsService.subscribe(userId);
+		return alertsService.subscribe();
 	}
 }

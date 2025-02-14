@@ -25,12 +25,16 @@ import com.ssafy.docshund.domain.supports.entity.Inquiry;
 import com.ssafy.docshund.domain.users.entity.User;
 import com.ssafy.docshund.global.util.user.UserUtil;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class AlertsServiceImpl implements AlertsService {
 
+	@PersistenceContext
+	private EntityManager entityManager;
 	private final AlertRepository alertRepository;
 
 	private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
@@ -73,7 +77,15 @@ public class AlertsServiceImpl implements AlertsService {
 	/*
 	 ☆ SSE 연결 관련 로직 ☆
 	 */
-	public SseEmitter subscribe(Long userId) {
+	public SseEmitter subscribe() {
+		User user = userUtil.getUser();
+		if (user == null) {
+			throw new AlertsException(AlertsExceptionCode.USER_NOT_AUTHORIZED);
+		}
+		Long userId = user.getUserId();
+
+		entityManager.detach(user);
+
 		SseEmitter emitter = new SseEmitter(10 * 60 * 1000L); // 10분
 		SseEmitter oldEmitter = emitters.put(userId, emitter);
 		if (oldEmitter != null) {
