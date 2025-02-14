@@ -5,11 +5,11 @@ const SettingsCard = (props) => {
   return (
     <div className="w-auto bg-white p-10 rounded-xl border-1 border-[#E1E1DF] text-[#424242]">
       <div className="flex mb-4">
-        <h3 className="w-30">이메일</h3>
+        <h3 className="w-30 font-bold">이메일 |</h3>
         <p className="font-semibold">{editedProfile.email}</p>
       </div>
       <div className="flex mb-4">
-        <h3 className="w-30">모드설정</h3>
+        <h3 className="w-30 font-bold">모드설정 |</h3>
         <label className="mr-5">
           <input
             type="radio"

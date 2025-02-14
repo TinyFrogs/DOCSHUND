@@ -3,8 +3,7 @@ import { axiosJsonInstance } from "../../../utils/axiosInstance";
 const memoService = {
   // 메모 목록 가져오기
   async fetchMemos(userId, page = 0, size = 9) {
-    const token = localStorage.getItem("token");
-    if (!token) {
+    if (!userId) {
       return null;
     }
     try {

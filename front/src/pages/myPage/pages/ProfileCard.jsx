@@ -62,7 +62,7 @@ const ProfileCard = ({
   return (
     <div className="w-auto bg-white p-10 rounded-xl border border-[#E1E1DF] text-[#424242] mb-5">
       <div className="flex mb-4">
-        <h3 className="w-30">이미지</h3>
+        <h3 className="w-30 font-bold">이미지 |</h3>
         {isEditing ? (
           <>
             {/* 편집 모드에서는 previewImage state를 사용 */}
@@ -96,7 +96,7 @@ const ProfileCard = ({
         )}
       </div>
       <div className="flex mb-4">
-        <h3 className="w-30">닉네임</h3>
+        <h3 className="w-30 font-bold">닉네임 |</h3>
         {isEditing ? (
           <div className="flex flex-col justify-start">
             <div className="flex items-center">
@@ -121,11 +121,11 @@ const ProfileCard = ({
             </p>
           </div>
         ) : (
-          <p className="font-semibold">{profile.nickname}</p>
+          <p>{profile.nickname}</p>
         )}
       </div>
       <div className="flex mb-4">
-        <h3 className="w-30">관심분야</h3>
+        <h3 className="w-30 font-bold">관심분야 |</h3>
         {isEditing ? (
           <select
             name="hobby"
@@ -143,7 +143,7 @@ const ProfileCard = ({
           <p>{profile.hobby}</p>
         )}
       </div>
-      <h3 className="w-30 mb-4">자기소개</h3>
+      <h3 className="w-30 font-bold mb-4">자기소개 |</h3>
       {isEditing ? (
         <>
           <textarea

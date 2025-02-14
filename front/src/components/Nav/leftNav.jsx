@@ -60,23 +60,26 @@ const LeftNav = () => {
   }, [token]);
 
   useEffect(() => {
-    const fetchMemos = async (userId) => {
-      try {
-        const data = await memoService.fetchMemos(userId);
-        if (data) {
-          setMemos(data.reverse());
-        } else {
-          setMemos([]);
-        }
-      } catch (error) {
-        console.error("Error fetching memos:", error);
-      }
-    };
-
-    if (token) {
+    if (userId) {
       fetchMemos(userId);
     }
-  }, [userId, setMemos, token]);
+  }, [userId]);
+
+  const fetchMemos = async (userId) => {
+    if (!userId) {
+      return;
+    }
+    try {
+      const data = await memoService.fetchMemos(userId);
+      if (data) {
+        setMemos(data.reverse());
+      } else {
+        setMemos([]);
+      }
+    } catch (error) {
+      console.error("Error fetching memos:", error);
+    }
+  };
 
   const handleCreateMemo = async (memoData) => {
     if (userId) {
