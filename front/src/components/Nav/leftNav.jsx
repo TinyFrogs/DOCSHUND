@@ -73,10 +73,10 @@ const LeftNav = () => {
       }
     };
 
-    if (userId !== null) {
+    if (token) {
       fetchMemos(userId);
     }
-  }, [userId, setMemos]);
+  }, [userId, setMemos, token]);
 
   const handleCreateMemo = async (memoData) => {
     if (userId) {
