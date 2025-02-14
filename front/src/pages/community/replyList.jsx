@@ -12,7 +12,7 @@ import ReplyTextarea from "./components/replyTextarea";
   3. textarea는 로그인한 회원만, 하나만 보여주기 <- 대댓글 달기를 하면 다른 곳에 textarea가 보이지 않게 하기 위함  
 */
 
-const ReplyList = ({ replyCount }) => {
+const ReplyList = () => {
   const token = localStorage.getItem("token");
   const [reCommentFlag, setReCommentFlag] = useState(false); // 대댓글 작성 여부를 알기 위한 flag
 
@@ -21,7 +21,7 @@ const ReplyList = ({ replyCount }) => {
   return (
     <div className="mt-6 bg-white rounded-lg border border-[#E1E1DF] p-6">
       {/* 댓글 헤더 */}
-      <ReplyHeader replyCount={replyCount} />
+      <ReplyHeader />
 
       <div className="border-b border-[#E1E1DF]"></div>
       {/* 댓글 리스트는 여기에 구현 */}

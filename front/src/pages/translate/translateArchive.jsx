@@ -15,6 +15,7 @@ import useEditorStore from "../../store/translateStore/editorStore.jsx";
 import useArchiveStore from "../../store/translateStore/archiveStore.jsx";
 import useReportStore from "../../store/reportStore.jsx";
 import useModalStore from "../../store/translateStore/translateModalStore.jsx";
+import _ from "lodash";
 
 const TranslateArchive = () => {
   let userId = 0;
@@ -72,6 +73,9 @@ const TranslateArchive = () => {
     setTransList(tmpTransList);
     return status;
   };
+
+  // Create debounced version of handleLike
+  const debouncedHandleLike = _.debounce(handleLike, 300);
 
   const handleClose = () => {
     clearDocsPart();
@@ -230,7 +234,10 @@ const TranslateArchive = () => {
                             <div
                               onClick={async (e) => {
                                 e.stopPropagation();
-                                await handleLike(docsId, trans.transId);
+                                await debouncedHandleLike(
+                                  docsId,
+                                  trans.transId
+                                );
                               }}
                               className={`flex w-fititems-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 cursor-pointer right-5 top-1/2  ${
                                 trans.likeUserIds.includes(Number(userId))

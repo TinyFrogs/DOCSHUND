@@ -6,6 +6,7 @@ import {
   likeDocs,
   likeTranslate,
 } from "../../translate/services/translatePostService";
+import _ from "lodash";
 
 const ArchivePage = () => {
   const tabs = [
@@ -16,7 +17,7 @@ const ArchivePage = () => {
 
   const { activeTab, handleTabChange } = useTabs(tabs);
 
-  const handleLikeToggle = async (type, id, transId = null) => {
+  const handleLikeToggle = _.debounce(async (type, id, transId = null) => {
     try {
       if (type === "article") {
         await ArticleItemService.likeArticleItem(id);
@@ -28,7 +29,7 @@ const ArchivePage = () => {
     } catch (error) {
       console.log("좋아요 토글 실패", error);
     }
-  };
+  }, 300);
 
   return (
     <div>

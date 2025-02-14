@@ -9,6 +9,7 @@ import ProfileCard from "./ProfileCard";
 import SettingsCard from "./SettingsCard";
 import ConfirmModal from "../../../components/alertModal/confirmModal";
 import useAlertStore from "../../../store/alertStore";
+import _ from "lodash";
 
 const MyProfilePage = () => {
   const { profile, error, fetchProfile, updateProfile, deleteAccount } =
@@ -94,7 +95,7 @@ const MyProfilePage = () => {
   };
 
   // 편집 모드 저장
-  const handleSaveClick = async (e) => {
+  const handleSaveClick = _.debounce(async (e) => {
     e.preventDefault();
     if (
       !editedProfile.nickname ||
@@ -126,7 +127,7 @@ const MyProfilePage = () => {
       toast.error("프로필 업데이트 중 오류가 발생했습니다.");
       console.error("프로필 업데이트 실패", error);
     }
-  };
+  }, 500);
 
   // 이미지 변경 처리 (최대 1MB)
   const MAX_FILE_SIZE = 1 * 1024 * 1024;
@@ -156,7 +157,7 @@ const MyProfilePage = () => {
     toggleAlert();
   };
 
-  const confirmDeleteAccount = async () => {
+  const confirmDeleteAccount = _.debounce(async () => {
     try {
       const success = await deleteAccount(userId);
       if (success) {
@@ -172,7 +173,7 @@ const MyProfilePage = () => {
       console.error("계정 탈퇴 실패", error);
       toggleAlert();
     }
-  };
+  }, 500);
 
   // 입력 값 처리
   const handleChange = (e) => {

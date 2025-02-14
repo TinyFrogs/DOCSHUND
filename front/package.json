@@ -16,6 +16,7 @@
     "@toast-ui/react-editor": "^3.2.3",
     "axios": "^1.7.9",
     "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "event-source-polyfill": "^1.0.31",
     "flowbite": "^3.1.2",
     "flowbite-react": "^0.10.2",

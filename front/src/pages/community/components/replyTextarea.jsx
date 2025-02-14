@@ -1,7 +1,8 @@
 import propTypes from "prop-types";
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useParams } from "react-router-dom";
-
+import { toast } from "react-toastify";
+import { debounce } from "lodash";
 import communityArticleStore from "../../../store/communityStore/communityArticleStore";
 import ReplyItemService from "../services/replyItemService";
 import RectBtn from "../../../components/button/rectBtn";
@@ -11,45 +12,46 @@ const ReplyTextarea = ({ reCommentFlag, commentId }) => {
   const [replyContent, setReplyContent] = useState("");
   const [contentLength, setContentLength] = useState(0);
 
-  // store에서 데이터를 가져오기 위해 정의
   const setIsReplied = communityArticleStore((state) => state.setIsReplied);
 
-  const handleContentLength = (e) => {
-    setContentLength(replyContent.length);
-  };
+  // Debounced submit handler
+  const debouncedSubmit = useCallback(
+    debounce(async (content, isReComment, commentId) => {
+      if (!content.trim()) {
+        toast.warn("댓글을 입력해주세요.");
+        return;
+      } else if (content.length > 5000) {
+        toast.warn("댓글은 10,000자 이하로 입력해주세요.");
+        return;
+      }
 
-  // 댓글 작성
-  const handleSubmit = async () => {
-    if (!replyContent.trim()) {
-      alert("댓글을 입력해주세요.");
-      return;
-    } else if (replyContent.length > 5000) {
-      alert("댓글은 10,000자 이하로 입력해주세요.");
-      return;
-    }
+      try {
+        if (isReComment) {
+          await ReplyItemService.postReReplyItem(articleId, commentId, content);
+        } else {
+          await ReplyItemService.postReplyItem(articleId, content);
+        }
 
-    // NOTE: 대댓글인지 원댓글인지에 따라 다르게 처리
-    // 1. 대댓글 작성
-    if (reCommentFlag) {
-      // 대댓글 작성 시에는 대댓글을 작성하는 원댓글의 id를 가져와야 함
-      const response = await ReplyItemService.postReReplyItem(
-        articleId,
-        commentId,
-        replyContent
-      );
-    } else {
-      // 2. 원댓글 작성
-      const response = await ReplyItemService.postReplyItem(
-        articleId,
-        replyContent
-      );
-    }
+        setReplyContent("");
+        setContentLength(0);
+        setIsReplied((prev) => !prev);
+      } catch (error) {
+        toast.error("댓글 작성에 실패했습니다.");
+        return error;
+      }
+    }, 500),
+    [articleId, setIsReplied]
+  );
 
-    setReplyContent(""); // 제출 후 입력창 초기화
-    setContentLength(0); // 제출 후 글자 수 초기화
+  // Cleanup function
+  useEffect(() => {
+    return () => {
+      debouncedSubmit.cancel();
+    };
+  }, [debouncedSubmit]);
 
-    // 제출 후 댓글 리스트 리렌더링
-    setIsReplied((prev) => !prev);
+  const handleSubmit = () => {
+    debouncedSubmit(replyContent, reCommentFlag, commentId);
   };
 
   return (

@@ -1,3 +1,4 @@
+import Modal from "react-modal";
 import { useState, useMemo } from "react";
 import * as motion from "motion/react-client";
 import { fetchBestTranslate } from "./services/translateGetService";
@@ -8,6 +9,7 @@ import debounce from "lodash/debounce";
 import TextContent from "./components/textContent";
 import EditorContent from "./components/editorContent";
 import RectBtn from "../../components/button/rectBtn";
+import _ from "lodash";
 
 //상태 관련
 import useModalStore from "../../store/translateStore/translateModalStore";
@@ -99,7 +101,7 @@ const TranslateEditor = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                     />
                   </svg>
                   <span className="text-base font-semibold text-slate-700">

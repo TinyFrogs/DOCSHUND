@@ -8,6 +8,7 @@ import memoService from "../services/memoService";
 import ListPagination from "../../../components/pagination/listPagination";
 import ConfirmModal from "../../../components/alertModal/confirmModal";
 import useAlertStore from "../../../store/alertStore";
+import _ from "lodash";
 
 const MemoPage = () => {
   const token = localStorage.getItem("token");
@@ -64,7 +65,7 @@ const MemoPage = () => {
     }
   }, [memos, currentPage, pageSize]);
 
-  const handleCreateMemo = async (memoData) => {
+  const handleCreateMemo = _.debounce(async (memoData) => {
     if (userId) {
       try {
         await memoService.createMemo(userId, memoData);
@@ -79,9 +80,9 @@ const MemoPage = () => {
         console.error("Error creating memo:", error);
       }
     }
-  };
+  }, 300);
 
-  const handleEditMemo = async (memoId, memoData) => {
+  const handleEditMemo = _.debounce(async (memoId, memoData) => {
     if (userId) {
       try {
         await memoService.updateMemo(userId, memoId, memoData);
@@ -96,14 +97,14 @@ const MemoPage = () => {
         console.error("Error updating memo:", error);
       }
     }
-  };
+  }, 300);
 
-  const handleDeleteMemo = async (memoId) => {
+  const handleDeleteMemo = _.debounce(async (memoId) => {
     setMemoToDelete(memoId);
     toggleAlert();
-  };
+  }, 300);
 
-  const confirmDeleteMemo = async () => {
+  const confirmDeleteMemo = _.debounce(async () => {
     if (userId && memoToDelete) {
       try {
         await memoService.deleteMemo(userId, memoToDelete);
@@ -117,7 +118,7 @@ const MemoPage = () => {
         toggleAlert();
       }
     }
-  };
+  }, 300);
 
   const handleOpenModal = async (memoId) => {
     if (memoId) {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { format, isSameDay } from "date-fns";
+import { ko } from "date-fns/locale";
 
 import articleListService from "./services/articleListService";
 import ListRender from "../../components/pagination/listRender.jsx";
@@ -78,7 +79,9 @@ const ArticleList = () => {
       } catch (error) {
         setError(error);
       } finally {
-        setLoading(false);
+        setTimeout(() => {
+          setLoading(false);
+        }, 300);
       }
     };
 
@@ -101,8 +104,8 @@ const ArticleList = () => {
         <p className="text-base">
           {item.createdAt
             ? isSameDay(new Date(item.createdAt), new Date())
-              ? format(new Date(item.createdAt), "HH:mm")
-              : format(new Date(item.createdAt), "yyyy-MM-dd")
+              ? format(new Date(item.createdAt), "HH:mm", { locale: ko })
+              : format(new Date(item.createdAt), "yyyy-MM-dd", { locale: ko })
             : "표시할 수 없는 날짜입니다."}
         </p>
       </div>

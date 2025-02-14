@@ -1,13 +1,13 @@
-import { useState } from "react";
 import Proptypes from "prop-types";
 import { jwtDecode } from "jwt-decode";
+import _ from "lodash";
 
 import ReportModal from "../../report";
 import useReportStore from "../../../store/reportStore";
 import communityArticleStore from "../../../store/communityStore/communityArticleStore";
 import ReplyTextarea from "./replyTextarea";
 import ReplyItemService from "../services/replyItemService";
-import { format, isSameDay } from "date-fns";
+import useKoreanTime from "../../../hooks/useKoreanTime";
 
 const ReplyRenderItem = ({
   item,
@@ -24,6 +24,8 @@ const ReplyRenderItem = ({
   const openReport = useReportStore((state) => state.openReport);
   const toggleReport = useReportStore((state) => state.toggleReport);
 
+  const { convertToKoreanTime } = useKoreanTime();
+
   const handleReport = (data) => {
     useReportStore.setState({
       originContent: data.content,
@@ -38,7 +40,13 @@ const ReplyRenderItem = ({
     toggleReport();
   };
 
-  // TODO: 댓글 레이아웃 다듬기
+  const handleDeleteReply = _.debounce(async () => {
+    await ReplyItemService.deleteReplyItem(item.articleId, item.commentId);
+
+    //  삭제 후 댓글 리스트 리렌더링
+    setIsReplied((prev) => !prev);
+  }, 500);
+
   return (
     <div className="flex flex-col bg-white p-4 rounded-lg mt-2 mb-2">
       {/* 유저 프로필 영역 */}
@@ -52,11 +60,8 @@ const ReplyRenderItem = ({
           <div className="flex justify-between items-center mb-2">
             <p className="font-semibold text-gray-800">{item.nickname}</p>
             <p className="text-sm text-gray-500">
-              {item?.createdAt
-                ? isSameDay(new Date(item.createdAt), new Date())
-                  ? format(new Date(item.createdAt), "HH:mm")
-                  : format(new Date(item.createdAt), "yyyy-MM-dd HH:mm")
-                : "표시할 수 없는 날짜입니다."}
+              {convertToKoreanTime(item.createdAt) ||
+                "표시할 수 없는 날짜입니다."}
             </p>
           </div>
           {/*  콘텐츠 */}
@@ -69,15 +74,7 @@ const ReplyRenderItem = ({
               ? jwtDecode(token)?.userId === item.userId && (
                   <button
                     className="text-[#7d7c77] underline cursor-pointer"
-                    onClick={async () => {
-                      await ReplyItemService.deleteReplyItem(
-                        item.articleId,
-                        item.commentId
-                      );
-
-                      //  삭제 후 댓글 리스트 리렌더링
-                      setIsReplied((prev) => !prev);
-                    }}
+                    onClick={handleDeleteReply}
                   >
                     삭제
                   </button>

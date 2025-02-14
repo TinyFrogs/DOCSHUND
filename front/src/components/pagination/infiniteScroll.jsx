@@ -26,7 +26,7 @@ const InfiniteScroll = ({
       // 인위적인 지연 추가 (개발용) : 자연스러운 로딩 목적
       await new Promise((resolve) => setTimeout(resolve, loadingTime));
       const data = dataList;
-      console.log(data);
+
       if (!data || data.length === 0) {
         console.log("오류 발생 : 데이터 없음");
         setHasMore(false);

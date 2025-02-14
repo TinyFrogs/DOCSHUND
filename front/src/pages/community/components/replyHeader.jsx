@@ -2,7 +2,7 @@ import propTypes from "prop-types";
 
 import communityArticleStore from "../../../store/communityStore/communityArticleStore";
 
-const ReplyHeader = ({ replyCount }) => {
+const ReplyHeader = () => {
   const commentCount = communityArticleStore((state) => state.commentCount);
 
   // NOTE: 댓글 정렬 방식을 변경하기 위한 store의 메소드

@@ -8,6 +8,7 @@ import useUserManagerStore from "../../store/adminStore/userManagerStore";
 import ToastViewer from "../../pages/translate/components/toastViewer";
 import { toast } from "react-toastify";
 import LodingImage from "../../assets/loading.gif";
+import _ from "lodash";
 
 const ManageInquiry = () => {
   const inquiryListData = useRef([]);
@@ -59,10 +60,10 @@ const ManageInquiry = () => {
     }));
   };
 
-  const handleRespond = async (inquiryId) => {
+  const handleRespond = _.debounce(async (inquiryId) => {
     setLoading(true);
     const data = await respondInquiry(inquiryId, answer);
-    console.log(data);
+
     if (data.status === 200) {
       setLoading(false);
       toast.success("작성 완료");
@@ -70,7 +71,7 @@ const ManageInquiry = () => {
       setLoading(false);
       toast.error("작성 실패");
     }
-  };
+  }, 500); // 500ms delay
 
   useEffect(() => {
     const fetchUsers = async () => {

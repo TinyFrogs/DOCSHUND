@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import _ from "lodash";
 
 import InquiryService from "../../services/helpDeskServices/inquiryService";
 import LodingImage from "../../assets/loading.gif";
@@ -17,6 +18,35 @@ const InquiryFormPage = () => {
 
   const MAX_TITLE_LENGTH = 50;
   const MAX_CONTENT_LENGTH = 2000;
+
+  // Create debounced submit handler
+  const debouncedSubmit = useCallback(
+    _.debounce(async (inquiry, formData) => {
+      try {
+        await InquiryService.submitInquiry(formData);
+        toast.success("문의가 성공적으로 제출되었습니다.");
+        setCategory("");
+        setTitle("");
+        setEmail("");
+        setContent("");
+        setFile(null);
+        navigate("/");
+      } catch (error) {
+        toast.error("문의 제출 중 오류가 발생했습니다.");
+        console.log("문의 등록 실패", error);
+      } finally {
+        setLoading(false);
+      }
+    }, 1000),
+    [navigate]
+  );
+
+  // Cleanup debounced function
+  useEffect(() => {
+    return () => {
+      debouncedSubmit.cancel();
+    };
+  }, [debouncedSubmit]);
 
   //폼제출
   const handleSubmit = async (e) => {
@@ -55,22 +85,7 @@ const InquiryFormPage = () => {
       formData.append("file", file);
     }
 
-    try {
-      // 문의 제출 API 호출
-      await InquiryService.submitInquiry(formData);
-      toast.success("문의가 성공적으로 제출되었습니다.");
-      setCategory("");
-      setTitle("");
-      setEmail("");
-      setContent("");
-      setFile(null);
-      navigate("/");
-    } catch (error) {
-      toast.error("문의 제출 중 오류가 발생했습니다.");
-      console.log("문의 등록 실패", error);
-    } finally {
-      setLoading(false);
-    }
+    debouncedSubmit(inquiry, formData);
   };
 
   //파일용량 제한

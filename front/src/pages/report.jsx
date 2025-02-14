@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import Modal from "react-modal";
 import ReportStore from "../store/reportStore";
 import ReportService from "../services/reportService";
+import _ from "lodash";
 
 import { X } from "lucide-react";
 
@@ -35,7 +36,7 @@ const ReportModal = () => {
 
   const MAX_CONTENT_LENGTH = 500;
 
-  const handleSubmit = async (e) => {
+  const debouncedHandleSubmit = _.debounce(async (e) => {
     e.preventDefault();
     if (!category || !content) {
       toast.warn("신고 카테고리, 내용을 모두 입력해주세요.");
@@ -73,13 +74,7 @@ const ReportModal = () => {
       formData.append("file", file);
     }
 
-    // Log FormData content
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ": " + pair[1]);
-    }
-
     try {
-      // 문의 제출 API 호출
       await ReportService.submitReport(formData);
       toast.success("신고가 성공적으로 제출되었습니다.");
       setCategory("");
@@ -87,8 +82,6 @@ const ReportModal = () => {
       setEmail("");
       setContent("");
       setFile(null);
-
-      // 문의 제출 후 마이페이지로 이동
     } catch (error) {
       toast.error("신고 제출 중 오류가 발생했습니다.");
       console.log("신고 등록 실패", error);
@@ -96,6 +89,11 @@ const ReportModal = () => {
 
     toggleReport();
     closeReport();
+  }, 1000);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    debouncedHandleSubmit(e);
   };
 
   const handleFileChange = (e) => {

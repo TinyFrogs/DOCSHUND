@@ -60,7 +60,7 @@ const NotificationModal = () => {
 
       const notificationCategory = notification.category;
       const notificationCategoryId = notification.categoryId;
-      const notificationOriginCategoryId = notification.originCategoryId;
+      const notificationOriginCategoryId = notification.originArticleId;
 
       // NOTE: 1. 번역 알림 -> 번역 페이지로 이동
       if (notificationCategory === "TRANS") {
@@ -73,7 +73,7 @@ const NotificationModal = () => {
         navigate(`/community/article/${notificationOriginCategoryId}`);
         // NOTE: 4. 문의 알림 -> 문의 페이지로 이동
       } else if (notificationCategory === "INQUIRY") {
-        navigate(`/helpDesk/inquiryForm`);
+        navigate(`/helpDesk/myPage/inquiry`);
       }
     } catch (err) {
       toast.error(err.message);

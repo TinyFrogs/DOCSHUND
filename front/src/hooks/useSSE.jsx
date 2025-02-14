@@ -8,10 +8,10 @@ const UseSSE = (userId) => {
   );
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState(null);
-  const [retryCount, setRetryCount] = useState(0);
+  // const [retryCount, setRetryCount] = useState(0);
 
-  const MAX_RETRY_ATTEMPTS = 5;
-  const RETRY_TIMEOUT = 3000; // 3초
+  // const MAX_RETRY_ATTEMPTS = 5;
+  // const RETRY_TIMEOUT = 3000; // 3초
 
   const EventSource = EventSourcePolyfill || NativeEventSource;
 
@@ -49,7 +49,7 @@ const UseSSE = (userId) => {
           console.log("SSE 연결 성공");
           setIsConnected(true);
           setError(null);
-          setRetryCount(0);
+          // setRetryCount(0);
         };
 
         // INFO: Backend에서 설정한 'alert' 이벤트 리스닝
@@ -116,7 +116,7 @@ const UseSSE = (userId) => {
   return {
     isConnected,
     error,
-    retryCount,
+    // retryCount,
   };
 };
 

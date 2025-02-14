@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { fetchUserList } from "../admin/services/adminGetService";
 import { changeUserStatus } from "../admin/services/adminPatchService";
 import useUserManagerStore from "../../store/adminStore/userManagerStore";
 import { toast } from "react-toastify";
 import { RefreshCw } from "lucide-react";
+import _ from "lodash";
+
 const ManageUser = () => {
   const [userList, setUserList] = useState([]);
   const { addUserList, removeUserList, currentUserList } =
@@ -32,34 +34,37 @@ const ManageUser = () => {
     });
   };
 
-  const handleUserStatus = async (userId, currentStatus) => {
-    if (currentStatus === "ACTIVE") {
-      const response = await changeUserStatus(userId, "WITHDRAWN");
-      if (response === 200) {
-        toast.success("상태 변경 완료");
-      } else {
-        toast.error("상태 변경 실패");
+  const handleUserStatus = useCallback(
+    _.debounce(async (userId, currentStatus) => {
+      if (currentStatus === "ACTIVE") {
+        const response = await changeUserStatus(userId, "WITHDRAWN");
+        if (response === 200) {
+          toast.success("상태 변경 완료");
+        } else {
+          toast.error("상태 변경 실패");
+        }
+      } else if (currentStatus === "WITHDRAWN") {
+        const response = await changeUserStatus(userId, "BANNED");
+        if (response === 200) {
+          toast.success("상태 변경 완료");
+        } else {
+          toast.error("상태 변경 실패");
+        }
+      } else if (currentStatus === "BANNED") {
+        const response = await changeUserStatus(userId, "ACTIVE");
+        if (response === 200) {
+          toast.success("상태 변경 완료");
+        } else {
+          toast.error("상태 변경 실패");
+        }
       }
-    } else if (currentStatus === "WITHDRAWN") {
-      const response = await changeUserStatus(userId, "BANNED");
-      if (response === 200) {
-        toast.success("상태 변경 완료");
-      } else {
-        toast.error("상태 변경 실패");
-      }
-    } else if (currentStatus === "BANNED") {
-      const response = await changeUserStatus(userId, "ACTIVE");
-      if (response === 200) {
-        toast.success("상태 변경 완료");
-      } else {
-        toast.error("상태 변경 실패");
-      }
-    }
 
-    const data = await fetchUserList();
-    data.sort((a, b) => b.reportCount - a.reportCount);
-    setUserList(data);
-  };
+      const data = await fetchUserList();
+      data.sort((a, b) => b.reportCount - a.reportCount);
+      setUserList(data);
+    }, 300),
+    []
+  );
 
   useEffect(() => {
     const fetchUsers = async () => {

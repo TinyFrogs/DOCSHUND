@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import _ from "lodash";
 
 // stroe
 import communityArticleStore from "../../store/communityStore/communityArticleStore";
@@ -32,9 +33,9 @@ const WriteArticle = () => {
   const setFileUrl = communityArticleStore((state) => state.setFileUrl);
 
   // 제목 입력 핸들러
-  const handleTitleChange = (e) => {
+  const handleTitleChange = _.debounce((e) => {
     setTitle(e.target.value);
-  };
+  }, 300);
 
   // 대분류 선택 핸들러
   const handleMainCategoryChange = (e) => {
@@ -49,7 +50,7 @@ const WriteArticle = () => {
   };
 
   // 파일 첨부 핸들링 함수
-  const handleFileChange = async (e) => {
+  const handleFileChange = _.debounce(async (e) => {
     const selectedFile = e.target.files[0];
 
     if (selectedFile) {
@@ -67,21 +68,14 @@ const WriteArticle = () => {
 
       setImageUrl(response.data.imageUrl); // 이미지 URL 상태 업데이트
     }
-  };
+  }, 300);
 
   // 파일 첨부 취소 핸들링 함수
   const handleFileCancel = () => {
     setFile(null);
   };
 
-  const handleContentLength = () => {
-    setContentLength(currentUserText.length);
-  };
-
-  // 글 작성 요청
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // 기본 동작 방지
-
+  const debouncedSubmit = _.debounce(async () => {
     const content = currentUserText; // 에디터 내용
 
     // 제목, 대분류, 소분류, 내용, 파일이 모두 입력되었는지 확인
@@ -107,7 +101,15 @@ const WriteArticle = () => {
         navigate(`/community/article/${data.articleId}`);
       }
     }
-  };
+  }, 500);
+
+  const handleSubmit = useCallback(
+    (e) => {
+      e.preventDefault(); // 기본 동작 방지(NOTE: debounce보다 먼저 실행돼야 합니다.)
+      debouncedSubmit();
+    },
+    [title, mainCategory, subCategory, currentUserText, navigate]
+  );
 
   // DOM 요소 반환
   return (
@@ -196,7 +198,7 @@ const WriteArticle = () => {
                     </label>
                     {file && (
                       <p className="text-sm text-gray-800 ml-6">
-                        파일 제목을 선택해 본문에 첨부할 수 있습니다.
+                        파일 제목 혹은 사진을 선택해 본문에 첨부할 수 있습니다.
                       </p>
                     )}
                   </div>
@@ -219,16 +221,24 @@ const WriteArticle = () => {
                       </p>
                     )}
                     {file && (
-                      <div className="ml-4 flex items-center">
+                      <div className="ml-4 flex items-center gap-4">
+                        <img
+                          src={imageUrl}
+                          alt="이미지 파일 미리보기"
+                          className="h-24 w-24 object-cover rounded-md border border-gray-300 cursor-pointer"
+                          onClick={() => {
+                            setFileUrl(imageUrl);
+                          }}
+                        />
                         <p
                           className="text-sm text-black mr-2 truncate max-w-md cursor-pointer hover:underline border border-gray-300 rounded-md px-2 py-1"
                           onClick={() => {
-                            // 이미지 URL 상태 업데이트로 EditorContent의 useEffect 실행
                             setFileUrl(imageUrl);
                           }}
                         >
                           {file.name}
                         </p>
+
                         <button
                           type="button"
                           onClick={handleFileCancel}

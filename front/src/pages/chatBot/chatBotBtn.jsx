@@ -1,8 +1,9 @@
 import axios from "axios";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import * as motion from "motion/react-client";
 import { AnimatePresence } from "motion/react";
 import { Bot, Send, X } from "lucide-react";
+import _ from "lodash";
 
 //상태 관리
 import useChatBotStore from "../../store/chatBotStore.jsx";
@@ -25,22 +26,30 @@ const ChatBotBtn = () => {
     toggleChatBot();
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!inputMessage.trim()) return;
+  const handleSubmit = useCallback(
+    _.debounce(async (e) => {
+      e.preventDefault();
+      if (!inputMessage.trim()) return;
 
-    const newMessage = {
-      text: inputMessage,
-      isUser: true,
-      timestamp: new Date().toLocaleTimeString(),
-    };
-    setMessages((prev) => [...prev, newMessage]);
-    setInputMessage("");
-    await testGeminiAPI(
-      inputMessage.concat(
-        "페르소나: 당신은 영어에 능통한 30년차 풀스택 개발자 멘토로서, 개발 관련 영어 질문에 대해 간결하고 명확한 한국어 답변을 해요체로 256자 이내로 제공합니다. 답변은 반드시 한국어로 해야 합니다."
-      )
-    );
+      const newMessage = {
+        text: inputMessage,
+        isUser: true,
+        timestamp: new Date().toLocaleTimeString(),
+      };
+      setMessages((prev) => [...prev, newMessage]);
+      setInputMessage("");
+      await testGeminiAPI(
+        inputMessage.concat(
+          "페르소나: 당신은 영어에 능통한 30년차 풀스택 개발자 멘토로서, 개발 관련 영어 질문에 대해 간결하고 명확한 한국어 답변을 해요체로 256자 이내로 제공합니다. 답변은 반드시 한국어로 해야 합니다."
+        )
+      );
+    }, 500),
+    [inputMessage]
+  );
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    handleSubmit(e);
   };
 
   const testGeminiAPI = async (chatContent) => {
@@ -58,7 +67,6 @@ const ChatBotBtn = () => {
         }
       );
 
-      console.log(response);
       const botResponse = {
         text: response.data.response || "응답을 받아오는데 실패했습니다.",
         isUser: false,
@@ -161,7 +169,7 @@ const ChatBotBtn = () => {
 
                 {/* 입력 영역 */}
                 <form
-                  onSubmit={handleSubmit}
+                  onSubmit={onSubmit}
                   className="p-4 border-t border-gray-200"
                 >
                   <div className="flex space-x-2">

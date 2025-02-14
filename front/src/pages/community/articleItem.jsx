@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { format, isSameDay } from "date-fns";
 import { jwtDecode } from "jwt-decode";
 import { ThumbsUp } from "lucide-react";
 import { toast } from "react-toastify";
@@ -17,10 +16,12 @@ import SkeletonArticleItem from "./components/skeletonArticleItem";
 import ReplyList from "./replyList";
 import RectBtn from "../../components/button/rectBtn";
 import ToastViewer from "../translate/components/toastViewer";
+import useKoreanTime from "../../hooks/useKoreanTime";
 
 const ArticleItem = () => {
   const navigate = useNavigate();
   const { articleId } = useParams();
+  const { convertToKoreanTime } = useKoreanTime();
 
   const isLikedArticleIds = communityArticleStore(
     (state) => state.isLikedArticleIds
@@ -47,7 +48,9 @@ const ArticleItem = () => {
 
   // Items, likeCount 등 설정
   const setArticleData = communityArticleStore((state) => state.setArticleData);
-
+  const setCommentCount = communityArticleStore(
+    (state) => state.setCommentCount
+  );
   const toggleReport = useReportStore((state) => state.toggleReport);
   const openReport = useReportStore((state) => state.openReport);
 
@@ -65,7 +68,7 @@ const ArticleItem = () => {
     toggleReport();
   };
 
-  const handleLikeClick = async () => {
+  const handleLikeClick = _.debounce(async () => {
     // 좋아요 api 날리기
     const response = await ArticleItemService.likeArticleItem(articleId);
 
@@ -87,7 +90,7 @@ const ArticleItem = () => {
     } else {
       toast.alert("좋아요에 실패했습니다.");
     }
-  };
+  }, 300); // 300ms 딜레이 설정
 
   // NOTE: 즉시 store에 접근하여 데이터를 가져오기 위해 useEffect 사용
   useEffect(() => {
@@ -106,9 +109,12 @@ const ArticleItem = () => {
           // NOTE: data 호출에 길어봐야 200ms, 0.2초 밖에 안걸림
           // -> 로딩하는 동안 이전 값들이 보이는 것은 store에 상태를 다시 세팅하는 시간이 걸리기 때문으로 추측
 
+          console.log("data:", data);
+
           if (!_.isEqual(data, {})) {
             setArticleId(articleId);
             setArticleData(data);
+            setCommentCount(data.commentCount);
             setIsInitialLoad(false);
           }
         } else {
@@ -131,7 +137,7 @@ const ArticleItem = () => {
     };
   }, [articleId]);
 
-  const handleDeleteClick = async () => {
+  const handleDeleteClick = _.debounce(async () => {
     if (window.confirm("게시글을 삭제하시겠습니까?")) {
       const response = await ArticleItemService.deleteArticleItem(articleId);
 
@@ -140,7 +146,7 @@ const ArticleItem = () => {
         navigate("/community");
       }
     }
-  };
+  }, 300); // 300ms delay to prevent multiple rapid delete requests
 
   // NOTE: isInitialLoad가 true일 때만 실행. 로딩중일 때의 깜빡임 현상을 줄여 UX 개선하기 위함
   if (isInitialLoad) {
@@ -192,7 +198,6 @@ const ArticleItem = () => {
       <main className="flex-1 p-4 max-w-[1280px]">
         {/* header */}
         <CommunityHeader />
-        {/* main content - bg-white와 rounded 스타일을 상위 div에 적용 */}
         {/* /* 게시글 전체 박스 영역 */}
 
         <div className="bg-white rounded-tl-xl rounded-tr-xl border-t rounded-bl-xl rounded-br-xl border-b border-l border-r  border-[#E1E1DF]">
@@ -204,32 +209,6 @@ const ArticleItem = () => {
                   {articleItems.title}
                 </h1>
                 <div className="flex gap-2 text-sm text-gray-500 flex-shrink-0">
-                  {/* {token
-                    ? jwtDecode(token)?.userId === articleItems.userId && (
-                        <div className="flex gap-2 text-sm text-gray-500 flex-shrink-0">
-                          <button
-                            className="text-[#7d7c77] underline hover:text-gray-700 cursor-pointer"
-                            onClick={() => {
-                              // 수정 페이지로 이동
-                              navigate(`/community/modify/${articleId}`);
-                            }}
-                          >
-                            수정
-                          </button>
-                          <span>|</span>
-                          <button
-                            className="text-[#7d7c77] underline hover:text-gray-700 cursor-pointer"
-                            onClick={handleDeleteClick}
-                          >
-                            삭제
-                          </button>
-                          {token
-                            ? jwtDecode(token)?.userId !=
-                                articleItems.userId && <span>|</span>
-                            : null}
-                        </div>
-                      )
-                    : null} */}
                   {renderActionButtons()}
                   {/* INFO: 신고 */}
                   {token
@@ -262,11 +241,8 @@ const ArticleItem = () => {
                   />
                   <span className="font-medium">{articleItems.nickname}</span>
                   <span>
-                    {articleItems?.createdAt
-                      ? isSameDay(new Date(articleItems.createdAt), new Date())
-                        ? format(new Date(articleItems.createdAt), "HH:mm")
-                        : format(new Date(articleItems.createdAt), "yyyy-MM-dd")
-                      : "표시할 수 없는 날짜입니다."}
+                    {convertToKoreanTime(articleItems.createdAt) ||
+                      "표시할 수 없는 날짜입니다."}
                   </span>
                 </div>
                 <div className="flex items-center gap-6">

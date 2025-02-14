@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import _ from "lodash";
 
 // stroe
 import communityArticleStore from "../../store/communityStore/communityArticleStore";
@@ -97,7 +98,7 @@ const ModifyArticle = () => {
   };
 
   // 글 작성 요청
-  const handleSubmit = async (e) => {
+  const handleSubmit = _.debounce(async (e) => {
     e.preventDefault(); // 기본 동작 방지
 
     try {
@@ -129,7 +130,7 @@ const ModifyArticle = () => {
       console.error("Failed to modify article:", error);
       toast.error("게시글 수정에 실패했습니다.");
     }
-  };
+  }, 500); // 500ms 딜레이 추가
 
   return (
     // 불필요한 div 제거

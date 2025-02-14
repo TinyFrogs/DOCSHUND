@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   fetchReportList,
   fetchUserList,
@@ -8,6 +8,7 @@ import { MoveRight, Download } from "lucide-react";
 import useUserManagerStore from "../../store/adminStore/userManagerStore";
 import ToastViewer from "../../pages/translate/components/toastViewer";
 import { toast } from "react-toastify";
+import _ from "lodash";
 
 const ManageReport = () => {
   const reportListData = useRef([]);
@@ -44,16 +45,19 @@ const ManageReport = () => {
     }
   };
 
-  const handleReportStatus = async (reportId) => {
-    const response = await withdrawReport(reportId);
-    if (response === 200) {
-      toast.success("신고 철회 완료");
-    } else {
-      toast.error("공개 처리 실패");
-    }
-    const data = await fetchReportList();
-    setReportList(data);
-  };
+  const handleReportStatus = useCallback(
+    _.debounce(async (reportId) => {
+      const response = await withdrawReport(reportId);
+      if (response === 200) {
+        toast.success("신고 철회 완료");
+      } else {
+        toast.error("공개 처리 실패");
+      }
+      const data = await fetchReportList();
+      setReportList(data);
+    }, 500),
+    []
+  );
 
   const processUserList = (userListContent) => {
     userListContent.forEach((user) => {
