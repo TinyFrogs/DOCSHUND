@@ -17,8 +17,8 @@ public enum UserExceptionCode implements ExceptionCode {
 	MEMBER_DUPLICATE_ERROR(BAD_REQUEST, "M-C-002", "중복된 닉네임입니다."),
 	NICKNAME_DUPLICATE_ERROR(BAD_REQUEST, "M-C-003", "중복된 이메일입니다."),
 	USER_INFO_NOT_FOUND(BAD_REQUEST, "M-C-004", "회원 정보를 찾을 수 없습니다."),
-	USER_BANNED(UNAUTHORIZED, "M-C-005", "정지된 유저입니다."),
-	USER_WITHDRAW(UNAUTHORIZED, "M-C-006", "탈퇴한 유저입니다.");
+	USER_BANNED(BAD_REQUEST, "M-C-005", "정지된 유저입니다."),
+	USER_WITHDRAW(BAD_GATEWAY, "M-C-006", "탈퇴한 유저입니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;
