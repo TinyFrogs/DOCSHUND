@@ -47,7 +47,6 @@ const MyTranslationPage = () => {
           const userId = decoded.userId;
           const data = await MyTranslationService.fetchTranslations(userId);
           data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-          console.log(data);
           // data가 존재하면 setTranslations로 데이터를 저장
           if (data.length > 0) {
             setMyTranslations(data);
@@ -66,13 +65,10 @@ const MyTranslationPage = () => {
   const fetchDocsPart = async (docsId, originId) => {
     const data = await fetchTranslateData(docsId, originId);
     setCurrentDocsPart(data.content);
-    console.log(data.content);
   };
 
   // 페이지네이션 관련 상태들을 하나의 useEffect로 통합
   useEffect(() => {
-    console.log("translations", myTranslations);
-    console.log("data", currentData);
     // TEST: length 0인 경우 체크
     if (myTranslations.length > 0) {
       const startIndex = currentPage * itemsPerPage;

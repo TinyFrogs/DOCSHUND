@@ -53,7 +53,7 @@ const UserPage = () => {
         setComments(commentsData || []);
         setTranslations(translationsData || []);
       } catch (error) {
-        console.log(error);
+        console.error(error);
         setError("데이터를 가져오는 중 오류가 발생했습니다.");
       } finally {
         setLoading(false);

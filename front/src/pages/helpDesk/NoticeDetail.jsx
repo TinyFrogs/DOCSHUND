@@ -16,7 +16,6 @@ const NoticeDetail = () => {
       setLoading(true);
       try {
         const data = await NoticeService.fetchNoticeDetail(noticeId);
-        console.log("Fetched notice detail:", data); // Debug log
         setNoticeDetail(data);
       } catch (error) {
         setError(error);
@@ -25,6 +24,7 @@ const NoticeDetail = () => {
       }
     };
 
+    setNoticeDetail({});
     fetchNoticeDetail(noticeId);
   }, [noticeId, setError, setLoading, setNoticeDetail]);
 

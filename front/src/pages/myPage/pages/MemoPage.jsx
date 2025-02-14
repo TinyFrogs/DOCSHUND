@@ -31,7 +31,6 @@ const MemoPage = () => {
         const data = await memoService.fetchMemos(userId);
         if (data) {
           setMemos(data.reverse());
-          console.log("Fetched memos:", data);
         } else {
           setMemos([]);
         }
@@ -109,7 +108,6 @@ const MemoPage = () => {
       try {
         await memoService.deleteMemo(userId, memoToDelete);
         deleteMemo(memoToDelete);
-        console.log("Deleted memo with ID:", memoToDelete);
       } catch (error) {
         console.error("Error deleting memo:", error);
       } finally {
@@ -126,7 +124,6 @@ const MemoPage = () => {
         const detailedMemo = await memoService.fetchMemo(userId, memoId);
         if (detailedMemo) {
           updateMemo(memoId, detailedMemo);
-          console.log("Fetched detailed memo:", detailedMemo);
         }
       } catch (error) {
         console.error("Error fetching detailed memo:", error);
@@ -134,7 +131,6 @@ const MemoPage = () => {
     }
     setOpenId(memoId);
     openModal();
-    console.log("Opening modal with memoId:", memoId);
   };
 
   return (

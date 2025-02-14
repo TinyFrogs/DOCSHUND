@@ -49,7 +49,6 @@ const MyProfilePage = () => {
   useEffect(() => {
     if (profile && !isEditing && !editedProfile.nickname) {
       setEditedProfile({ ...profile });
-      console.log("원본 카피완료", profile);
     }
   }, [profile, isEditing]);
 
@@ -89,7 +88,7 @@ const MyProfilePage = () => {
         return false;
       }
     } catch (error) {
-      console.log("닉네임 중복 체크 중 오류 발생:", error);
+      console.error("닉네임 중복 체크 중 오류 발생:", error);
       return false;
     }
   };

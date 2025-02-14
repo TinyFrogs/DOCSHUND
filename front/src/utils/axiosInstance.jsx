@@ -37,11 +37,7 @@ const responseInterceptor = (error) => {
       error.response.data?.message || "알 수 없는 오류가 발생했습니다.";
 
     if (status === 401) {
-      // 401 에러 발생 시: 잘못된/만료된 토큰 처리
-      useAuthStore.getState().logout(); // store에서 토큰 삭제 및 상태 업데이트
-      toast.error(
-        "세션이 만료되었거나 유효하지 않은 토큰입니다. 다시 로그인 해주세요."
-      );
+      useAuthStore.getState().logout();
       if (window.location.pathname !== "/") {
         window.location.href = "/"; // 홈 페이지로 강제 이동
       }

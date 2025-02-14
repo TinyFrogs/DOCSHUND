@@ -24,7 +24,6 @@ const EditorModal = ({
 
   useEffect(() => {
     if (isOpen) {
-      console.log("Opening EditorModal with memoData:", memoData);
       if (memoData) {
         setFormData({ title: memoData.title || "" });
         setCurrentUserText(memoData.content || "");
@@ -71,7 +70,6 @@ const EditorModal = ({
   const handleSubmit = (e) => {
     e.preventDefault();
     const editorContent = currentUserText;
-    console.log("Submitting with content:", editorContent);
     const submitData = { ...formData, content: editorContent };
     if (memoData && memoData.memoId) {
       onSubmit(memoData.memoId, submitData);

@@ -35,8 +35,6 @@ const LikeArticlePage = () => {
           itemsPerPage
         );
 
-        console.log(data);
-
         // 데이터가 비어있지 않다면
         if (data.content.length > 0) {
           setLikeArticles(data.content); // 게시글 목록 설정 TODO: data.content가 왜 바인딩 안되는지 확인

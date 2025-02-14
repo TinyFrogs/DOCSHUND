@@ -67,9 +67,7 @@ const Chat = () => {
     // 연결 시 인증 헤더 전송
     stompClient.current.connect(
       { Authorization: `Bearer ${token}` },
-      (frame) => {
-        console.log("STOMP Connected:", frame);
-
+      () => {
         // 채팅 메시지 구독
         stompClient.current.subscribe(`/sub/chats/${docsId}`, (message) => {
           const newMessage = JSON.parse(message.body);
@@ -96,9 +94,7 @@ const Chat = () => {
 
   const disconnect = () => {
     if (stompClient.current && stompClient.current.connected) {
-      stompClient.current.disconnect(() =>
-        console.log("WebSocket disconnected")
-      );
+      stompClient.current.disconnect();
     }
   };
 

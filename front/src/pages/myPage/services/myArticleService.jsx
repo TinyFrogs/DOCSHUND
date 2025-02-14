@@ -11,8 +11,6 @@ const MyArticleService = {
 
       const data = response.data;
 
-      console.log("myArticleService -> ", data);
-
       return data;
     } catch (error) {
       console.error(error);

@@ -41,8 +41,6 @@ function App() {
   const { setNotifications } = notificationModalStore();
 
   useEffect(() => {
-    console.log("토큰 세팅 실행");
-
     if (token === "" && localStorage.getItem("token")) {
       setToken(localStorage.getItem("token"));
     }

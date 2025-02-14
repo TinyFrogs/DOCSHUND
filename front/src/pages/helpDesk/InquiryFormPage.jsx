@@ -33,7 +33,7 @@ const InquiryFormPage = () => {
         navigate("/");
       } catch (error) {
         toast.error("문의 제출 중 오류가 발생했습니다.");
-        console.log("문의 등록 실패", error);
+        console.error("문의 등록 실패", error);
       } finally {
         setLoading(false);
       }
