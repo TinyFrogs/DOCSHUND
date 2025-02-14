@@ -6,6 +6,7 @@ import { useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 import UseSSE from "./hooks/useSSE.jsx";
+import useAuthStore from "./store/authStore.jsx";
 
 //네비게이션 바
 import Footer from "./components/footer/footer.jsx";
@@ -35,8 +36,8 @@ function App() {
   const pathname = location.pathname;
   const isTranslateViewerPage = pathname.includes("/translate/main/viewer");
   const isAdminPage = pathname.includes("/admin");
-  const [token, setToken] = useState("");
 
+  const { token, setToken } = useAuthStore();
   const { isChatVisible, toggleChat } = ChatStore();
   const { setNotifications } = notificationModalStore();
 
@@ -55,21 +56,21 @@ function App() {
     // NOTE: 로그인 성공 시, 기존에 밀려있던 알림을 불러옴
     const fetchNotifications = async () => {
       try {
-        if (token) {
-          // 로그인 or 로그인 상태의 접속시 알림 불러오기
-          const data = await NotificationService.fetchNotifications();
+        // 로그인 or 로그인 상태의 접속시 알림 불러오기
+        const data = await NotificationService.fetchNotifications();
 
-          if (data) {
-            // NOTE: 알림 데이터가 id 오름차순으로 들어오므로 최신순으로 정렬하기 위해서 reverse() 적용
-            setNotifications(data.reverse());
-          }
+        if (data) {
+          // NOTE: 알림 데이터가 id 오름차순으로 들어오므로 최신순으로 정렬하기 위해서 reverse() 적용
+          setNotifications(data.reverse());
         }
       } catch (error) {
         console.error(error);
       }
     };
 
-    fetchNotifications();
+    if (token) {
+      fetchNotifications();
+    }
   }, [token, location]);
 
   // 유저 ID가 없으면 알림을 불러올 수 없음
