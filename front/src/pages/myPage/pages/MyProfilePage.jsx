@@ -129,13 +129,20 @@ const MyProfilePage = () => {
   }, 500);
 
   // 이미지 변경 처리 (최대 1MB)
-  const MAX_FILE_SIZE = 1 * 1024 * 1024;
+  const MAX_FILE_SIZE = 1 * 1000 * 1000;
   const handleImageChange = (e) => {
     const file = e.target.files[0];
+    const validTypes = ["image/jpeg", "image/png", "image/jpg"];
     if (!file) return;
 
+    if (!validTypes.includes(file.type)) {
+      toast.warn("올바른 파일형식이 아닙니다.");
+      e.target.value = "";
+      return;
+    }
+
     if (file.size > MAX_FILE_SIZE) {
-      toast.warn("이미지 파일 크기는 1MB 이하만 가능합니다.");
+      toast.warn("파일 크기는 1MB 이하만 가능합니다.");
       e.target.value = "";
       return;
     }
@@ -195,7 +202,7 @@ const MyProfilePage = () => {
         <h1 className="font-bold text-2xl">내 프로필</h1>
         {!isEditing ? (
           <button
-            className="bg-[#bc5b39] rounded-[12px] px-[20px] w-fit h-10 relative flex items-center justify-center text-white hover:bg-[#C96442]"
+            className="bg-[#bc5b39] rounded-[12px] px-[20px] w-fit h-10 relative flex items-center justify-center text-white hover:bg-[#C96442] cursor-pointer"
             onClick={handleEditClick}
           >
             편집
@@ -203,13 +210,13 @@ const MyProfilePage = () => {
         ) : (
           <div className="flex space-x-5">
             <button
-              className="border-box rounded-[12px] px-[20px] w-fit h-10 hover:text-[#ffffff] hover:bg-[#bc5b39]"
+              className="border-box rounded-[12px] px-[20px] w-fit h-10 hover:text-[#ffffff] hover:bg-[#bc5b39] cursor-pointer"
               onClick={handleCancelClick}
             >
               취소
             </button>
             <button
-              className="border-box bg-[#bc5b39] rounded-[12px] px-[20px] w-fit h-10 text-[#ffffff] hover:bg-[#C96442]"
+              className="border-box bg-[#bc5b39] rounded-[12px] px-[20px] w-fit h-10 text-[#ffffff] hover:bg-[#C96442] cursor-pointer"
               onClick={handleSaveClick}
             >
               저장
@@ -235,7 +242,7 @@ const MyProfilePage = () => {
 
       <div className="mt-5 mr-2 flex justify-end">
         <button
-          className="flex items-center text-gray-500 hover:text-red-600 hover:underline"
+          className="flex items-center text-gray-500 hover:text-red-600 hover:underline cursor-pointer"
           onClick={handleDeleteAccount}
         >
           <p className="text-bold">계정탈퇴</p>
@@ -244,7 +251,14 @@ const MyProfilePage = () => {
       </div>
       {isAlertOpen && (
         <ConfirmModal
-          message="정말로 계정을 탈퇴하시겠습니까?"
+          message={{
+            title: "정말로 계정을 탈퇴하시겠습니까?",
+            content: [
+              "1. 탈퇴시 계정과 관련된 모든 권한이 사라지며 복구할 수 없습니다.",
+              "2. 직접 작성한 콘텐츠(번역본, 게시물, 댓글 등)는 자동으로 삭제되지 않으며, 만일 삭제를 원하시면 탈퇴 이전에 삭제가 필요합니다.",
+              "3. 탈퇴 후 동일한 메일로 재가입이 가능하나, 탈퇴한 계정과 연동되지 않습니다.",
+            ],
+          }}
           onConfirm={confirmDeleteAccount}
           onCancel={toggleAlert}
         />

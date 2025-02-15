@@ -58,7 +58,7 @@ const WriteArticle = () => {
     console.log("파일 타입 체크 -> ", selectedFile.type);
 
     if (selectedFile) {
-      if (selectedFile.size > 5 * 1024 * 1024) {
+      if (selectedFile.size > 5 * 1000 * 1000) {
         // 5MB 제한
         toast.info("사진진 크기는 최대 5MB까지 업로드 가능합니다.");
         return;

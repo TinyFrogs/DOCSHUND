@@ -25,7 +25,7 @@ const Chat = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [loadingInitialMessages, setLoadingInitialMessages] = useState(true);
-  const [lastSentTime, setLastSentTime] = useState(0);
+  const lastSentTimeRef = useRef(0);
 
   const stompClient = useRef(null);
   const containerRef = useRef(null);
@@ -71,7 +71,22 @@ const Chat = () => {
         // 채팅 메시지 구독
         stompClient.current.subscribe(`/sub/chats/${docsId}`, (message) => {
           const newMessage = JSON.parse(message.body);
+          const container = containerRef.current;
+          const isAtBottom = container
+            ? container.scrollHeight -
+                container.scrollTop -
+                container.clientHeight <
+              50
+            : true;
           setMessages((prev) => [...prev, newMessage]);
+          if (isAtBottom) {
+            setTimeout(() => {
+              if (containerRef.current) {
+                containerRef.current.scrollTop =
+                  containerRef.current.scrollHeight;
+              }
+            }, 0);
+          }
         });
 
         // STOMP 에러 구독 (구독 채널을 통해 전달되는 에러)
@@ -157,18 +172,12 @@ const Chat = () => {
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
-      event.preventDefault();
       sendMessage();
       setInputValue("");
     }
   };
 
   const sendMessage = () => {
-    const now = Date.now();
-    if (now - lastSentTime < 1000) {
-      toast.info("너무 빠른 메시지 전송은 제한됩니다.");
-      return;
-    }
     if (inputValue.length > 200) {
       toast.error("200자 이상 메세지는 보낼 수 없습니다.");
       return;
@@ -181,7 +190,6 @@ const Chat = () => {
         JSON.stringify(body)
       );
       setInputValue("");
-      setLastSentTime(now); // 마지막 전송 시점 업데이트
       setTimeout(() => {
         if (containerRef.current) {
           containerRef.current.scrollTop = containerRef.current.scrollHeight;

@@ -139,7 +139,7 @@ const MemoPage = () => {
         <h1 className="font-bold text-2xl">메모장</h1>
         <button
           onClick={() => handleOpenModal(null)}
-          className="border-box bg-[#bc5b39] rounded-[12px] px-[20px] w-fit h-10 text-[#ffffff] hover:bg-[#C96442]"
+          className="border-box bg-[#bc5b39] rounded-[12px] px-[20px] w-fit h-10 text-[#ffffff] hover:bg-[#C96442] cursor-pointer"
         >
           + 새메모
         </button>

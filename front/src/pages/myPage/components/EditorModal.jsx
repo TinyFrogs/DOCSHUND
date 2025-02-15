@@ -53,6 +53,12 @@ const EditorModal = ({
     }
   };
 
+  const handleInputKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
+  };
+
   const handleEditorChange = () => {
     if (editorRef.current) {
       const editorInstance = editorRef.current.getInstance();
@@ -123,6 +129,7 @@ const EditorModal = ({
                   placeholder="제목 입력"
                   value={formData.title}
                   onChange={handleInputChange}
+                  onKeyDown={handleInputKeyDown}
                   className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
                   required
                 />

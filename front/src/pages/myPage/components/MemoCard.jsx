@@ -20,7 +20,7 @@ const MemoCard = ({ memo, onEditMemo }) => {
         </span>
         <button
           onClick={() => onEditMemo(memo.memoId, memo)}
-          className="bg-[#bc5b39] rounded-xl px-4 h-10 text-white hover:bg-[#C96442] transition"
+          className="bg-[#bc5b39] rounded-xl px-4 h-10 text-white hover:bg-[#C96442] transition cursor-pointer"
         >
           메모 보기
         </button>

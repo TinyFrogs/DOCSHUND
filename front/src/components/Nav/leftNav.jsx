@@ -38,7 +38,7 @@ const LeftNav = () => {
     "absolute top-15 -right-6 transform"
   );
   const [showNav, setShowNav] = useState(
-    "max-w-[15%] min-w-fit w-60 h-[80%] bg-[#F0EEE5] shadow-lg flex flex-col border-box border-1 border-[#E0DED9] absolute top-1/2 -translate-y-1/2 rounded-br-4xl rounded-tr-4xl transform transition-all duration-400 -translate-x-[90%] z-[1500]"
+    "max-w-[15%] min-w-fit w-60 h-[80vh] bg-[#F0EEE5] shadow-lg flex flex-col border-box border-1 border-[#E0DED9] absolute top-1/2 -translate-y-1/2 rounded-br-4xl rounded-tr-4xl transform transition-all duration-400 -translate-x-[90%] z-[1500]"
   ); // 배경색 및 테두리 색상 변경, 애니메이션 효과 조정
   const { isOpen, openModal, closeModal } = modalStore();
   const { memos, setMemos, deleteMemo } = useMemoStore();

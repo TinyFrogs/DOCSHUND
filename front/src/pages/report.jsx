@@ -96,17 +96,22 @@ const ReportModal = () => {
     debouncedHandleSubmit(e);
   };
 
+  const MAX_FILE_SIZE = 5 * 1000 * 1000;
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
 
-    if (selectedFile) {
-      if (selectedFile.size > 5 * 1024 * 1024) {
-        // 5MB 제한
-        toast.info("파일 크기는 최대 5MB까지 업로드 가능합니다.");
-        return;
-      }
-      setFile(selectedFile);
+    const validTypes = ["image/jpeg", "image/png", "image/jpg"];
+    if (!validTypes.includes(selectedFile.type)) {
+      toast.warn("올바른 파일형식이 아닙니다.");
+      e.target.value = "";
+      return;
     }
+
+    if (selectedFile.size > MAX_FILE_SIZE) {
+      toast.warn("파일 크기는 최대 5MB까지 업로드 가능합니다.");
+      return;
+    }
+    setFile(selectedFile);
   };
 
   const handleFileCancel = () => {
@@ -221,12 +226,12 @@ const ReportModal = () => {
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
                       <div className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm text-center cursor-pointer hover:bg-[#C96442] text-sm">
-                        파일 선택
+                        사진 선택
                       </div>
                     </div>
                     {!file && (
                       <p className="ml-4 text-sm text-gray-500">
-                        첨부할 파일을 선택하세요 (1개만 가능)
+                        첨부할 사진을 선택하세요 (1개만 가능)
                       </p>
                     )}
                     {file && (

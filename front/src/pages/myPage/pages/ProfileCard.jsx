@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import { toast } from "react-toastify";
 
 const ProfileCard = ({
   isEditing,
@@ -49,13 +50,30 @@ const ProfileCard = ({
 
   const handleImagePreview = (e) => {
     const file = e.target.files[0];
+    const validTypes = ["image/jpeg", "image/png", "image/jpg"];
+    const MAX_FILE_SIZE = 1 * 1000 * 1000; // 1MB
+
     if (file) {
+      if (!validTypes.includes(file.type)) {
+        toast.warn("올바른 파일형식이 아닙니다.");
+        e.target.value = "";
+        return;
+      }
+
+      if (file.size > MAX_FILE_SIZE) {
+        toast.warn("파일 크기는 1MB 이하만 가능합니다.");
+        e.target.value = "";
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewImage(reader.result);
       };
       reader.readAsDataURL(file);
       handleImageChange(e);
+    } else {
+      setPreviewImage(profile.profileImage);
     }
   };
 

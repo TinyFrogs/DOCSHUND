@@ -13,7 +13,7 @@ const SettingsCard = (props) => {
         <label className="mr-5">
           <input
             type="radio"
-            className="mr-2"
+            className="mr-2 cursor-pointer"
             name="theme"
             value="light"
             checked={!editedProfile.isDarkmode}
@@ -25,7 +25,7 @@ const SettingsCard = (props) => {
         <label>
           <input
             type="radio"
-            className="mr-2"
+            className="mr-2 cursor-pointer"
             name="theme"
             value="dark"
             checked={editedProfile.isDarkmode}

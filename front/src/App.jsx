@@ -4,9 +4,11 @@ import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import useScrollToTop from "./hooks/useScrollToTop.jsx";
 
 import UseSSE from "./hooks/useSSE.jsx";
 import useAuthStore from "./store/authStore.jsx";
+import useUserProfileStore from "./store/myPageStore/userProfileStore";
 
 //네비게이션 바
 import Footer from "./components/footer/footer.jsx";
@@ -20,14 +22,6 @@ import ToastModal from "./components/alertModal/toastModal.jsx";
 import notificationModalStore from "./store/notificationModalStore.jsx";
 import NotificationService from "./services/notificationService.jsx";
 
-//문서채팅
-import Chat from "./pages/chat/chat.jsx";
-import ChatStore from "./store/chatStore.jsx";
-import chatImg from "./assets/icon/chat.png";
-
-//챗봇
-import ChatBotStore from "./store/chatBotStore.jsx";
-
 Modal.setAppElement("#root");
 
 function App() {
@@ -38,8 +32,10 @@ function App() {
   const isAdminPage = pathname.includes("/admin");
 
   const { token, setToken } = useAuthStore();
-  const { isChatVisible, toggleChat } = ChatStore();
   const { setNotifications } = notificationModalStore();
+  const { fetchProfile } = useUserProfileStore();
+
+  useScrollToTop(); // added hook usage
 
   useEffect(() => {
     if (token === "" && localStorage.getItem("token")) {
@@ -73,28 +69,43 @@ function App() {
     }
   }, [token, location]);
 
+  // New effect: after login, fetch and store user profile
+  useEffect(() => {
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        const userId = decoded.userId;
+        fetchProfile(userId);
+      } catch (error) {
+        console.error("토큰 디코딩 실패", error);
+      }
+    }
+  }, [token, fetchProfile]);
+
   // 유저 ID가 없으면 알림을 불러올 수 없음
   // 유저 ID로 SSE 연결
 
   UseSSE(token ? jwtDecode(token).userId : null);
 
   return (
-    <div
-      className={`flex flex-col min-h-screen min-w-[768px] overflow-hidden ${
-        isTranslateViewerPage ? "bg-[#FAF9F5]" : ""
-      }`}
-    >
-      <ToastModal />
-      {isTranslateViewerPage ? <LeftNav /> : null}
-      {!isTranslateViewerPage && !isAdminPage ? <UpperNav /> : null}
-      <div className="flex-grow">
-        <AppRouter />
+    <div>
+      <div
+        className={`flex flex-col min-h-[100vh] min-w-[768px] overflow-hidden ${
+          isTranslateViewerPage ? "bg-[#FAF9F5]" : ""
+        }`}
+      >
+        {isTranslateViewerPage ? <LeftNav /> : null}
+        {!isTranslateViewerPage && !isAdminPage ? <UpperNav /> : null}
+        <div className="flex-grow">
+          <AppRouter />
+        </div>
+        {isTranslateViewerPage ? (
+          <div className="fixed bottom-4 right-3 z-[1900] group"></div>
+        ) : null}
+        {isTranslateViewerPage || isAdminPage ? null : <Footer />}
+        <LoginModal />
       </div>
-      {isTranslateViewerPage ? (
-        <div className="fixed bottom-4 right-3 z-[1900] group"></div>
-      ) : null}
-      {isTranslateViewerPage || isAdminPage ? null : <Footer />}
-      <LoginModal />
+      <ToastModal />
     </div>
   );
 }

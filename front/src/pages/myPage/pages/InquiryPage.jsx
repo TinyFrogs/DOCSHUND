@@ -142,7 +142,7 @@ const InquiryPage = () => {
         <h1 className="font-bold text-2xl">나의 문의</h1>
         <button
           onClick={() => navigate("/helpDesk/inquiryForm")}
-          className="border-box bg-[#bc5b39] rounded-[12px] px-[20px] w-fit h-10 relative flex items-center justify-center text-[#ffffff] hover:bg-[#C96442]"
+          className="border-box bg-[#bc5b39] rounded-[12px] px-[20px] w-fit h-10 relative flex items-center justify-center text-[#ffffff] hover:bg-[#C96442] cursor-pointer"
         >
           + 문의작성
         </button>

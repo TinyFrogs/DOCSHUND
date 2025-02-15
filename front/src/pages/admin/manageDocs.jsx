@@ -42,7 +42,7 @@ const ManageDocs = () => {
     console.log("Selected File:", selectedFile);
 
     if (selectedFile) {
-      if (selectedFile.size > 5 * 1024 * 1024) {
+      if (selectedFile.size > 5 * 1000 * 1000) {
         toast.error("파일 크기는 최대 5MB까지 업로드 가능합니다.");
         return;
       }

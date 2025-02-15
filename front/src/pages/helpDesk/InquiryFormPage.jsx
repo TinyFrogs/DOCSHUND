@@ -3,6 +3,8 @@ import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import _ from "lodash";
+import useUserProfileStore from "../../store/myPageStore/userProfileStore";
+import useAuthStore from "../../store/authStore";
 
 import InquiryService from "../../services/helpDeskServices/inquiryService";
 import LodingImage from "../../assets/loading.gif";
@@ -16,10 +18,24 @@ const InquiryFormPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
+  const { profile } = useUserProfileStore();
+  const { token } = useAuthStore();
+
+  useEffect(() => {
+    if (profile && profile.email) {
+      setEmail(profile.email);
+    }
+  }, [profile]);
+
+  useEffect(() => {
+    if (!token) {
+      setEmail("");
+    }
+  }, [token]);
+
   const MAX_TITLE_LENGTH = 50;
   const MAX_CONTENT_LENGTH = 2000;
 
-  // Create debounced submit handler
   const debouncedSubmit = useCallback(
     _.debounce(async (inquiry, formData) => {
       try {
@@ -89,17 +105,22 @@ const InquiryFormPage = () => {
   };
 
   //파일용량 제한
+  const MAX_FILE_SIZE = 5 * 1000 * 1000;
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
 
-    if (selectedFile) {
-      if (selectedFile.size > 5 * 1024 * 1024) {
-        // 5MB 제한
-        toast.info("파일 크기는 최대 5MB까지 업로드 가능합니다.");
-        return;
-      }
-      setFile(selectedFile);
+    const validTypes = ["image/jpeg", "image/png", "image/jpg"];
+    if (!validTypes.includes(selectedFile.type)) {
+      toast.warn("올바른 파일형식이 아닙니다.");
+      e.target.value = "";
+      return;
     }
+
+    if (selectedFile.size > MAX_FILE_SIZE) {
+      toast.warn("파일 크기는 최대 5MB까지 업로드 가능합니다.");
+      return;
+    }
+    setFile(selectedFile);
   };
 
   const handleFileCancel = () => {
@@ -174,7 +195,7 @@ const InquiryFormPage = () => {
         </div>
         <div className="mb-6">
           <label className="block text-lg font-medium text-black mb-2">
-            파일 첨부 (1개만 가능)
+            사진 첨부 (1개만 가능)
           </label>
           <div className="flex items-center">
             <div className="relative">
@@ -184,12 +205,12 @@ const InquiryFormPage = () => {
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
               <div className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm text-center hover:bg-[#C96442] text-sm cursor-pointer">
-                파일 선택
+                사진 선택
               </div>
             </div>
             {!file && (
               <p className="ml-4 text-sm text-gray-500">
-                첨부할 파일을 선택하세요
+                첨부할 사진을 선택하세요
               </p>
             )}
             {file && (
@@ -200,7 +221,7 @@ const InquiryFormPage = () => {
                 <button
                   type="button"
                   onClick={handleFileCancel}
-                  className="py-1 px-2 hover:text-red-600 text-sm underline"
+                  className="py-1 px-2 hover:text-red-600 text-sm underline cursor-pointer"
                 >
                   삭제
                 </button>
@@ -212,7 +233,7 @@ const InquiryFormPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm hover:bg-[#C96442]"
+            className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm hover:bg-[#C96442] cursor-pointer"
           >
             보내기
           </button>

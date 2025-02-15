@@ -15,7 +15,7 @@ const Tabs = ({ tabs, activeTab, onTabChange }) => {
         <button
           key={tab.id}
           onClick={() => handleTabClick(tab.id)}
-          className={`px-6 py-2 text-xl font-semibold ${
+          className={`px-6 py-2 text-xl font-semibold cursor-pointer ${
             activeTab === tab.id
               ? "border-b-3 border-[] text-[#bc5b39]"
               : "text-[#7D7C77] hover:text-[#bc5b39]"
