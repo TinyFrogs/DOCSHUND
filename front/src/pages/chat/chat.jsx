@@ -167,6 +167,8 @@ const Chat = () => {
   const handleInputChange = (event) => {
     if (event.target.value.length <= 200) {
       setInputValue(event.target.value);
+    } else {
+      toast.warn("200자 이상의 메세지는 보낼 수 없습니다.");
     }
   };
 
@@ -179,7 +181,7 @@ const Chat = () => {
 
   const sendMessage = () => {
     if (inputValue.length > 200) {
-      toast.error("200자 이상 메세지는 보낼 수 없습니다.");
+      toast.warn("200자 이상의 메세지는 보낼 수 없습니다.");
       return;
     }
     if (stompClient.current?.connected && inputValue) {

@@ -90,7 +90,7 @@ function App() {
   return (
     <div>
       <div
-        className={`flex flex-col min-h-[100vh] min-w-[768px] overflow-hidden ${
+        className={`flex flex-col min-h-[100vh] overflow-hidden ${
           isTranslateViewerPage ? "bg-[#FAF9F5]" : ""
         }`}
       >
