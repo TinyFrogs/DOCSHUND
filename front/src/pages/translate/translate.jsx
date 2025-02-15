@@ -84,37 +84,37 @@ const TransLatePage = () => {
     <div className="bg-gradient-to-b from-white to-[#FAF9F5] text-center">
       {/* Hero Section */}
       <motion.section
-        className="py-20 px-8 bg-gradient-to-b from-white to-[#FAF9F5]"
+        className="py-16 px-4 bg-gradient-to-b from-white to-[#FAF9F5]"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
       >
         <div className="max-w-6xl mx-auto">
           <motion.h1
-            className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-[#bc5b39] to-[#C96442] text-transparent bg-clip-text drop-shadow-md"
+            className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-[#bc5b39] to-[#C96442] text-transparent bg-clip-text drop-shadow-md"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
             공식문서 번역 라이브러리
           </motion.h1>
-          <p className="text-lg text-[#7C543F] mt-4 mb-6">
+          <p className="text-sm md:text-lg text-[#7C543F] mt-2 mb-4 max-w-2xl mx-auto">
             다양한 번역 문서를 한 곳에서 찾아보세요.
           </p>
         </div>
       </motion.section>
 
       {/* 인기 번역 문서 (Best Docs) */}
-      <div className="max-w-6xl mx-auto px-8 py-12">
-        <div className="relative bg-[#F7F3EC] p-6 rounded-xl shadow-xl">
-          <h2 className="text-left text-2xl font-semibold text-[#BC5B39] mb-8">
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="relative bg-[#F7F3EC] p-4 rounded-xl shadow-xl">
+          <h2 className="text-left text-xl font-semibold text-[#BC5B39] mb-6">
             인기 번역 문서
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 lg:gap-6">
             {filteredBestDocsList.map((item, index) => (
               <motion.div
                 key={item.docsId}
-                className="relative w-full sm:w-48 h-64 bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transform transition-transform hover:scale-105 border border-[#E8E5E1]"
+                className="relative w-full sm:w-44 h-48 bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transform transition-transform hover:scale-105 border border-[#E8E5E1]"
                 onClick={() => {
                   useModalStore.setState({
                     isEditorOpen: false,
@@ -126,28 +126,28 @@ const TransLatePage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.5 }}
               >
-                <div className="absolute left-0 top-0 bottom-0 w-8 bg-[#D8B6A0] shadow-md rounded-r-lg"></div>
-                <div className="flex flex-col items-center py-8 ml-8">
+                <div className="absolute left-0 top-0 bottom-0 w-6 bg-[#D8B6A0] shadow-md rounded-r-lg"></div>
+                <div className="flex flex-col items-center py-6 ml-6">
                   <img
                     src={item.documentLogo}
                     alt="문서 로고"
-                    className="w-24 h-24 sm:w-32 sm:h-32 object-contain rounded-full border border-[#E8E5E1]"
+                    className="w-20 h-20 sm:w-16 sm:h-16 object-contain rounded-full border border-[#E8E5E1]"
                   />
-                  <div className="w-24 sm:w-32 text-center text-[#BC5B39] text-base font-semibold p-4 break-words">
+                  <div className="w-24 sm:w-40 text-center text-[#BC5B39] text-xs md:text-base font-semibold p-3 sm:p-2 break-words">
                     {item.documentName}
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
-          <div className="w-full h-6 bg-[#E3DAC9] shadow-md rounded-t-lg mt-5"></div>
+          <div className="w-full h-4 bg-[#E3DAC9] shadow-md rounded-t-lg mt-4"></div>
         </div>
       </div>
 
       {/* 전체 문서 목록 */}
-      <div className="max-w-6xl mx-auto px-8">
+      <div className="max-w-6xl mx-auto px-4">
         {/* 필터 버튼 (카테고리) */}
-        <div className="flex flex-wrap gap-3 justify-center my-16">
+        <div className="flex flex-wrap gap-2 justify-center my-8">
           {docsCategories.map((docsCategory, index) => (
             <button
               key={index}
@@ -155,11 +155,11 @@ const TransLatePage = () => {
                 handleFilter(docsCategory);
                 setSelectedCategory(docsCategory);
               }}
-              className={`cursor-pointer px-6 py-2 rounded-full transition-all duration-200 shadow-sm border border-gray-200 font-medium ${
+              className={`cursor-pointer px-4 py-1 rounded-full transition-all duration-200 shadow-sm border border-gray-200 font-medium ${
                 selectedCategory === docsCategory
                   ? "bg-[rgba(188,91,57,0.8)] text-white"
                   : "bg-white text-black"
-              }`}
+              } text-xs md:text-sm`}
             >
               {docsCategory}
             </button>
@@ -167,11 +167,11 @@ const TransLatePage = () => {
         </div>
 
         {/* 문서 카드 그리드 */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 mt-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 lg:gap-6 mt-4">
           {docsList.map((docs, index) => (
             <div
               key={index}
-              className="group relative bg-white rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100"
+              className="group relative bg-white rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100"
             >
               {localStorage.getItem("token") && (
                 <button
@@ -201,15 +201,15 @@ const TransLatePage = () => {
                   </svg>
                 </button>
               )}
-              <div className="p-6 flex flex-col items-center">
-                <div className="bg-gray-50 rounded-lg flex items-center justify-center mb-4">
+              <div className="p-4 flex flex-col items-center">
+                <div className="bg-gray-50 rounded-lg flex items-center justify-center mb-3">
                   <img
                     src={docs.documentLogo}
                     alt="문서 아이콘"
-                    className="w-24 h-24 sm:w-32 sm:h-32"
+                    className="w-16 h-16 sm:w-20 sm:h-20"
                   />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                <h3 className="text-sm sm:text-base font-semibold text-gray-800 mb-2">
                   {docs.documentName}
                 </h3>
                 <button
@@ -223,7 +223,7 @@ const TransLatePage = () => {
                       documentName: docs.documentName,
                     });
                   }}
-                  className="mt-4 px-6 py-2 bg-[rgba(188,91,57,1)] text-white rounded-lg hover:bg-[rgba(188,91,57,0.8)] transition-colors duration-200 font-medium"
+                  className="mt-2 px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm bg-[rgba(188,91,57,1)] text-white rounded-lg hover:bg-[rgba(188,91,57,0.8)] transition-colors duration-200 font-medium"
                 >
                   {localStorage.getItem("token") ? "번역 하기" : "번역 보기"}
                 </button>
@@ -234,17 +234,17 @@ const TransLatePage = () => {
       </div>
 
       {/* 문서 신청 CTA */}
-      <div className="max-w-6xl mx-auto px-8 py-16">
+      <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="text-center">
-          <h2 className="text-3xl font-semibold text-[#BC5B39]">
+          <h2 className="text-2xl sm:text-3xl font-semibold text-[#BC5B39]">
             원하는 문서를 찾을 수 없나요?
           </h2>
-          <p className="text-md text-[#7C543F] mt-2">
+          <p className="text-xs sm:text-md text-[#7C543F] mt-2">
             새로운 문서를 신청하면 검토 후 추가해드립니다.
           </p>
           <button
             onClick={() => navigate("/helpDesk/inquiryForm")}
-            className="mt-6 px-6 py-3 bg-[#BC5B39] text-white rounded-lg hover:bg-[rgba(188,91,57,0.8)] font-semibold text-lg shadow-md transition-all duration-300"
+            className="mt-4 px-4 py-2 bg-[#BC5B39] text-white rounded-lg hover:bg-[rgba(188,91,57,0.8)] font-semibold text-xs sm:text-lg shadow-md transition-all duration-300"
           >
             문서 신청하기
           </button>

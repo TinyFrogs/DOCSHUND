@@ -4,20 +4,20 @@ import PropTypes from "prop-types";
 const Tabs = ({ tabs, activeTab, onTabChange }) => {
   const navigate = useNavigate();
 
-  const handleTabClick = (tabId) => {
+  const handleTabClick = (tabId, path) => {
     onTabChange(tabId);
-    navigate(tabId);
+    navigate(path);
   };
 
   return (
-    <div className="flex pt-4 pl-6 bg-white rounded-tl-xl rounded-tr-xl border border-[#E1E1DF]">
+    <div className="flex pt-4 px-4 sm:px-6 bg-white rounded-tl-xl rounded-tr-xl border border-[#E1E1DF]">
       {tabs.map((tab) => (
         <button
           key={tab.id}
-          onClick={() => handleTabClick(tab.id)}
-          className={`px-6 py-2 text-xl font-semibold cursor-pointer ${
+          onClick={() => handleTabClick(tab.id, tab.path)}
+          className={`px-3 py-2 sm:px-6 sm:py-2 text-sm sm:text-xl font-semibold cursor-pointer ${
             activeTab === tab.id
-              ? "border-b-3 border-[] text-[#bc5b39]"
+              ? "border-b-4 border-[#bc5b39] text-[#bc5b39]"
               : "text-[#7D7C77] hover:text-[#bc5b39]"
           }`}
         >

@@ -57,21 +57,20 @@ const InquiryFormPage = () => {
     [navigate]
   );
 
-  // Cleanup debounced function
   useEffect(() => {
     return () => {
       debouncedSubmit.cancel();
     };
   }, [debouncedSubmit]);
 
-  //폼제출
+  // 폼 제출
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     if (!category || !title || !email || !content) {
       toast.info("문의 카테고리, 제목, 이메일, 내용을 모두 입력해주세요.");
-      setLoading(false); // Stop loading
-      return; // Prevent form submission
+      setLoading(false);
+      return;
     }
 
     let userId = null;
@@ -104,23 +103,23 @@ const InquiryFormPage = () => {
     debouncedSubmit(inquiry, formData);
   };
 
-  //파일용량 제한
+  // 파일 용량 제한 및 형식 체크
   const MAX_FILE_SIZE = 5 * 1000 * 1000;
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-
     const validTypes = ["image/jpeg", "image/png", "image/jpg"];
-    if (!validTypes.includes(selectedFile.type)) {
+    if (selectedFile && !validTypes.includes(selectedFile.type)) {
       toast.warn("올바른 파일형식이 아닙니다.");
       e.target.value = "";
       return;
     }
-
-    if (selectedFile.size > MAX_FILE_SIZE) {
-      toast.warn("파일 크기는 최대 5MB까지 업로드 가능합니다.");
-      return;
+    if (selectedFile) {
+      if (selectedFile.size > MAX_FILE_SIZE) {
+        toast.warn("파일 크기는 최대 5MB까지 업로드 가능합니다.");
+        return;
+      }
+      setFile(selectedFile);
     }
-    setFile(selectedFile);
   };
 
   const handleFileCancel = () => {
@@ -128,16 +127,17 @@ const InquiryFormPage = () => {
   };
 
   return (
-    <div className="p-10 bg-white rounded-bl-xl rounded-br-xl border-b border-l border-r border-[#E1E1DF] text-[#7D7C77] mb-5">
+    <div className="p-4 md:p-10 bg-white rounded-bl-xl rounded-br-xl border border-[#E1E1DF] text-[#7D7C77] mb-5">
       <form onSubmit={handleSubmit}>
+        {/* 문의 카테고리 */}
         <div className="mb-6">
-          <label className="block text-lg font-medium text-black mb-2">
+          <label className="block text-base md:text-lg font-medium text-black mb-2">
             문의 카테고리 <span className="text-red-500">*</span>
           </label>
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="mt-1 block w-full py-2 px-3 border bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
+            className="mt-1 block w-full py-2 px-3 border bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] text-xs md:text-sm"
           >
             <option value="">카테고리를 선택하세요</option>
             <option value="DOCUMENT_REQUEST">문서등록요청</option>
@@ -145,8 +145,9 @@ const InquiryFormPage = () => {
             <option value="REPORT">신고관련</option>
           </select>
         </div>
-        <div className="mb-2">
-          <label className="block text-lg font-medium text-black mb-2">
+        {/* 제목 */}
+        <div className="mb-4">
+          <label className="block text-base md:text-lg font-medium text-black mb-2">
             제목 <span className="text-red-500">*</span>
           </label>
           <input
@@ -156,27 +157,29 @@ const InquiryFormPage = () => {
               e.target.value.length <= MAX_TITLE_LENGTH &&
               setTitle(e.target.value)
             }
-            className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
+            className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] text-xs md:text-sm"
             placeholder="제목을 입력하세요"
           />
           <p className="text-xs text-gray-500 mt-1 mr-2 text-right">
             {title.length} / {MAX_TITLE_LENGTH}
           </p>
         </div>
+        {/* 이메일 */}
         <div className="mb-6">
-          <label className="block text-lg font-medium text-black mb-2">
+          <label className="block text-base md:text-lg font-medium text-black mb-2">
             이메일 <span className="text-red-500">*</span>
           </label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
+            className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] text-xs md:text-sm"
             placeholder="이메일을 입력하세요"
           />
         </div>
-        <div className="mb-3">
-          <label className="block text-lg font-medium text-black mb-2">
+        {/* 내용 */}
+        <div className="mb-4">
+          <label className="block text-base md:text-lg font-medium text-black mb-2">
             내용 <span className="text-red-500">*</span>
           </label>
           <textarea
@@ -185,7 +188,7 @@ const InquiryFormPage = () => {
               e.target.value.length <= MAX_CONTENT_LENGTH &&
               setContent(e.target.value)
             }
-            className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
+            className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] text-xs md:text-sm"
             placeholder="내용을 입력하세요"
             style={{ height: "200px", resize: "none" }}
           ></textarea>
@@ -193,8 +196,9 @@ const InquiryFormPage = () => {
             {content.length} / {MAX_CONTENT_LENGTH}
           </p>
         </div>
+        {/* 사진 첨부 */}
         <div className="mb-6">
-          <label className="block text-lg font-medium text-black mb-2">
+          <label className="block text-base md:text-lg font-medium text-black mb-2">
             사진 첨부 (1개만 가능)
           </label>
           <div className="flex items-center">
@@ -204,24 +208,24 @@ const InquiryFormPage = () => {
                 onChange={handleFileChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
-              <div className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm text-center hover:bg-[#C96442] text-sm cursor-pointer">
+              <div className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm text-center hover:bg-[#C96442] text-xs md:text-sm cursor-pointer">
                 사진 선택
               </div>
             </div>
             {!file && (
-              <p className="ml-4 text-sm text-gray-500">
+              <p className="ml-4 text-xs md:text-sm text-gray-500">
                 첨부할 사진을 선택하세요
               </p>
             )}
             {file && (
               <div className="ml-4 flex items-center">
-                <p className="text-sm text-gray-500 mr-2 truncate max-w-md">
+                <p className="text-xs md:text-sm text-gray-500 mr-2 truncate max-w-md">
                   {file.name}
                 </p>
                 <button
                   type="button"
                   onClick={handleFileCancel}
-                  className="py-1 px-2 hover:text-red-600 text-sm underline cursor-pointer"
+                  className="py-1 px-2 hover:text-red-600 text-xs md:text-sm underline cursor-pointer"
                 >
                   삭제
                 </button>
@@ -229,11 +233,12 @@ const InquiryFormPage = () => {
             )}
           </div>
         </div>
+        {/* 제출 버튼 */}
         <div className="text-center">
           <button
             type="submit"
             disabled={loading}
-            className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm hover:bg-[#C96442] cursor-pointer"
+            className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm hover:bg-[#C96442] cursor-pointer text-xs md:text-sm"
           >
             보내기
           </button>

@@ -41,44 +41,44 @@ const FAQPage = () => {
   const renderFAQ = (item, index) => (
     <div
       key={index}
-      className={`flex-col p-4 border-b border-[#E1E1DF] ${
+      className={`border-b py-3 border-[#E1E1DF] ${
         openId === index ? "bg-[#F9F8F2]" : ""
       }`}
     >
       <div
-        className="flex justify-between text-lg px-3 cursor-pointer"
+        className="flex justify-between items-center text-sm sm:text-lg px-2 sm:px-3 py-1 cursor-pointer"
         onClick={() => setOpenId(openId === index ? null : index)}
       >
-        <div
-          className={`flex-1 min-w-0 mr-3 font-semibold text-[#7D7C77] ${
-            openId === index ? "whitespace-normal" : "line-clamp-1"
-          }`}
-        >
+        <div className="flex-1 min-w-0 mr-3 font-semibold line-clamp-1 break-all text-[#7d7c77]">
           {item.q}
         </div>
-        <div className="whitespace-nowrap text-[#7D7C77]">
-          {openId === index ? <ChevronUp /> : <ChevronDown />}
-        </div>
+        <span className="whitespace-nowrap text-[#7d7c77]">
+          {openId === index ? (
+            <ChevronUp size={20} />
+          ) : (
+            <ChevronDown size={20} />
+          )}
+        </span>
       </div>
       {openId === index && (
-        <div className="px-3 py-2 mt-2 rounded-lg text-[#7D7C77]">
-          <p>{item.a}</p>
+        <div className="px-2 sm:px-3 py-1 text-sm sm:text-lg text-[#7d7c77]">
+          {item.a}
         </div>
       )}
     </div>
   );
 
   return (
-    <div className="p-10 bg-white rounded-bl-xl rounded-br-xl border-b border-l border-r border-[#E1E1DF] text-[#7D7C77] mb-5">
-      <div className="sm:text-base md:text-xl font-semibold text-[#5a5a5a] rounded-2xl border border-[#eeeeee] p-5 mb-6 shadow-md">
-        ❓ 궁금한 점이 있으신가요? 먼저 아래의 자주 묻는 질문을 확인 해주세요
+    <div className="p-4 sm:p-10 bg-white rounded-bl-xl rounded-br-xl border border-[#E1E1DF] text-[#7D7C77] mb-">
+      <div className="text-xs sm:text-base md:text-xl font-semibold text-[#5a5a5a] rounded-2xl border border-[#eeeeee] p-3 sm:p-5 mb-4 shadow-md">
+        ❓ 궁금한 점이 있으신가요? 먼저 아래의 자주 묻는 질문을 확인해 주세요.
       </div>
       {faq.map((item, index) => renderFAQ(item, index))}
-      <div className="flex flex-col justify-center items-center mt-20 mb-15 sm:text-xl md:text-2xl font-semibold text-[#262627] space-y-2.5">
+      <div className="flex flex-col justify-center items-center mt-10 mb-10 space-y-2.5 text-base sm:text-lg md:text-xl font-semibold text-[#262627]">
         <p>원하는 답변을 찾지 못하셨나요?</p>
         <p>
-          그럼 <span className="text-[#bc5b39]">‘문의하기’</span> 에서 직접 문의
-          해주세요.
+          그럼 <span className="text-[#bc5b39]">‘문의하기’</span>에서 직접
+          문의해 주세요.
         </p>
         <p>최대한 빠르게 답변드리도록 하겠습니다!</p>
       </div>

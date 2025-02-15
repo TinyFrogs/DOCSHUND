@@ -9,12 +9,10 @@ const ProfileCard = ({
   handleImageChange,
   handleNicknameCheck,
 }) => {
-  // editedProfile가 props로 전달되므로 profile 변수에 할당
   const profile = editedProfile || {};
   const MAX_NICKNAME_LENGTH = 10;
   const MAX_INTRODUCE_LENGTH = 200;
 
-  // 이미지 미리보기를 위한 state: 부모의 editedProfile.profileImage가 바뀌면 갱신됨
   const [previewImage, setPreviewImage] = useState(profile.profileImage);
   const [nickname, setNickname] = useState(profile.nickname || "");
 
@@ -26,21 +24,19 @@ const ProfileCard = ({
     setNickname(profile.nickname || "");
   }, [profile.nickname]);
 
-  // 닉네임 입력 시 최대 글자 수 체크 후 부모의 handleChange 호출
   const handleNicknameInputChange = (e) => {
     const { value } = e.target;
     const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/u;
     if (
       value.length <= MAX_NICKNAME_LENGTH &&
-      !/\s/.test(value) && // 공백 불가
-      !emojiRegex.test(value) // 이모지 불가
+      !/\s/.test(value) &&
+      !emojiRegex.test(value)
     ) {
       setNickname(value);
       if (handleChange) handleChange(e);
     }
   };
 
-  // 자기소개 입력 시 최대 글자 수 체크 후 부모의 handleChange 호출
   const handleIntroduceInputChange = (e) => {
     const { value } = e.target;
     if (value.length <= MAX_INTRODUCE_LENGTH) {
@@ -51,21 +47,18 @@ const ProfileCard = ({
   const handleImagePreview = (e) => {
     const file = e.target.files[0];
     const validTypes = ["image/jpeg", "image/png", "image/jpg"];
-    const MAX_FILE_SIZE = 1 * 1000 * 1000; // 1MB
-
+    const MAX_FILE_SIZE = 1 * 1000 * 1000;
     if (file) {
       if (!validTypes.includes(file.type)) {
         toast.warn("올바른 파일형식이 아닙니다.");
         e.target.value = "";
         return;
       }
-
       if (file.size > MAX_FILE_SIZE) {
         toast.warn("파일 크기는 1MB 이하만 가능합니다.");
         e.target.value = "";
         return;
       }
-
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewImage(reader.result);
@@ -78,58 +71,59 @@ const ProfileCard = ({
   };
 
   return (
-    <div className="w-auto bg-white p-10 rounded-xl border border-[#E1E1DF] text-[#424242] mb-5">
-      <div className="flex mb-4">
-        <h3 className="w-30 font-bold">이미지 |</h3>
-        {isEditing ? (
-          <>
-            {/* 편집 모드에서는 previewImage state를 사용 */}
-            <img
-              src={previewImage}
-              alt="Profile"
-              className="w-32 h-32 rounded-full border-1 border-[#E1E1DF]"
-            />
-            <div className="flex flex-col ml-6 self-end">
-              <label className="cursor-pointer bg-gray-200 p-2 rounded-lg text-xs hover:bg-gray-300 w-fit">
-                변경
-                <input
-                  type="file"
-                  accept="image/png, image/jpeg, image/jpg"
-                  className="hidden"
-                  onChange={handleImagePreview}
-                />
-              </label>
-              <div className="mt-2 text-xs text-gray-500">
-                <p>• png, jpg, jpeg의 확장자</p>
-                <p>• 1MB 이하의 이미지</p>
+    <div className="w-full bg-white p-6 md:p-10 rounded-xl border border-[#E1E1DF] text-[#424242] mb-5">
+      <div className="flex mb-4 items-start">
+        <h3 className="w-20 font-bold text-sm md:text-base">이미지 |</h3>
+        <div className="flex">
+          {isEditing ? (
+            <>
+              <img
+                src={previewImage}
+                alt="Profile"
+                className="w-16 h-16 md:w-32 md:h-32 rounded-full border border-[#E1E1DF]"
+              />
+              <div className="flex flex-col ml-4 justify-center">
+                <label className="cursor-pointer bg-gray-200 p-1 rounded-lg text-xs text-center hover:bg-gray-300">
+                  변경
+                  <input
+                    type="file"
+                    accept="image/png, image/jpeg, image/jpg"
+                    className="hidden"
+                    onChange={handleImagePreview}
+                  />
+                </label>
+                <div className="mt-1 text-xs text-gray-500">
+                  <p>• png, jpg, jpeg</p>
+                  <p>• 1MB 이하</p>
+                </div>
               </div>
-            </div>
-          </>
-        ) : (
-          <img
-            src={profile.profileImage}
-            alt="Profile"
-            className="w-32 h-32 rounded-full border-1 border-[#E1E1DF]"
-          />
-        )}
+            </>
+          ) : (
+            <img
+              src={profile.profileImage}
+              alt="Profile"
+              className="w-16 h-16 md:w-32 md:h-32 rounded-full border border-[#E1E1DF]"
+            />
+          )}
+        </div>
       </div>
-      <div className="flex mb-4">
-        <h3 className="w-30 font-bold">닉네임 |</h3>
+      <div className="flex mb-4 items-start">
+        <h3 className="w-20 font-bold text-sm md:text-base">닉네임 |</h3>
         {isEditing ? (
-          <div className="flex flex-col justify-start">
+          <div className="flex flex-col">
             <div className="flex items-center">
               <input
                 type="text"
                 name="nickname"
                 value={nickname}
                 onChange={handleNicknameInputChange}
-                placeholder="닉네임을 입력해주세요."
-                className="border p-2 rounded mr-3 focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39]"
+                placeholder="닉네임 입력"
+                className="border p-1 rounded mr-3 focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] text-sm md:text-base w-34"
               />
               <button
                 type="button"
                 onClick={() => handleNicknameCheck(nickname, profile.nickname)}
-                className="cursor-pointer bg-gray-200 p-2 rounded-lg text-xs hover:bg-gray-300 w-fit"
+                className="cursor-pointer bg-gray-200 p-1 rounded-lg text-xs hover:bg-gray-300"
               >
                 중복확인
               </button>
@@ -139,46 +133,48 @@ const ProfileCard = ({
             </p>
           </div>
         ) : (
-          <p>{profile.nickname}</p>
+          <p className="text-sm md:text-base">{profile.nickname}</p>
         )}
       </div>
-      <div className="flex mb-4">
-        <h3 className="w-30 font-bold">관심분야 |</h3>
+      <div className="flex mb-4 items-start">
+        <h3 className="w-20 font-bold text-sm md:text-base">관심분야 |</h3>
         {isEditing ? (
           <select
             name="hobby"
             value={profile.hobby || ""}
             onChange={handleChange}
-            className="border p-2 rounded focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39]"
+            className="border p-1 rounded focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] text-sm md:text-base"
           >
-            <option value="">관심분야를 선택해주세요</option>
+            <option value="">관심분야 선택</option>
             <option value="FRONTEND">Frontend</option>
             <option value="BACKEND">Backend</option>
             <option value="DEVOPS">DevOps</option>
             <option value="DBSQL">DBSQL</option>
           </select>
         ) : (
-          <p>{profile.hobby}</p>
+          <p className="text-sm md:text-base">{profile.hobby}</p>
         )}
       </div>
-      <h3 className="w-30 font-bold mb-4">자기소개 |</h3>
-      {isEditing ? (
-        <>
-          <textarea
-            name="introduce"
-            value={profile.introduce || ""}
-            onChange={handleIntroduceInputChange}
-            placeholder="자기소개를 입력해주세요."
-            className="border p-2 rounded w-full focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39]"
-            style={{ height: "100px", resize: "none" }}
-          />
-          <p className="text-xs text-gray-500 mt-1 mr-2 text-right">
-            {profile.introduce?.length || 0} / {MAX_INTRODUCE_LENGTH}
-          </p>
-        </>
-      ) : (
-        <p className="break-all">{profile.introduce}</p>
-      )}
+      <div>
+        <h3 className="w-20 font-bold mb-2 text-sm md:text-base">자기소개 |</h3>
+        {isEditing ? (
+          <>
+            <textarea
+              name="introduce"
+              value={profile.introduce || ""}
+              onChange={handleIntroduceInputChange}
+              placeholder="자기소개 입력"
+              className="border p-1 rounded w-full focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] text-sm md:text-base"
+              style={{ height: "60px", resize: "none" }}
+            />
+            <p className="text-xs text-gray-500 mt-1 text-right">
+              {profile.introduce?.length || 0} / {MAX_INTRODUCE_LENGTH}
+            </p>
+          </>
+        ) : (
+          <p className="text-sm md:text-base break-all">{profile.introduce}</p>
+        )}
+      </div>
     </div>
   );
 };

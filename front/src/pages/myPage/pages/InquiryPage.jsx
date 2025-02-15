@@ -1,11 +1,9 @@
 import { useNavigate } from "react-router-dom";
-
 import modalStore from "../../../store/myPageStore/myPageModalStore";
 import inquiryStore from "../../../store/myPageStore/inquiryStore";
 import InquiryModal from "../components/InquiryModal";
 import ListRender from "../../../components/pagination/listRender";
 import InquiryService from "../services/inquiryService";
-
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { format, isSameDay } from "date-fns";
@@ -13,44 +11,33 @@ import { ChevronUp, ChevronDown } from "lucide-react";
 
 const InquiryPage = () => {
   const navigate = useNavigate();
-
   const token = localStorage.getItem("token");
 
-  // inquiryStore에서 inquiries와 setInquiries를 가져온다.
   const inquiries = inquiryStore((state) => state.inquiries);
   const setInquiries = inquiryStore((state) => state.setInquiries);
-
   const totalPages = inquiryStore((state) => state.totalPages);
   const setTotalPages = inquiryStore((state) => state.setTotalPages);
   const currentPage = inquiryStore((state) => state.currentPage);
   const setCurrentPage = inquiryStore((state) => state.setCurrentPage);
-
   const setLoading = inquiryStore((state) => state.setLoading);
   const setError = inquiryStore((state) => state.setError);
 
   const { setOpenId, openId, closeModal } = modalStore();
 
-  const [itemsPerPage, setItmesPerPage] = useState(15); // 페이지당 보여줄 게시글 수
+  const [itemsPerPage, setItmesPerPage] = useState(15);
 
   useEffect(() => {
     setLoading(true);
-
-    // inquiries 데이터를 가져오는 함수
     const fetchInquiries = async () => {
       try {
-        // 토큰이 존재하면 userId 추출
         if (token) {
           const decodedToken = jwtDecode(token);
           const userId = decodedToken.userId;
-
-          // inquiryService의 fetchInquiries 함수를 호출한다.
           const data = await InquiryService.fetchInquiries(
             currentPage,
             itemsPerPage,
             userId
           );
-
-          // data가 존재하면 setInquiries로 데이터를 저장한다.
           if (data) {
             const sortedInquiries = data.content.sort(
               (a, b) =>
@@ -68,8 +55,6 @@ const InquiryPage = () => {
         setLoading(false);
       }
     };
-
-    // fetchInquiries 함수를 호출한다.
     fetchInquiries();
   }, [currentPage, itemsPerPage, token]);
 
@@ -81,8 +66,8 @@ const InquiryPage = () => {
 
   const renderInquiry = (item) => {
     return (
-      <div key={item.inquiryId} className="flex-col">
-        <div className="flex justify-between px-3">
+      <div key={item.inquiryId} className="flex flex-col">
+        <div className="flex flex-col sm:flex-row justify-between px-3">
           <div
             className={`flex-1 min-w-0 break-all mr-3 ${
               openId === item.inquiryId ? "" : "line-clamp-1"
@@ -92,13 +77,13 @@ const InquiryPage = () => {
               onClick={() => {
                 setOpenId(item.inquiryId === openId ? null : item.inquiryId);
               }}
-              className="sm:text-base md:text-lg font-semibold text-[#7d7c77] hover:text-[#bc5b39] cursor-pointer"
+              className="text-sm sm:text-base md:text-lg font-semibold text-[#7d7c77] hover:text-[#bc5b39] cursor-pointer"
             >
               {item.inquiryTitle}
             </h3>
           </div>
-          <div className="flex space-x-6 items-center">
-            <p className="sm:text-sm md:text-base">
+          <div className="flex items-center space-x-4 sm:space-x-6 mt-2 sm:mt-0">
+            <p className="text-xs sm:text-sm md:text-base">
               {item.inquiryCreatedAt
                 ? isSameDay(new Date(item.inquiryCreatedAt), new Date())
                   ? format(new Date(item.inquiryCreatedAt), "HH:mm")
@@ -106,26 +91,22 @@ const InquiryPage = () => {
                 : "표시할 수 없는 날짜입니다."}
             </p>
             <p
-              className={`text-sm ${
-                item.answered ? "text-green-500" : "text-red-500"
-              }`}
+              className={`text-xs sm:text-sm font-semibold 
+              ${item.answered ? "text-green-500" : "text-red-500 "} `}
             >
               {item.answered ? "답변 완료" : "답변 대기"}
             </p>
-
             <button
               onClick={() => {
                 setOpenId(item.inquiryId === openId ? null : item.inquiryId);
               }}
               className="cursor-pointer"
             >
-              <span>
-                {openId === item.inquiryId ? (
-                  <ChevronUp size={20} />
-                ) : (
-                  <ChevronDown size={20} />
-                )}
-              </span>
+              {openId === item.inquiryId ? (
+                <ChevronUp size={20} />
+              ) : (
+                <ChevronDown size={20} />
+              )}
             </button>
           </div>
         </div>
@@ -138,18 +119,18 @@ const InquiryPage = () => {
 
   return (
     <div>
-      <div className="flex justify-between mt-5 mb-5">
+      <div className="flex flex-row justify-between items-center sm:items-center mt-5 mb-5">
         <h1 className="font-bold text-2xl">나의 문의</h1>
         <button
           onClick={() => navigate("/helpDesk/inquiryForm")}
-          className="border-box bg-[#bc5b39] rounded-[12px] px-[20px] w-fit h-10 relative flex items-center justify-center text-[#ffffff] hover:bg-[#C96442] cursor-pointer"
+          className="bg-[#bc5b39] rounded-lg px-4 py-2 sm:px-[20px] sm:py-3 text-white hover:bg-[#C96442]"
         >
           + 문의작성
         </button>
       </div>
 
-      <div className="pt-4 pl-6 bg-white rounded-tl-xl rounded-tr-xl border-t border-l border-r border-[#E1E1DF]"></div>
-      <div className="p-10 bg-white rounded-bl-xl rounded-br-xl border-b border-l border-r border-[#E1E1DF] text-[#7D7C77]">
+      <div className="bg-white rounded-tl-xl rounded-tr-xl border-t border-l border-r border-[#E1E1DF] pt-4 pl-6"></div>
+      <div className="bg-white rounded-bl-xl rounded-br-xl border-b border-l border-r border-[#E1E1DF] p-4 sm:p-10 text-[#7D7C77]">
         <ListRender
           data={inquiries}
           renderItem={renderInquiry}
