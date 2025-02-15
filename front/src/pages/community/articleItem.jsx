@@ -109,13 +109,15 @@ const ArticleItem = () => {
           // NOTE: data 호출에 길어봐야 200ms, 0.2초 밖에 안걸림
           // -> 로딩하는 동안 이전 값들이 보이는 것은 store에 상태를 다시 세팅하는 시간이 걸리기 때문으로 추측
 
-          console.log("data:", data);
-
-          if (!_.isEqual(data, {})) {
+          // 데이터가 비어있지 않다면 store에 데이터를 세팅
+          if (data) {
             setArticleId(articleId);
             setArticleData(data);
             setCommentCount(data.commentCount);
             setIsInitialLoad(false);
+          } else {
+            toast.error("해당 게시글을 찾을 수 없습니다.");
+            navigate("/community/list");
           }
         } else {
           setTimeout(() => {
@@ -138,15 +140,15 @@ const ArticleItem = () => {
   }, [articleId]);
 
   const handleDeleteClick = _.debounce(async () => {
-    if (window.confirm("게시글을 삭제하시겠습니까?")) {
-      const response = await ArticleItemService.deleteArticleItem(articleId);
+    if (!window.confirm("정말 삭제하시겠습니까?")) return;
 
-      if (response.status == 204) {
-        toast.info("게시글이 삭제되었습니다.");
-        navigate("/community");
-      }
+    const response = await ArticleItemService.deleteArticleItem(articleId);
+
+    if (response.status == 204) {
+      toast.info("게시글이 삭제되었습니다.");
+      navigate("/community");
     }
-  }, 300); // 300ms delay to prevent multiple rapid delete requests
+  }, 100); // 300ms delay to prevent multiple rapid delete requests
 
   // NOTE: isInitialLoad가 true일 때만 실행. 로딩중일 때의 깜빡임 현상을 줄여 UX 개선하기 위함
   if (isInitialLoad) {

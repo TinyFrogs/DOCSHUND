@@ -81,56 +81,74 @@ const ModifyArticle = () => {
   };
 
   // 파일 첨부 핸들링 함수
-  const handleFileChange = async (e) => {
-    setFile(e.target.files[0]);
+  const handleFileChange = _.debounce(async (e) => {
+    const selectedFile = e.target.files[0];
 
-    // S3에 파일 업로드 후 url 받아오기
-    const response = await ArticleItemService.uploadImageFile(
-      e.target.files[0]
-    );
+    // INFO: 파일 타입 조회해서 이미지만 가능하게
+    if (!selectedFile.type.includes("image"))
+      return toast.info("이미지 파일만 업로드 가능합니다.");
 
-    setImageUrl(response.data.imageUrl); // 이미지 URL 상태 업데이트
-  };
+    if (selectedFile) {
+      if (selectedFile.size > 5 * 1000 * 1000) {
+        // 5MB 제한
+        toast.info("사진 크기는 최대 5MB까지 업로드 가능합니다.");
+        return;
+      }
+
+      setFile(selectedFile);
+
+      // S3에 파일 업로드 후 url 받아오기
+      const response = await ArticleItemService.uploadImageFile(
+        e.target.files[0]
+      );
+
+      setImageUrl(response.data.imageUrl); // 이미지 URL 상태 업데이트
+    }
+  }, 300);
 
   // 파일 첨부 취소 핸들링 함수
   const handleFileCancel = () => {
     setFile(null);
   };
 
-  // 글 작성 요청
-  const handleSubmit = _.debounce(async (e) => {
-    e.preventDefault(); // 기본 동작 방지
-
+  // 실제 제출 로직을 별도 함수로 분리
+  const submitArticle = _.debounce(async () => {
     try {
       // 제목, 대분류, 소분류, 내용, 파일이 모두 입력되었는지 확인
       if (!title || !mainCategory || !subCategory || !content) {
         toast.warn("모든 항목을 입력해주세요.");
         return;
-      } else {
-        const response = await ArticleItemService.patchArticleItem(
-          articleId,
-          title,
-          subCategory,
-          content
-        );
+      }
 
-        if (response.status === 204) {
-          setArticleItems({
-            ...articleItems,
-            title,
-            position: mainCategory,
-            documentName: subCategory,
-            content,
-          });
-          toast.info("글 수정이 완료되었습니다.");
-          navigate(`/community/article/${articleId}`);
-        }
+      const response = await ArticleItemService.patchArticleItem(
+        articleId,
+        title,
+        subCategory,
+        content
+      );
+
+      if (response.status === 204) {
+        setArticleItems({
+          ...articleItems,
+          title,
+          position: mainCategory,
+          documentName: subCategory,
+          content,
+        });
+        toast.info("글 수정이 완료되었습니다.");
+        navigate(`/community/article/${articleId}`);
       }
     } catch (error) {
       console.error("Failed to modify article:", error);
       toast.error("게시글 수정에 실패했습니다.");
     }
-  }, 500); // 500ms 딜레이 추가
+  }, 500);
+
+  // form 제출 핸들러
+  const handleSubmit = (e) => {
+    e.preventDefault(); // 기본 동작 즉시 방지
+    submitArticle(); // 디바운스된 제출 로직 호출
+  };
 
   return (
     // 불필요한 div 제거
@@ -211,11 +229,11 @@ const ModifyArticle = () => {
                 <div className="mb-6">
                   <div className="flex items-center mb-2">
                     <label className="block text-lg font-medium text-black">
-                      파일 첨부
+                      사진 첨부
                     </label>
                     {file && (
                       <p className="text-sm text-gray-800 ml-6">
-                        파일 제목을 선택해 본문에 첨부할 수 있습니다.
+                        파일 제목 혹은 사진을 선택해 본문에 첨부할 수 있습니다.
                       </p>
                     )}
                   </div>
@@ -223,30 +241,39 @@ const ModifyArticle = () => {
                     <div className="relative">
                       <input
                         type="file"
-                        // 파일 첨부 로직(s3에 업로드 후 url 받아오기)
+                        accept="image/png, image/jpeg, image/jpg"
+                        // INFO: 파일 첨부 로직(s3에 업로드 후 url 받아오기)
                         onChange={handleFileChange}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
                       <div className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm text-center cursor-pointer hover:bg-[#C96442] text-sm">
-                        파일 선택
+                        사진 선택
                       </div>
                     </div>
                     {!file && (
                       <p className="ml-4 text-sm text-gray-500">
-                        첨부할 파일을 선택하세요 (1개만 가능)
+                        첨부할 사진을 선택하세요 (1개만 가능)
                       </p>
                     )}
                     {file && (
-                      <div className="ml-4 flex items-center">
+                      <div className="ml-4 flex items-center gap-4">
+                        <img
+                          src={imageUrl}
+                          alt="이미지 파일 미리보기"
+                          className="h-24 w-24 object-cover rounded-md border border-gray-300 cursor-pointer"
+                          onClick={() => {
+                            setFileUrl(imageUrl);
+                          }}
+                        />
                         <p
                           className="text-sm text-black mr-2 truncate max-w-md cursor-pointer hover:underline border border-gray-300 rounded-md px-2 py-1"
                           onClick={() => {
-                            // 이미지 URL 상태 업데이트로 EditorContent의 useEffect 실행
                             setFileUrl(imageUrl);
                           }}
                         >
                           {file.name}
                         </p>
+
                         <button
                           type="button"
                           onClick={handleFileCancel}

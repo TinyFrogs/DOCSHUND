@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 
+import useKoreanTime from "../../../../hooks/useKoreanTime";
 import LikeArticleService from "../../services/likeArticleService";
 import LikeArticleStore from "../../../../store/myPageStore/likeArticleStore";
 
@@ -9,6 +10,7 @@ import like from "../../../../assets/icon/heartFilled24.png";
 import likeCancel from "../../../../assets/icon/heartEmpty24.png";
 
 const LikeArticlePage = () => {
+  const { convertToKoreanTime } = useKoreanTime();
   // store에서 데이터를 가져오기 위해 store의 상태 정의
   const likeArticles = LikeArticleStore((state) => state.likeArticles);
   const totalPages = LikeArticleStore((state) => state.totalPages);
@@ -72,7 +74,7 @@ const LikeArticlePage = () => {
         <p className="text-base line-clamp-1 break-all">{item.content}</p>
       </div>
       <div className="flex space-x-6 items-center">
-        <p>{item.createAt}</p>
+        <p>{convertToKoreanTime(item.createAt)}</p>
         <p>{item.nickname}</p>
         <button onClick={() => handleLikeClick(item)}>
           <img

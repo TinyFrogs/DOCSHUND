@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import Proptypes from "prop-types";
 import { jwtDecode } from "jwt-decode";
+import { toast } from "react-toastify";
 import _ from "lodash";
 
 import ReportModal from "../../report";
@@ -43,12 +44,20 @@ const ReplyRenderItem = ({
   };
 
   const handleDeleteReply = _.debounce(async () => {
-    // TODO: window.confirm 및 debounce 취소
-    await ReplyItemService.deleteReplyItem(item.articleId, item.commentId);
+    if (!window.confirm("정말 삭제하시겠습니까?")) return;
 
-    //  삭제 후 댓글 리스트 리렌더링
-    setIsReplied((prev) => !prev);
-  }, 500);
+    const response = await ReplyItemService.deleteReplyItem(
+      item.articleId,
+      item.commentId
+    );
+
+    if (response.status === 204) {
+      toast.info("댓글이 삭제되었습니다.");
+
+      //  삭제 후 댓글 리스트 리렌더링
+      setIsReplied((prev) => !prev);
+    }
+  }, 100);
 
   return (
     <div className="flex flex-col bg-white p-4 rounded-lg mt-2 mb-2">

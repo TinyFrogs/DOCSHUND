@@ -7,11 +7,11 @@ import propTypes from "prop-types";
 
 import notificationModalStore from "../../store/notificationModalStore";
 import NotificationService from "../../services/notificationService";
-import { format, isSameDay } from "date-fns";
-import { axiosJsonInstance } from "../../utils/axiosInstance";
+import useKoreanTime from "../../hooks/useKoreanTime";
 
 const NotificationModal = () => {
   const navigate = useNavigate();
+  const { convertToKoreanTime } = useKoreanTime();
   const token = localStorage.getItem("token");
   const notifications = notificationModalStore((state) => state.notifications); // 알림 목록
   const setNotifications = notificationModalStore(
@@ -97,7 +97,6 @@ const NotificationModal = () => {
         // 알림 읽음 처리 후, 알림 목록 갱신
         const data = await NotificationService.fetchNotifications();
 
-        // OPTIMIZE: 알림 데이터 최신순 정렬인가?
         if (data) {
           setNotifications(data.reverse());
         }
@@ -220,11 +219,8 @@ const NotificationModal = () => {
                 </div>
                 <div className="flex justify-between items-center mt-2">
                   <span className="text-xs text-gray-400">
-                    {notification?.createdAt
-                      ? isSameDay(new Date(notification.createdAt), new Date())
-                        ? format(new Date(notification.createdAt), "HH:mm")
-                        : format(new Date(notification.createdAt), "yyyy-MM-dd")
-                      : "날짜 없음"}
+                    {convertToKoreanTime(notification.createdAt) ||
+                      "표시할 수 없는 날짜입니다."}
                   </span>
                   {categories.map(
                     (category) =>

@@ -43,7 +43,10 @@ function App() {
     }
 
     if (location.search.includes("token")) {
-      toast.success("로그인에 성공했습니다!");
+      toast.success("로그인에 성공했습니다!", {
+        autoClose: 1000,
+        hideProgressBar: true,
+      });
       setToken(location.search.split("=")[1]);
     }
   }, []);

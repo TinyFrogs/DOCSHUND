@@ -54,13 +54,14 @@ const WriteArticle = () => {
   const handleFileChange = _.debounce(async (e) => {
     const selectedFile = e.target.files[0];
 
-    // TODO: 파일 헤더 확인 <- 이미지 일때만 업로드 가능하도록
-    console.log("파일 타입 체크 -> ", selectedFile.type);
+    // INFO: 파일 타입 조회해서 이미지만 가능하게
+    if (!selectedFile.type.includes("image"))
+      return toast.info("이미지 파일만 업로드 가능합니다.");
 
     if (selectedFile) {
       if (selectedFile.size > 5 * 1000 * 1000) {
         // 5MB 제한
-        toast.info("사진진 크기는 최대 5MB까지 업로드 가능합니다.");
+        toast.info("사진 크기는 최대 5MB까지 업로드 가능합니다.");
         return;
       }
 
@@ -93,8 +94,8 @@ const WriteArticle = () => {
       toast.info("모든 항목을 입력해주세요.");
       return;
     } else {
-      if (content.length > 10000) {
-        toast.info("글 내용은 10000자 이하로 작성해주세요.");
+      if (content.length > 15000) {
+        toast.info("글 내용은 15000자 이하로 작성해주세요.");
         return;
       }
 
@@ -196,7 +197,7 @@ const WriteArticle = () => {
                     내용 <span className="text-red-500">*</span>
                   </label>
                   <div className="mt-1 block w-full h-100">
-                    <EditorContent initialTextContent={""} />
+                    <EditorContent initialTextContent={""} maxLength={15000} />
                   </div>
                 </div>
 

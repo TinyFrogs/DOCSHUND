@@ -1,7 +1,7 @@
 import { Link, useOutletContext } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import { format, isSameDay } from "date-fns";
+import useKoreanTime from "../../../../hooks/useKoreanTime";
 
 import TranslationStore from "../../../../store/myPageStore/translationStore";
 import ListRender from "../../../../components/pagination/listRender";
@@ -10,6 +10,7 @@ import likeCancel from "../../../../assets/icon/heartEmpty24.png";
 import LikeTranslationService from "../../services/likeTranslationService";
 
 const LikeTranslationPage = () => {
+  const { convertToKoreanTime } = useKoreanTime();
   const token = localStorage.getItem("token");
   const { handleLikeToggle } = useOutletContext();
 
@@ -84,11 +85,7 @@ const LikeTranslationPage = () => {
       <div className="flex space-x-6">
         <p className="whitespace-nowrap">{item.nickname}</p>
         <p className="whitespace-nowrap">
-          {item.createdAt
-            ? isSameDay(new Date(item.createdAt), new Date())
-              ? format(new Date(item.createdAt), "HH:mm")
-              : format(new Date(item.createdAt), "yyyy-MM-dd")
-            : "표시할 수 없는 날짜입니다."}
+          {convertToKoreanTime(item.createdAt)}
         </p>
         <button onClick={() => handleLikeClick(item)}>
           <img

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import { format, isSameDay } from "date-fns";
+import useKoreanTime from "../../../../hooks/useKoreanTime";
 
 import MyCommentService from "../../services/myCommentService";
 import myCommentStore from "../../../../store/myPageStore/myCommentStore";
@@ -9,6 +9,7 @@ import ListRender from "../../../../components/pagination/listRender";
 
 const MyCommentPage = () => {
   const token = localStorage.getItem("token");
+  const { convertToKoreanTime } = useKoreanTime();
 
   const comments = myCommentStore((state) => state.comments);
 
@@ -72,13 +73,7 @@ const MyCommentPage = () => {
           {item.content}
         </Link>
       </div>
-      <p className="whitespace-nowrap">
-        {item.createdAt
-          ? isSameDay(new Date(item.createdAt), new Date())
-            ? format(new Date(item.createdAt), "HH:mm")
-            : format(new Date(item.createdAt), "yyyy-MM-dd")
-          : "표시할 수 없는 날짜입니다."}
-      </p>
+      <p className="whitespace-nowrap">{convertToKoreanTime(item.createdAt)}</p>
     </div>
   );
 

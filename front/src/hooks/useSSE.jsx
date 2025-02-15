@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { EventSourcePolyfill, NativeEventSource } from "event-source-polyfill";
+import { toast } from "react-toastify";
 import notificationModalStore from "../store/notificationModalStore";
 
 const UseSSE = (userId) => {
@@ -46,7 +47,6 @@ const UseSSE = (userId) => {
 
         // INFO: 이벤트 소스 연결 성공 시
         eventSource.onopen = () => {
-          console.log("SSE 연결 성공");
           setIsConnected(true);
           setError(null);
           // setRetryCount(0);
@@ -57,7 +57,17 @@ const UseSSE = (userId) => {
           try {
             const notification = JSON.parse(event.data);
 
-            addNotification(notification);
+            // INFO: 알림 추가, requestAnimationFrame으로 비동기 처리
+            requestAnimationFrame(() => {
+              addNotification(notification);
+
+              // NOTE: 알림왔다고 알려주기
+              toast.info(notification.content, {
+                position: "top-right",
+                autoClose: 2000,
+                hideProgressBar: true,
+              });
+            });
           } catch (err) {
             console.error("알림 데이터 파싱 오류:", err);
           }
@@ -105,12 +115,12 @@ const UseSSE = (userId) => {
     connectSSE();
 
     // Cleanup
-    return () => {
-      if (eventSource) {
-        console.log("SSE 연결 종료");
-        eventSource.close();
-      }
-    };
+    // return () => {
+    //   if (eventSource) {
+    //     console.log("SSE 연결 종료");
+    //     eventSource.close();
+    //   }
+    // };
   }, [userId]); // userId가 변경될 때만 재연결
 
   return {

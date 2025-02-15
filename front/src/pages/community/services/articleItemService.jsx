@@ -10,9 +10,8 @@ const ArticleItemService = {
     try {
       // axios 헤더 json에 token을 담아주는 객체를 사용하여 서버에 GET 요청
       const response = await axiosJsonInstance.get(`forums/${articleId}`);
-      const data = response.data;
 
-      console.log("response -> ", response);
+      const data = response.data;
 
       // 가져온 데이터를 반환
       return data;

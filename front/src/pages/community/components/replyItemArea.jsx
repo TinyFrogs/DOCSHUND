@@ -44,6 +44,9 @@ const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
       try {
         const data = await ReplyItemService.fetchReplyItem(articleId);
 
+        //NOTE: 댓글 삭제후 데이터가 비워진 것까지는 확인됨. 그러나 컴포넌트 렌더링이 제대로 되지 않음. 아마도 store 문제?
+        console.log("fetchReplyItems data: ", data);
+
         if (data?.length > 0) {
           // NOTE: 정렬 방법에 따라 다르게 정렬
           if (replySortType === "latest") {

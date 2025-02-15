@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
+import useKoreanTime from "../../../../hooks/useKoreanTime";
 import ListRender from "../../../../components/pagination/listRender";
 import MyArticleStore from "../../../../store/myPageStore/myArticleStore";
 import MyArticleService from "../../services/myArticleService";
@@ -11,6 +12,7 @@ import comment from "../../../../assets/icon/commentCnt.png";
 
 const MyArticlePage = () => {
   const token = localStorage.getItem("token");
+  const { convertToKoreanTime } = useKoreanTime();
 
   //  store에서 데이터를 가져오기 위해 store의 상태 정의
   const myArticles = MyArticleStore((state) => state.myArticles);
@@ -78,7 +80,7 @@ const MyArticlePage = () => {
           {item.title}
         </Link>
         <p className="text-base line-clamp-1 break-all">{item.content}</p>
-        <p className="text-base">{item.createdAt}</p>
+        <p className="text-base">{convertToKoreanTime(item.createdAt)}</p>
       </div>
       <div className="flex space-x-6 items-bottom">
         <p className="self-end">{item.nickname}</p>

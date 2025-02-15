@@ -8,11 +8,12 @@ import ListRender from "../../../../components/pagination/listRender";
 import MyTranslationModal from "../../components/myTranslationModal";
 import like from "../../../../assets/icon/heartFilled24.png";
 import modalStore from "../../../../store/modalStore";
-import { format, isSameDay } from "date-fns";
+import useKoreanTime from "../../../../hooks/useKoreanTime";
 import { ChevronUp, ChevronDown } from "lucide-react";
 
 const MyTranslationPage = () => {
   const { setOpenId, openId, closeModal } = modalStore();
+  const { convertToKoreanTime } = useKoreanTime();
 
   const token = localStorage.getItem("token");
 
@@ -121,11 +122,7 @@ const MyTranslationPage = () => {
         </div>
         <div className="flex space-x-6 items-center">
           <p className="sm:text-base md:text-lg">
-            {item.createdAt
-              ? isSameDay(new Date(item.createdAt), new Date())
-                ? format(new Date(item.createdAt), "HH:mm")
-                : format(new Date(item.createdAt), "yyyy-MM-dd")
-              : "표시할 수 없는 날짜입니다."}
+            {convertToKoreanTime(item.createdAt)}
           </p>
           <button
             onClick={() => {
