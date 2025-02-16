@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { motion, AnimatePresence } from "framer-motion";
 import MDEditor from "@uiw/react-md-editor";
@@ -8,7 +8,7 @@ import useEditorStore from "../../../store/translateStore/editorStore";
 const MAX_TITLE_LENGTH = 50;
 const MAX_CONTENT_LENGTH = 15000;
 
-const EditorModal = ({
+const MemoModal = ({
   title,
   buttonText,
   onSubmit,
@@ -19,7 +19,6 @@ const EditorModal = ({
 }) => {
   const [formData, setFormData] = useState({ title: "" });
   const { setCurrentUserText, currentUserText } = useEditorStore();
-  const editorRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -43,9 +42,15 @@ const EditorModal = ({
     }
   };
 
-  const handleEditorChange = (value) => {
+  const handleEditorChange = (value = "") => {
     if (value.length <= MAX_CONTENT_LENGTH) {
       setCurrentUserText(value);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
     }
   };
 
@@ -102,9 +107,11 @@ const EditorModal = ({
                 <input
                   type="text"
                   name="title"
-                  placeholder="제목 입력"
+                  placeholder="제목을 입력하세요"
                   value={formData.title}
                   onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
+                  maxLength={MAX_TITLE_LENGTH}
                   className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
                   required
                 />
@@ -118,6 +125,8 @@ const EditorModal = ({
                   onChange={handleEditorChange}
                   preview="edit"
                   height={300}
+                  placeholder="내용을 입력하세요..."
+                  maxLength={MAX_CONTENT_LENGTH}
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1 mr-2 text-right">
@@ -149,7 +158,7 @@ const EditorModal = ({
   );
 };
 
-EditorModal.propTypes = {
+MemoModal.propTypes = {
   title: PropTypes.string.isRequired,
   buttonText: PropTypes.string.isRequired,
   onSubmit: PropTypes.func.isRequired,
@@ -159,4 +168,4 @@ EditorModal.propTypes = {
   onDelete: PropTypes.func,
 };
 
-export default EditorModal;
+export default MemoModal;

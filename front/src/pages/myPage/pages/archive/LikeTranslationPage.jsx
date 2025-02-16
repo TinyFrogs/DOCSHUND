@@ -1,18 +1,22 @@
-import { Link, useOutletContext } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+import { useOutletContext } from "react-router-dom";
 import useKoreanTime from "../../../../hooks/useKoreanTime";
 
 import TranslationStore from "../../../../store/myPageStore/translationStore";
+import LikeTranslationService from "../../services/likeTranslationService";
+import { fetchTranslateData } from "../../../translate/services/translateGetService";
 import ListRender from "../../../../components/pagination/listRender";
+import TranslationModal from "../../components/TranslationModal";
+import modalStore from "../../../../store/modalStore";
+
 import like from "../../../../assets/icon/heartFilled24.png";
 import likeCancel from "../../../../assets/icon/heartEmpty24.png";
-import LikeTranslationService from "../../services/likeTranslationService";
 
 const LikeTranslationPage = () => {
+  const { handleLikeToggle } = useOutletContext();
   const { convertToKoreanTime } = useKoreanTime();
   const token = localStorage.getItem("token");
-  const { handleLikeToggle } = useOutletContext();
 
   const likeTranslations = TranslationStore((state) => state.likeTranslations);
   const setLikeTranslations = TranslationStore(
@@ -21,6 +25,9 @@ const LikeTranslationPage = () => {
   const setLoading = TranslationStore((state) => state.setLoading);
   const setError = TranslationStore((state) => state.setError);
 
+  const { setOpenId, openId, closeModal } = modalStore();
+
+  const [currentDocsPart, setCurrentDocsPart] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage] = useState(15);
   const [totalPages, setTotalPages] = useState(1);
@@ -34,10 +41,9 @@ const LikeTranslationPage = () => {
         if (token) {
           const decoded = jwtDecode(token);
           const userId = decoded.userId;
-
           const data = await LikeTranslationService.fetchTranslations(userId);
-
           if (data.length > 0) {
+            data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             setLikeTranslations(data);
           }
         }
@@ -58,11 +64,15 @@ const LikeTranslationPage = () => {
         likeTranslations.length
       );
       const newTotalPages = Math.ceil(likeTranslations.length / itemsPerPage);
-
       setTotalPages(newTotalPages);
       setCurrentData(likeTranslations.slice(startIndex, endIndex));
     }
   }, [likeTranslations, currentPage, itemsPerPage]);
+
+  const fetchDocsPart = async (docsId, originId) => {
+    const data = await fetchTranslateData(docsId, originId);
+    setCurrentDocsPart(data.content);
+  };
 
   const handleLikeClick = async (item) => {
     await handleLikeToggle("trans", item.docsId, item.transId);
@@ -73,33 +83,49 @@ const LikeTranslationPage = () => {
   };
 
   const renderTranslation = (item) => (
-    <div className="flex justify-between text-lg px-3">
-      <div className="flex-1 min-w-0 mr-3 font-semibold line-clamp-1 break-all">
-        <Link
-          to={`/translate/main/viewer/${item.docsId}`}
-          className="text-[#7d7c77] hover:text-[#bc5b39]"
+    <div key={item.transId} className="flex-col">
+      <div className="flex justify-between px-3">
+        <div
+          className={`flex-1 min-w-0 break-all mr-3 ${
+            openId === item.transId ? "" : "line-clamp-1"
+          } text-xs sm:text-sm md:text-base lg:text-lg`}
         >
-          {item.documentName} {item.pOrder}번째 문단 번역본
-        </Link>
+          <h3
+            onClick={async () => {
+              await fetchDocsPart(item.docsId, item.originId);
+              setOpenId(item.transId === openId ? null : item.transId);
+            }}
+            className="cursor-pointer font-semibold text-xs sm:text-sm md:text-base lg:text-lg text-[#7d7c77] hover:text-[#bc5b39]"
+          >
+            {item.documentName} {item.pOrder}번째 문단 번역본
+          </h3>
+        </div>
+        <div className="flex space-x-4 sm:space-x-6 items-center">
+          <p className="whitespace-nowrap text-xs sm:text-sm md:text-base lg:text-lg">
+            {convertToKoreanTime(item.createdAt)}
+          </p>
+          <button onClick={() => handleLikeClick(item)}>
+            <img
+              src={likedItems[item.transId] ? likeCancel : like}
+              alt="좋아요 아이콘"
+              className="w-6 h-6 cursor-pointer"
+            />
+          </button>
+        </div>
       </div>
-      <div className="flex space-x-6">
-        <p className="whitespace-nowrap">{item.nickname}</p>
-        <p className="whitespace-nowrap">
-          {convertToKoreanTime(item.createdAt)}
-        </p>
-        <button onClick={() => handleLikeClick(item)}>
-          <img
-            src={likedItems[item.transId] ? likeCancel : like}
-            alt="좋아요 아이콘"
-            className="w-6 h-6 cursor-pointer"
-          />
-        </button>
-      </div>
+      {item.transId === openId && (
+        <TranslationModal
+          isOpen={true}
+          item={item}
+          docsPart={currentDocsPart}
+          closeModal={closeModal}
+        />
+      )}
     </div>
   );
 
   return (
-    <div className="p-10 bg-white rounded-bl-xl rounded-br-xl border-b border-l border-r border-[#E1E1DF] text-[#7D7C77]">
+    <div className="p-4 sm:p-6 lg:p-10 bg-white rounded-bl-xl rounded-br-xl border border-[#E1E1DF] text-[#7D7C77]">
       <ListRender
         data={currentData}
         renderItem={renderTranslation}
@@ -111,4 +137,5 @@ const LikeTranslationPage = () => {
     </div>
   );
 };
+
 export default LikeTranslationPage;

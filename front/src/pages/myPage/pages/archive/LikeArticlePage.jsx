@@ -1,22 +1,19 @@
-import { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
-
+import { useEffect, useState } from "react";
 import useKoreanTime from "../../../../hooks/useKoreanTime";
+
 import LikeArticleService from "../../services/likeArticleService";
 import LikeArticleStore from "../../../../store/myPageStore/likeArticleStore";
-
 import ListRender from "../../../../components/pagination/listRender";
 import like from "../../../../assets/icon/heartFilled24.png";
 import likeCancel from "../../../../assets/icon/heartEmpty24.png";
 
 const LikeArticlePage = () => {
   const { convertToKoreanTime } = useKoreanTime();
-  // store에서 데이터를 가져오기 위해 store의 상태 정의
   const likeArticles = LikeArticleStore((state) => state.likeArticles);
   const totalPages = LikeArticleStore((state) => state.totalPages);
   const currentPage = LikeArticleStore((state) => state.currentPage);
 
-  // set(메소드) 정의
   const setLikeArticles = LikeArticleStore((state) => state.setLikeArticles);
   const setTotalPages = LikeArticleStore((state) => state.setTotalPages);
   const setCurrentPage = LikeArticleStore((state) => state.setCurrentPage);
@@ -36,13 +33,11 @@ const LikeArticlePage = () => {
           currentPage,
           itemsPerPage
         );
-
-        // 데이터가 비어있지 않다면
         if (data.content.length > 0) {
-          setLikeArticles(data.content); // 게시글 목록 설정 TODO: data.content가 왜 바인딩 안되는지 확인
-          setTotalPages(data.totalPages); // 전체 페이지 수
-          setCurrentPage(data.pageable.pageNumber); // 현재 페이지
-          setItmesPerPage(data.numberOfElements); // 페이지당 보여줄 게시글 수
+          setLikeArticles(data.content);
+          setTotalPages(data.totalPages);
+          setCurrentPage(data.pageable.pageNumber);
+          setItmesPerPage(data.numberOfElements);
         }
       } catch (error) {
         setError(error);
@@ -63,19 +58,23 @@ const LikeArticlePage = () => {
   };
 
   const renderArticle = (item) => (
-    <div className="flex justify-between text-lg px-3">
+    <div className="flex justify-between text-sm sm:text-base md:text-lg px-3">
       <div className="flex-1 min-w-0 mr-3 flex flex-col justify-between">
         <Link
           to={`/community/article/${item.articleId}`}
-          className="font-semibold line-clamp-1 break-all text-[#7d7c77] hover:text-[#bc5b39]"
+          className="font-semibold line-clamp-1 break-all text-[#7d7c77] hover:text-[#bc5b39] text-sm sm:text-base md:text-lg"
         >
           {item.title}
         </Link>
-        <p className="text-base line-clamp-1 break-all">{item.content}</p>
+        <p className="text-xs sm:text-sm md:text-base line-clamp-1 break-all">
+          {item.content}
+        </p>
       </div>
-      <div className="flex space-x-6 items-center">
-        <p>{convertToKoreanTime(item.createAt)}</p>
-        <p>{item.nickname}</p>
+      <div className="flex space-x-4 sm:space-x-6 items-center">
+        <p className="text-xs sm:text-sm md:text-base">
+          {convertToKoreanTime(item.createAt)}
+        </p>
+        <p className="text-xs sm:text-sm md:text-base">{item.nickname}</p>
         <button onClick={() => handleLikeClick(item)}>
           <img
             src={likedItems[item.articleId] ? likeCancel : like}
@@ -88,7 +87,7 @@ const LikeArticlePage = () => {
   );
 
   return (
-    <div className="p-10 bg-white rounded-bl-xl rounded-br-xl border-b border-l border-r border-[#E1E1DF] text-[#7D7C77]">
+    <div className="p-4 sm:p-6 lg:p-10 bg-white rounded-bl-xl rounded-br-xl border-b border-l border-r border-[#E1E1DF] text-[#7D7C77]">
       <ListRender
         data={likeArticles}
         renderItem={renderArticle}

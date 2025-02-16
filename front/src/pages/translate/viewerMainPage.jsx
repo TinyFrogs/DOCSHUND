@@ -105,7 +105,7 @@ const ViewerMainPage = () => {
           <MessageCircle className="text-white w-6 h-6 transition-transform duration-300" />
         </div>
       )}
-      <Chat />
+      {localStorage.getItem("token") && <Chat />}
       <Outlet className="h-screen pr-16" />
     </div>
   );

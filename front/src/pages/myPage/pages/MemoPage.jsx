@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import MemoList from "../components/MemoList";
-import EditorModal from "../components/EditorModal";
+import MemoModal from "../components/MemoModal";
 import modalStore from "../../../store/myPageStore/myPageModalStore";
 import useMemoStore from "../../../store/myPageStore/memoStore";
 import memoService from "../services/memoService";
@@ -157,7 +157,7 @@ const MemoPage = () => {
           setCurrentPage={setCurrentPage}
         />
       )}
-      <EditorModal
+      <MemoModal
         title={openId ? "메모 수정" : "새 메모"}
         buttonText={openId ? "수정 완료" : "완료"}
         isOpen={isOpen}
@@ -168,7 +168,9 @@ const MemoPage = () => {
       />
       {isAlertOpen && (
         <ConfirmModal
-          message="정말로 메모를 삭제하시겠습니까?"
+          message={{
+            title: "정말로 메모를 삭제하시겠습니까?",
+          }}
           onConfirm={confirmDeleteMemo}
           onCancel={toggleAlert}
         />

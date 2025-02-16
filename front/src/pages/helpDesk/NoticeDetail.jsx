@@ -3,8 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import useNoticeStore from "../../store/helpDeskStore/noticeStore";
 import NoticeService from "../../services/helpDeskServices/noticeService";
 import { format, isSameDay } from "date-fns";
-import { Viewer } from "@toast-ui/react-editor";
-import "@toast-ui/editor/dist/toastui-editor-viewer.css";
+import MDEditor from "@uiw/react-md-editor";
 
 const NoticeDetail = () => {
   const { noticeId } = useParams();
@@ -62,7 +61,10 @@ const NoticeDetail = () => {
           <div className="pb-4 mb-4">
             <div className="min-h-[150px] sm:min-h-[200px] whitespace-pre-wrap mb-6">
               {noticeDetail.content ? (
-                <Viewer initialValue={noticeDetail.content} />
+                <MDEditor.Markdown
+                  source={noticeDetail.content}
+                  style={{ backgroundColor: "white", color: "black" }}
+                />
               ) : (
                 <p></p>
               )}

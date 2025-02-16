@@ -80,7 +80,7 @@ const Sidebar = () => {
     });
 
   return (
-    <div className="bg-white border border-[#E1E1DF] rounded-xl p-4 w-full mr-4 md:w-40 md:h-[600px] md:overflow-y-auto">
+    <div className="bg-white border border-[#E1E1DF] rounded-xl p-4 w-full mr-4 md:w-48 md:h-[600px] md:overflow-y-auto">
       {/* 모바일: 토글 버튼 표시 */}
       {isMobile && (
         <div className="flex justify-end">

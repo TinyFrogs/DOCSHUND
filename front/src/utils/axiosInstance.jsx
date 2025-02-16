@@ -1,5 +1,4 @@
 import axios from "axios";
-import { toast } from "react-toastify"; // toast 임포트
 import useAuthStore from "../store/authStore"; // authStore 임포트 (경로 확인)
 
 const BASE_URL = "https://i12a703.p.ssafy.io/api/v1/docshund/";

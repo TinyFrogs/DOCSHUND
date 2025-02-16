@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { Stomp } from "@stomp/stompjs";
 import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
@@ -10,6 +10,7 @@ import { Flag, Send } from "lucide-react";
 import { toast } from "react-toastify";
 import ReportModal from "../report.jsx";
 import useReportStore from "../../store/reportStore.jsx";
+import useKeyComposing from "../../hooks/useKeyComposing"; // 경로에 맞게 조정하세요
 
 const Chat = () => {
   const { isChatVisible, toggleChat } = ChatStore();
@@ -19,13 +20,14 @@ const Chat = () => {
   const token = localStorage.getItem("token");
   const { openReport, toggleReport } = useReportStore();
 
+  const { isComposing, keyComposingEvents } = useKeyComposing();
+
   const [userId, setUserId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [loadingInitialMessages, setLoadingInitialMessages] = useState(true);
-  const lastSentTimeRef = useRef(0);
 
   const stompClient = useRef(null);
   const containerRef = useRef(null);
@@ -38,33 +40,49 @@ const Chat = () => {
     }
   }, [token]);
 
+  // 스크롤을 맨 아래로 이동하는 함수
+  const scrollToBottom = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  };
+
+  // useLayoutEffect: 초기 메시지 로드 후 또는 메시지 업데이트 시
+  // 컨테이너가 최하단 근처에 있을 경우에만 스크롤 이동합니다.
+  useLayoutEffect(() => {
+    if (!loadingInitialMessages && isChatVisible) {
+      const container = containerRef.current;
+      if (container) {
+        const distanceFromBottom =
+          container.scrollHeight - container.scrollTop - container.clientHeight;
+        if (distanceFromBottom < 50) {
+          setTimeout(() => {
+            scrollToBottom();
+          }, 300);
+        }
+      }
+    }
+  }, [loadingInitialMessages, isChatVisible, messages]);
+
   // 웹소켓 연결 (실시간 채팅)
   const connect = () => {
-    // 이미 연결되어 있다면 재연결 방지
     if (stompClient.current && stompClient.current.connected) return;
 
-    // socketFactory 내부에서 웹소켓 에러 이벤트를 처리
     const socketFactory = () => {
       const socket = new WebSocket("wss://i12a703.p.ssafy.io/ws-connect");
-
-      // 웹소켓 자체 에러 처리
       socket.onerror = (event) => {
         console.error("WebSocket Error:", event);
         toast.error("웹소켓 연결 오류가 발생했습니다.");
       };
-
       socket.onclose = (event) => {
         console.warn("WebSocket Closed:", event);
         toast.error("웹소켓 연결이 종료되었습니다.");
       };
-
       return socket;
     };
 
-    // STOMP 클라이언트 생성 (웹소켓 에러 핸들러는 위에서 정의됨)
     stompClient.current = Stomp.over(socketFactory);
-
-    // 연결 시 인증 헤더 전송
+    stompClient.current.debug = () => {};
     stompClient.current.connect(
       { Authorization: `Bearer ${token}` },
       () => {
@@ -72,24 +90,27 @@ const Chat = () => {
         stompClient.current.subscribe(`/sub/chats/${docsId}`, (message) => {
           const newMessage = JSON.parse(message.body);
           const container = containerRef.current;
-          const isAtBottom = container
-            ? container.scrollHeight -
-                container.scrollTop -
-                container.clientHeight <
-              50
-            : true;
           setMessages((prev) => [...prev, newMessage]);
-          if (isAtBottom) {
+          // 본인이 보낸 메시지인 경우 항상 스크롤 이동,
+          // 다른 사람의 메시지인 경우 사용자가 최하단 근처에 있을 때만 스크롤 이동
+          if (newMessage.userId === userId) {
             setTimeout(() => {
-              if (containerRef.current) {
-                containerRef.current.scrollTop =
-                  containerRef.current.scrollHeight;
-              }
-            }, 0);
+              scrollToBottom();
+            }, 300);
+          } else if (
+            container &&
+            container.scrollHeight -
+              container.scrollTop -
+              container.clientHeight <
+              50
+          ) {
+            setTimeout(() => {
+              scrollToBottom();
+            }, 300);
           }
         });
 
-        // STOMP 에러 구독 (구독 채널을 통해 전달되는 에러)
+        // STOMP 에러 구독
         stompClient.current.subscribe("/user/queue/errors", (message) => {
           const errorData = JSON.parse(message.body);
           console.error("STOMP 구독 에러:", errorData);
@@ -98,7 +119,6 @@ const Chat = () => {
       },
       (error) => {
         console.error("STOMP Error:", error);
-        // error.headers.message가 없을 수도 있으므로 fallback 메시지 처리
         const errorMessage =
           (error && error.headers && error.headers.message) ||
           "알 수 없는 STOMP 오류가 발생했습니다.";
@@ -124,14 +144,7 @@ const Chat = () => {
       const initialMessages = content.reverse();
       setMessages(initialMessages);
       setCurrentPage(0);
-      setHasMore(!last && initialMessages.length > 0); // last가 false면 더 불러올 메시지가 있음
-
-      // 스크롤을 맨 아래로 이동
-      setTimeout(() => {
-        if (containerRef.current) {
-          containerRef.current.scrollTop = containerRef.current.scrollHeight;
-        }
-      }, 0);
+      setHasMore(!last && initialMessages.length > 0);
     } catch (error) {
       console.error("Error loading initial messages:", error);
     }
@@ -140,7 +153,7 @@ const Chat = () => {
 
   // 이전 채팅 더 불러오기 (다음 페이지 불러오기)
   const loadPreviousMessages = async () => {
-    if (!hasMore) return; // 더 불러올 메시지가 없으면 종료
+    if (!hasMore) return;
     const container = containerRef.current;
     const prevScrollHeight = container.scrollHeight;
     const prevScrollTop = container.scrollTop;
@@ -172,10 +185,11 @@ const Chat = () => {
     }
   };
 
+  // keyDown 이벤트에서 isComposing 상태를 확인하여 전송 실행
   const handleKeyDown = (event) => {
-    if (event.key === "Enter") {
+    if (event.key === "Enter" && !isComposing) {
+      event.preventDefault();
       sendMessage();
-      setInputValue("");
     }
   };
 
@@ -184,7 +198,7 @@ const Chat = () => {
       toast.warn("200자 이상의 메세지는 보낼 수 없습니다.");
       return;
     }
-    if (stompClient.current?.connected && inputValue) {
+    if (stompClient.current?.connected && inputValue.trim() !== "") {
       const body = { docsId, content: inputValue };
       stompClient.current.send(
         `/pub/chats/${docsId}`,
@@ -192,11 +206,10 @@ const Chat = () => {
         JSON.stringify(body)
       );
       setInputValue("");
+      // 본인이 메시지를 보냈으므로, 바로 스크롤 이동 처리
       setTimeout(() => {
-        if (containerRef.current) {
-          containerRef.current.scrollTop = containerRef.current.scrollHeight;
-        }
-      }, 100);
+        scrollToBottom();
+      }, 300);
     }
   };
 
@@ -216,10 +229,10 @@ const Chat = () => {
             initial={{ opacity: 0, y: 1000 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 1000 }}
-            transition={{
-              ease: "easeInOut",
-              duration: 0.5,
+            onAnimationComplete={() => {
+              scrollToBottom();
             }}
+            transition={{ ease: "easeInOut", duration: 0.5 }}
             className="fixed bottom-26 right-3.5 w-[400px] h-[600px] bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col z-[2600] -translate-x-[12.5%] translate-y-[16%]"
             onClick={(e) => e.stopPropagation()}
           >
@@ -228,9 +241,7 @@ const Chat = () => {
               <span>문서 채팅</span>
               <button
                 onClick={() => {
-                  ChatStore.setState({
-                    isChatVisible: false,
-                  });
+                  ChatStore.setState({ isChatVisible: false });
                 }}
                 className="cursor-pointer"
               >
@@ -338,6 +349,7 @@ const Chat = () => {
                 value={inputValue}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
+                {...keyComposingEvents}
                 className="flex-1 px-4 py-2 border rounded-full focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39]"
                 placeholder="메시지를 입력하세요..."
               />

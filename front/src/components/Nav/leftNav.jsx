@@ -10,7 +10,7 @@ import {
 } from "flowbite-react";
 import { jwtDecode } from "jwt-decode";
 import { NavLink, useNavigate } from "react-router-dom";
-import EditorModal from "../../pages/myPage/components/EditorModal.jsx";
+import MemoModal from "../../pages/myPage/components/MemoModal.jsx";
 import RoundCornerBtn from "../button/roundCornerBtn.jsx";
 import { fetchDocsList } from "../../pages/translate/services/translateGetService.jsx";
 import memoService from "../../pages/myPage/services/memoService";
@@ -303,7 +303,7 @@ const LeftNav = () => {
         </Drawer.Items>
       </Drawer>
       <div className="absolute z-[2500]">
-        <EditorModal
+        <MemoModal
           title={memoData ? "메모 수정" : "새 메모"}
           buttonText={memoData ? "수정 완료" : "작성 완료"}
           onSubmit={memoData ? handleEditMemo : handleCreateMemo}
