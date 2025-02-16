@@ -37,6 +37,7 @@ import useEditorStore from "../../store/translateStore/editorStore.jsx";
 import useDocsStore from "../../store/translateStore/docsStore.jsx";
 import useArchiveStore from "../../store/translateStore/archiveStore.jsx";
 import MemoStore from "../../store/../store/myPageStore/memoStore.jsx";
+import useProgressStore from "../../store/translateStore/progressStore.jsx";
 
 // 이미지 import
 import loadingGif from "../../assets/loading.gif";
@@ -95,6 +96,8 @@ const TranslateViewer = () => {
   // 모달 관련 상태
   const { openEditor, openArchive, closeEditor, closeArchive } =
     useModalStore();
+  const { currentProgress, setCurrentProgress, resetCurrentProgress } =
+    useProgressStore();
 
   // 우클릭 또는 버튼 클릭 시 UI 상태 토글
 
@@ -335,6 +338,7 @@ const TranslateViewer = () => {
                   "best"
                 );
                 setTransList(tmpTransList);
+
                 if (tmpTransList !== undefined) {
                   const filteredTranslations = tmpTransList.filter(
                     (item) => item.originId === part.originId
@@ -343,6 +347,7 @@ const TranslateViewer = () => {
                     setBestTrans(filteredTranslations[0].content);
                   } else {
                     setBestTrans("");
+                    toast.info("아직 등록된 변역이 없습니다.");
                   }
                 } else {
                   setBestTrans("");
@@ -354,19 +359,19 @@ const TranslateViewer = () => {
               className="flex flex-col w-full h-fit rounded-md p-2 text-[#424242] hover:shadow-[0px_0px_15px_0px_rgba(149,_157,_165,_0.3)] hover:border-gray-200 cursor-pointer transition-all duration-250 ease-in-out"
             >
               <div
-                ref={(element) => {
-                  if (element && !initialHeights.current[part.id]) {
-                    // ToastViewer 렌더 후 높이 측정
-                    setTimeout(() => {
-                      const height = element.offsetHeight;
-                      initialHeights.current[part.id] = height + "px";
-                      setHeightStates((prev) => ({
-                        ...prev,
-                        [part.id]: initialHeights.current[part.id],
-                      }));
-                    }, 50);
-                  }
-                }}
+              // ref={(element) => {
+              //   if (element && !initialHeights.current[part.id]) {
+              //     // ToastViewer 렌더 후 높이 측정
+              //     setTimeout(() => {
+              //       const height = element.offsetHeight;
+              //       initialHeights.current[part.id] = height + "px";
+              //       setHeightStates((prev) => ({
+              //         ...prev,
+              //         [part.id]: initialHeights.current[part.id],
+              //       }));
+              //     }, 50);
+              //   }
+              // }}
               >
                 {!docpartStates[part.id] ? (
                   <ToastViewer content={part.content} />
@@ -379,7 +384,7 @@ const TranslateViewer = () => {
                       </div>
                     )}
                     {bestTrans === "" ? (
-                      <ToastViewer content={bestTrans} />
+                      <ToastViewer content={part.content} />
                     ) : (
                       <ToastViewer
                         content={`<span style="background-color: #fbebd2">${bestTrans}</span>`}

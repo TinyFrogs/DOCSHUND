@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import ChatBotBtn from "../chatBot/chatBotBtn.jsx";
 import Information from "./page/information.jsx";
 import { MessageCircle } from "lucide-react";
+import { Progress } from "flowbite-react";
 
 //아이콘
 import Korean from "../../assets/icon/korean.png";
@@ -13,6 +14,7 @@ import { Menu } from "lucide-react";
 //상태
 import useModalStore from "../../store/translateStore/translateModalStore.jsx";
 import useDocsStore from "../../store/translateStore/docsStore.jsx";
+import useProgressStore from "../../store/translateStore/progressStore.jsx";
 
 //채팅
 import Chat from "../chat/chat.jsx";
@@ -31,6 +33,8 @@ const ViewerMainPage = () => {
   const { isArchiveOpen, isEditorOpen, openNav, closeNav, isNavOpen } =
     useModalStore();
   const { setDocsList, setBestDocsList } = useDocsStore();
+  const { currentProgress, setCurrentProgress, resetCurrentProgress } =
+    useProgressStore();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,7 +59,12 @@ const ViewerMainPage = () => {
       id="mainPage"
     >
       <Information />
-
+      <Progress
+        progress={currentProgress}
+        size="sm"
+        color="dark"
+        className="fixed z-[1050]"
+      />
       {/* 내브바 관련 버튼 */}
       <div
         id="upperBtns"

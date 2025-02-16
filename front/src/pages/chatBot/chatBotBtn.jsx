@@ -106,7 +106,7 @@ const ChatBotBtn = () => {
                   ease: "easeInOut",
                   duration: 0.5,
                 }}
-                className=" w-[400px] h-[600px] bg-white rounded-xl shadow-lg border border-gray-200 z-[2500] flex flex-col -translate-x-[15%] translate-y-[10%]"
+                className=" w-[30vw] h-[97vh] bg-white rounded-xl shadow-lg border border-gray-200 z-[2500] flex flex-col -translate-x-[15%] translate-y-[10%]"
               >
                 {/* 챗봇 헤더 */}
                 <div className="flex items-center p-4 border-b border-gray-200 bg-[#C96442] rounded-t-xl w-full">

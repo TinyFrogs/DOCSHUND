@@ -1,6 +1,9 @@
 import { ToastContainer } from "react-toastify";
+import { useNotificationCenter } from "react-toastify/addons/use-notification-center";
 
 const ToastModal = () => {
+  const { notifications, clear } = useNotificationCenter();
+
   return (
     <ToastContainer
       position="top-center"
@@ -12,7 +15,7 @@ const ToastModal = () => {
       pauseOnFocusLoss={false}
       draggable={false}
       pauseOnHover={false}
-      limit={1}
+      // limit={3}
       theme="light"
     />
   );

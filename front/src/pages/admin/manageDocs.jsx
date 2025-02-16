@@ -39,7 +39,7 @@ const ManageDocs = () => {
         return;
       }
 
-      if (selectedFile.type !== "application/txt") {
+      if (selectedFile.type !== "text/plain") {
         setLoading(false);
         toast.warn("파일 형식은 .txt만 가능합니다.");
         return;
