@@ -19,6 +19,7 @@ import useMemoService from "../myPage/services/memoService.jsx";
 import TranslateEditor from "./translateEditor.jsx";
 import TranslateArchive from "./translateArchive.jsx";
 import ToastViewer from "./components/toastViewer.jsx";
+import SearchDB from "./components/searchDB.jsx";
 
 //우클릭 커스타마이즈
 import "react-contexify/dist/ReactContexify.css";
@@ -37,7 +38,7 @@ import useEditorStore from "../../store/translateStore/editorStore.jsx";
 import useDocsStore from "../../store/translateStore/docsStore.jsx";
 import useArchiveStore from "../../store/translateStore/archiveStore.jsx";
 import MemoStore from "../../store/../store/myPageStore/memoStore.jsx";
-import useProgressStore from "../../store/translateStore/progressStore.jsx";
+// import useProgressStore from "../../store/translateStore/progressStore.jsx";
 
 // 이미지 import
 import loadingGif from "../../assets/loading.gif";
@@ -47,6 +48,7 @@ import { createPortal } from "react-dom";
 const TranslateViewer = () => {
   let userId = 0;
   const location = useLocation();
+  const navigate = useNavigate();
 
   if (localStorage.getItem("token")) {
     const token = localStorage.getItem("token");
@@ -66,7 +68,7 @@ const TranslateViewer = () => {
   const [checkComplete, setCheckComplete] = useState(false);
   const docData = useRef([]);
   const loadingRef = useRef(null);
-  const chunk_size = 20;
+  const chunk_size = 100;
   // 문단 높이 조절을 위한 초기 높이 저장 ref
   const initialHeights = useRef({});
   //우클릭메뉴 커스텀을 위한 상태
@@ -96,8 +98,14 @@ const TranslateViewer = () => {
   // 모달 관련 상태
   const { openEditor, openArchive, closeEditor, closeArchive } =
     useModalStore();
-  const { currentProgress, setCurrentProgress, resetCurrentProgress } =
-    useProgressStore();
+  // const {
+  //   currentProgress,
+  //   totalData,
+  //   setTotalData,
+  //   clearTotalData,
+  //   setCurrentProgress,
+  //   resetCurrentProgress,
+  // } = useProgressStore();
 
   // 우클릭 또는 버튼 클릭 시 UI 상태 토글
 
@@ -122,19 +130,22 @@ const TranslateViewer = () => {
 
   // 문서 내용을 청크 단위로 불러오기
   const loadMore = async () => {
-    if (loading || !hasMore) return;
+    if (loading || !hasMore) {
+      return;
+    }
     try {
       setLoading(true);
       // 인위적인 지연 추가 (개발용)
-      await new Promise((resolve) => setTimeout(resolve, 600));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       const data = docData.current;
       if (!data || data.length === 0) {
-        // console.log("오류 발생 : 데이터 없음");
+        toast.error("원문 데이터가 없습니다.");
         return;
       }
       const newChunk = data.slice(processedCount, processedCount + chunk_size);
       if (!newChunk || newChunk.length === 0) {
         setHasMore(false);
+        // setCurrentProgress(100);
         return;
       }
       // element.content가 null 또는 undefined일 경우 ""로 대체
@@ -144,6 +155,7 @@ const TranslateViewer = () => {
       }));
       setDocParts((prev) => [...prev, ...processedChunk]);
       setProcessedCount((prev) => prev + chunk_size);
+      // setCurrentProgress((processedCount / totalData) * 100);
     } catch (error) {
       // console.log(error);
     } finally {
@@ -182,15 +194,14 @@ const TranslateViewer = () => {
       setLoading(true);
 
       try {
-        // console.log("Initializing DB for docsId:", docsId);
         await initDB(dbName, objectStoreName);
         const loadedData = await loadData(objectStoreName);
-        // console.log("Loaded data from DB:", loadedData.length);
+        // setTotalData(loadedData.length);
 
         if (!isMounted) return;
 
         if (!loadedData || loadedData.length === 0) {
-          // console.log("Fetching data from server for docsId:", docsId);
+          toast.info("서버와 연결되었습니다.");
           try {
             const data = await fetchTranslateData(docsId, "");
             if (data.length === 0) {
@@ -202,7 +213,7 @@ const TranslateViewer = () => {
             if (data && Array.isArray(data)) {
               docData.current = data;
               await addData(data, objectStoreName);
-              // console.log("Server data saved, length:", data.length);
+              toast.success("원문 데이터가 준비되었습니다.");
               if (isMounted) {
                 setIsDbInitialized(true);
                 await loadMore();
@@ -215,7 +226,7 @@ const TranslateViewer = () => {
             console.error("Failed to fetch data from server:", error);
           }
         } else {
-          // console.log("Using cached data from IndexedDB");
+          toast.success("원문 데이터가 준비되었습니다.");
           if (isMounted) {
             docData.current = loadedData;
             setIsDbInitialized(true);
@@ -282,7 +293,6 @@ const TranslateViewer = () => {
   const handleArchive = async ({ props }) => {
     const { part } = props;
     const tmpTransList = await fetchBestTranslate(part.docsId, "");
-    // console.log(tmpTransList);
     setTransList(tmpTransList);
     setDocsPart(part.content);
     setDocsId(part.docsId);
@@ -296,8 +306,9 @@ const TranslateViewer = () => {
   return (
     <div
       id="mainContent"
-      className="h-screen min-w-[65vw] md:min-w-[65vw] lg:min-w-[60vw] bg-white fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto shadow-xl"
+      className="h-screen min-w-[90vw] md:min-w-[65vw] lg:min-w-[60vw] bg-white fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto shadow-xl"
     >
+      {createPortal(<SearchDB tableId={docsId} />, document.body)}
       <div className="flex flex-col gap-2">
         {docParts.map((part, index) => (
           <div

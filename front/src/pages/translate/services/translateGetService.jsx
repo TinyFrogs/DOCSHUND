@@ -25,11 +25,9 @@ export const fetchDocsList = async () => {
 
 export const fetchTranslateData = async (docsId, originId) => {
   try {
-    // console.log(docsId, originId);
     const response = await axiosJsonInstance.get(
       `docs/${docsId}/origin?originId=${originId}`
     );
-    console.log(response);
     const data = response.data;
     return data;
   } catch (error) {
@@ -47,7 +45,7 @@ export const fetchBestTranslate = async (docsId, isBest) => {
         `docs/${docsId}/trans?status=${status}`
       );
       const data = response.data;
-      // console.log(data);
+
       return data;
     } else {
       const response = await axiosJsonInstance.get(

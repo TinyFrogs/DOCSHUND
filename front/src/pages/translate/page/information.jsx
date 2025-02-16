@@ -23,7 +23,6 @@ const Information = () => {
   const handleJoyrideCallback = async (data) => {
     const { status } = data;
     if (status === STATUS.FINISHED) {
-      console.log("튜토리얼 완료됨!");
       handleAgree();
       // setRun(false); // Joyride 종료
     }
