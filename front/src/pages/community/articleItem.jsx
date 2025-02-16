@@ -73,13 +73,15 @@ const ArticleItem = () => {
     const response = await ArticleItemService.likeArticleItem(articleId);
 
     const status = response.status;
+    console.log(response);
 
     // status가 204이면 좋아요 성공
     if (status == 204) {
+      // 좋아요 취소
       if (isLikedArticleIds.includes(articleId)) {
         setIsLikedArticleIds(
           isLikedArticleIds.filter((id) => id !== articleId)
-        ); // 좋아요 취소
+        );
       } else {
         setIsLikedArticleIds([...isLikedArticleIds, articleId]); // 좋아요한 게시글 기록
       }

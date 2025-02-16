@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { debounce } from "lodash";
 import { Editor } from "@toast-ui/react-editor";
 import "@toast-ui/editor/dist/toastui-editor.css";
 import propTypes from "prop-types";
@@ -37,21 +38,24 @@ const EditorContent = ({ initialTextContent, maxLength = 15000 }) => {
     }
   };
 
-  const handleInsertImage = (url) => {
-    if (editorRef.current) {
-      const editor = editorRef.current.getInstance();
-      editor.insertText(`![image](${url})<br/>`);
-    } else {
-      console.log("editorRef is null");
-    }
-  };
+  const handleInsertImage = useCallback(
+    debounce((url) => {
+      if (editorRef.current) {
+        const editor = editorRef.current.getInstance();
+        editor.insertText(`![image](${url})<br/>`);
+      } else {
+        console.log("editorRef is null");
+      }
+    }, 250),
+    []
+  );
 
   useEffect(() => {
     if (fileUrl) {
       handleInsertImage(fileUrl);
       setFileUrl("");
     }
-  }, [fileUrl]);
+  }, [fileUrl, handleInsertImage]);
 
   return (
     <div className="flex flex-col h-full w-full">

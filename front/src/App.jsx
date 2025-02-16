@@ -108,7 +108,7 @@ function App() {
         {isTranslateViewerPage || isAdminPage ? null : <Footer />}
         <LoginModal />
       </div>
-      <ToastModal />
+      <ToastModal limit={2} />
     </div>
   );
 }

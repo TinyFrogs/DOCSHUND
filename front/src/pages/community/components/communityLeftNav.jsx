@@ -19,6 +19,7 @@ const CommunityLeftNav = () => {
   const category = communityArticleStore((state) => state.category); // 소분류 카테고리(단일)
   const setCategory = communityArticleStore((state) => state.setCategory);
   const setDocumentNames = docsCategoryStore((state) => state.setDocumentNames);
+  const clearArticles = communityArticleStore((state) => state.clearArticles);
 
   // 대분류와 소분류 목록을 저장할 Map
   const [positionMap, setPositionMap] = useState(new Map());
@@ -103,6 +104,15 @@ const CommunityLeftNav = () => {
   return (
     <div className="w-auto min-h-screen p-4">
       <nav className="border-1 border-[#E1E1DF] rounded-xl px-4 py-5 bg-[#FFFFFF]">
+        <button
+          onClick={() => {
+            clearArticles();
+            navigate("/community");
+          }}
+          className="text-sm hover:text-[#bc5b39] cursor-pointer py-1 mb-3"
+        >
+          {"전체 보기"}
+        </button>
         {/* navData에 있는 각 entry들 조회 */}
         {Object.entries(navData).map(([section, items]) => (
           <div key={section} className="mb-2">

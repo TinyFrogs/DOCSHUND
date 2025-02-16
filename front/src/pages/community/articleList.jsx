@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { format, isSameDay } from "date-fns";
 import { ko } from "date-fns/locale";
+import { toast } from "react-toastify";
+import _ from "lodash";
 
+import useKoreanTime from "../../hooks/useKoreanTime.jsx";
 import articleListService from "./services/articleListService";
 import ListRender from "../../components/pagination/listRender.jsx";
 import communityArticleStore from "../../store/communityStore/communityArticleStore.jsx";
@@ -13,6 +16,7 @@ import view from "../../assets/icon/viewCnt.png";
 import comment from "../../assets/icon/commentCnt.png";
 
 const ArticleList = () => {
+  const { convertToKoreanTime } = useKoreanTime();
   //  store에서 데이터를 가져오기 위해 store의 상태 정의
   const articles = communityArticleStore((state) => state.articles);
   const totalPages = communityArticleStore((state) => state.totalPages);
@@ -64,18 +68,10 @@ const ArticleList = () => {
         );
 
         // 가져온 데이터를 store에 저장
-        // 데이터가 비어있지 않을 때
-        if (data.content.length > 0) {
-          setArticles(data.content); // 게시글 목록 설정
-          setTotalPages(data.totalPages); // 전체 페이지 수
-          setCurrentPage(data.pageable.pageNumber); // 현재 페이지
-          setItmesPerPage(data.size); // 페이지당 보여줄 게시글 수
-        } else {
-          setArticles([]);
-          setTotalPages(0);
-          setCurrentPage(0);
-          setItmesPerPage(0);
-        }
+        setArticles(data.content); // 게시글 목록 설정
+        setTotalPages(data.totalPages); // 전체 페이지 수
+        setCurrentPage(data.pageable.pageNumber); // 현재 페이지
+        setItmesPerPage(data.size); // 페이지당 보여줄 게시글 수
       } catch (error) {
         setError(error);
       } finally {
@@ -89,6 +85,20 @@ const ArticleList = () => {
     fetchArticles();
   }, [sortType, keyword, currentPage, category, itemsPerPage]); // 의존성 배열에 sortType, keyword, currentPage, itemsPerPage 추가
 
+  const updateContent = (value) => {
+    if (value.length > 30) {
+      window.alert("검색어는 30자 이내로 입력해주세요.");
+      return;
+    }
+
+    setTmpKeyword(value);
+  };
+
+  // Update handleInputChange to use debounced function
+  const handleInputChange = (e) => {
+    updateContent(e.target.value);
+  };
+
   // 리스트 아이템 렌더링
   const renderItem = (item) => (
     <div className="flex justify-between text-lg px-3">
@@ -101,13 +111,7 @@ const ArticleList = () => {
           {item.title}
         </Link>
         <p className="text-base line-clamp-1 break-all">{item.content}</p>
-        <p className="text-base">
-          {item.createdAt
-            ? isSameDay(new Date(item.createdAt), new Date())
-              ? format(new Date(item.createdAt), "HH:mm", { locale: ko })
-              : format(new Date(item.createdAt), "yyyy-MM-dd", { locale: ko })
-            : "표시할 수 없는 날짜입니다."}
-        </p>
+        <p className="text-base">{convertToKoreanTime(item.createdAt)}</p>
       </div>
       <div className="flex space-x-6 items-bottom">
         <p className="self-end">{item.nickname}</p>
@@ -144,18 +148,19 @@ const ArticleList = () => {
                   type="text"
                   placeholder="검색어를 입력하세요"
                   className="border p-2 ml-10 rounded-full w-full h-8 focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39]"
-                  onChange={(e) => setTmpKeyword(e.target.value)} // 검색어 입력에 따라 임시 검색어 변경
+                  onChange={handleInputChange} // 검색어 입력에 따라 임시 검색어 변경
                   onKeyDown={(e) => {
                     // 엔터키 입력 시 검색어로 검색
                     if (e.key === "Enter") {
-                      setKeyword(e.target.value);
+                      handleInputChange(e);
                     }
                   }}
+                  value={tmpKeyword}
                 />
                 {/* 돋보기 아이콘, 클릭 시 임시 검색어로 검색 실행 (input의 value 참조를 위한 로직) */}
                 <div
                   className="absolute right-2 cursor-pointer"
-                  onClick={() => setKeyword(tmpKeyword)}
+                  onClick={handleInputChange}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

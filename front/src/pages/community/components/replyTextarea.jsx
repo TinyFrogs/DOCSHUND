@@ -20,16 +20,19 @@ const ReplyTextarea = ({ reCommentFlag, commentId }) => {
       if (!content.trim()) {
         toast.warn("댓글을 입력해주세요.");
         return;
-      } else if (content.length > 5000) {
-        toast.warn("댓글은 5,000자 이하로 입력해주세요.");
-        return;
       }
 
       try {
+        const formattedContent = content.replace(/\n/g, "\r\n"); // 개행 문자 정규화
+
         if (isReComment) {
-          await ReplyItemService.postReReplyItem(articleId, commentId, content);
+          await ReplyItemService.postReReplyItem(
+            articleId,
+            commentId,
+            formattedContent
+          );
         } else {
-          await ReplyItemService.postReplyItem(articleId, content);
+          await ReplyItemService.postReplyItem(articleId, formattedContent);
         }
 
         setReplyContent("");
@@ -39,9 +42,19 @@ const ReplyTextarea = ({ reCommentFlag, commentId }) => {
         toast.error("댓글 작성에 실패했습니다.");
         return error;
       }
-    }, 500),
+    }, 300),
     [articleId, setIsReplied]
   );
+
+  // 즉시 상태를 업데이트하는 함수
+  const updateContent = (value) => {
+    if (value.length > 5000) {
+      window.alert("댓글은 5,000자 이내로 작성해주세요.");
+      return;
+    }
+    setReplyContent(value);
+    setContentLength(value.length);
+  };
 
   // Cleanup function
   useEffect(() => {
@@ -54,15 +67,16 @@ const ReplyTextarea = ({ reCommentFlag, commentId }) => {
     debouncedSubmit(replyContent, reCommentFlag, commentId);
   };
 
+  const handleOnChange = (e) => {
+    updateContent(e.target.value);
+  };
+
   return (
     <div className="mt-6 p-6 bg-white rounded-lg shadow-sm border border-gray-200">
       <div className="flex flex-col gap-3">
         <textarea
           value={replyContent}
-          onChange={(e) => {
-            setReplyContent(e.target.value);
-            setContentLength(e.target.value.length);
-          }}
+          onChange={handleOnChange}
           placeholder="댓글을 입력해주세요."
           className="w-full h-24 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
         ></textarea>
@@ -72,7 +86,7 @@ const ReplyTextarea = ({ reCommentFlag, commentId }) => {
               contentLength > 5000 ? "text-red-500" : "text-gray-500"
             }`}
           >
-            {contentLength.toLocaleString()} / 5,000자
+            {contentLength} / 5,000자
           </span>
           <RectBtn
             onClick={handleSubmit}

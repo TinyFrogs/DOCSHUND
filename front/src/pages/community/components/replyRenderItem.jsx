@@ -80,7 +80,9 @@ const ReplyRenderItem = ({
             </p>
           </div>
           {/*  콘텐츠 */}
-          <p className="text-gray-700 break-words">{item.content}</p>
+          <p className="text-gray-700 whitespace-pre-wrap break-words">
+            {item.content}
+          </p>
 
           {/* util */}
           <div className="flex justify-end space-x-4 mt-2">
