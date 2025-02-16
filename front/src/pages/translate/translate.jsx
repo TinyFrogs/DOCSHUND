@@ -30,13 +30,7 @@ const TransLatePage = () => {
   } = useDocsStore();
 
   const navigate = useNavigate();
-
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const filteredBestDocsList =
     windowWidth < 768
@@ -44,6 +38,12 @@ const TransLatePage = () => {
       : windowWidth < 1024
       ? bestDocsList.slice(0, 3)
       : bestDocsList.slice(0, 4);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,6 +55,10 @@ const TransLatePage = () => {
     // 채팅 모달 상태 초기화
     closeChat();
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = "auto";
   }, []);
 
   const handleLike = async (docsId) => {
@@ -223,7 +227,7 @@ const TransLatePage = () => {
                       documentName: docs.documentName,
                     });
                   }}
-                  className="mt-2 px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm bg-[rgba(188,91,57,1)] text-white rounded-lg hover:bg-[rgba(188,91,57,0.8)] transition-colors duration-200 font-medium"
+                  className="cursor-pointer mt-4 px-6 py-2 bg-[rgba(188,91,57,1)] text-white rounded-lg hover:bg-[rgba(188,91,57,0.8)] transition-colors duration-200 font-medium"
                 >
                   {localStorage.getItem("token") ? "번역 하기" : "번역 보기"}
                 </button>

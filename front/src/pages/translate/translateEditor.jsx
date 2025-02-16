@@ -1,13 +1,13 @@
-import Modal from "react-modal";
 import { useState, useMemo } from "react";
 import * as motion from "motion/react-client";
 import { fetchBestTranslate } from "./services/translateGetService";
 import { registTranslate } from "./services/translatePostService";
+import userProfileService from "../myPage/services/userProfileService";
 import { AnimatePresence } from "motion/react";
 import { toast } from "react-toastify";
 import debounce from "lodash/debounce";
 import TextContent from "./components/textContent";
-import EditorContent from "./components/editorContent";
+import GodEditorContent from "./components/godEditorContent";
 import RectBtn from "../../components/button/rectBtn";
 import _ from "lodash";
 
@@ -34,10 +34,17 @@ const TranslateEditor = () => {
     clearSubmitData,
   } = useEditorStore();
 
-  const { setTransList } = useArchiveStore();
+  const { setTransList, transList, transUserList } = useArchiveStore();
 
   //에디터 내용 변경 상태
   const { setTempSave, setSubmitData } = useEditorStore();
+
+  const generateUserList = async (translateList) => {
+    translateList.forEach(async (trans) => {
+      const user = await userProfileService.fetchProfile(trans.userId);
+      transUserList[trans.userId] = user.nickname;
+    });
+  };
 
   const debouncedHandleSubmit = useMemo(
     () =>
@@ -50,12 +57,11 @@ const TranslateEditor = () => {
           const tmpTransList = await fetchBestTranslate(docsId, "", false);
           tmpTransList.sort((a, b) => b.likeCount - a.likeCount);
           setTransList(tmpTransList);
-          setIsVisible(true);
-          setTimeout(() => setIsVisible(false), 1500);
-          setTimeout(() => closeEditor(), 2000);
-          setTimeout(() => openArchive(), 2000);
+          generateUserList(tmpTransList);
+          setTimeout(() => closeEditor(), 300);
+          setTimeout(() => openArchive(), 300);
         }
-      }, 400),
+      }, 500),
     [docsId, originId, currentUserText]
   );
 
@@ -78,13 +84,6 @@ const TranslateEditor = () => {
         >
           <motion.div
             key="editor-modal"
-            // initial={{ opacity: 0, y: 1000 }}
-            // animate={{ opacity: 1, y: 0 }}
-            // exit={{ opacity: 0, y: 1000 }}
-            // transition={{
-            //   ease: "easeOut",
-            //   duration: 0.3,
-            // }}
             className="fixed inset-0 flex items-center justify-center min-w-full min-h-full "
           >
             <div className="relative m-5 p-4 w-full h-[95%] min-w-[768px] min-h-[80%] max-w-full max-h-[95%] rounded-lg bg-white shadow-sm">
@@ -148,7 +147,8 @@ const TranslateEditor = () => {
                 </div>
 
                 <div className="h-full w-6/10 right-1/2">
-                  <EditorContent initialTextContent={docsPart} />
+                  {/* <EditorContent initialTextContent={docsPart} /> */}
+                  <GodEditorContent initialTextContent={docsPart} />
                 </div>
               </div>
             </div>

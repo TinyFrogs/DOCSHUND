@@ -70,17 +70,14 @@ const ManageUser = () => {
     const fetchUsers = async () => {
       try {
         const data = await fetchUserList();
-        console.log(data);
         data.sort((a, b) => b.reportCount - a.reportCount);
         setUserList(data);
-        console.log(userList);
         processUserList(data);
       } catch (error) {
         console.error("Error fetching users:", error);
       }
     };
     fetchUsers();
-    console.log(currentUserList);
   }, []);
 
   return (

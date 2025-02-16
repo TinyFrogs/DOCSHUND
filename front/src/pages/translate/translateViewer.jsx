@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { toast } from "react-toastify";
 import {
   initDB,
   addData,
@@ -44,6 +45,8 @@ import { createPortal } from "react-dom";
 
 const TranslateViewer = () => {
   let userId = 0;
+  const location = useLocation();
+
   if (localStorage.getItem("token")) {
     const token = localStorage.getItem("token");
     userId = jwtDecode(token).userId;
@@ -82,10 +85,16 @@ const TranslateViewer = () => {
     setOriginId,
     setDocsPart,
     setPorder,
+    clearCurrentUserText,
+    clearDocsPart,
+    clearBestTrans,
+    clearTempSave,
+    clearSubmitData,
   } = useEditorStore();
   const { documentName } = useDocsStore();
   // 모달 관련 상태
-  const { openEditor, openArchive } = useModalStore();
+  const { openEditor, openArchive, closeEditor, closeArchive } =
+    useModalStore();
 
   // 우클릭 또는 버튼 클릭 시 UI 상태 토글
 
@@ -117,7 +126,7 @@ const TranslateViewer = () => {
       await new Promise((resolve) => setTimeout(resolve, 600));
       const data = docData.current;
       if (!data || data.length === 0) {
-        console.log("오류 발생 : 데이터 없음");
+        // console.log("오류 발생 : 데이터 없음");
         return;
       }
       const newChunk = data.slice(processedCount, processedCount + chunk_size);
@@ -133,11 +142,25 @@ const TranslateViewer = () => {
       setDocParts((prev) => [...prev, ...processedChunk]);
       setProcessedCount((prev) => prev + chunk_size);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     } finally {
       setLoading(false);
     }
   };
+  // 주송 이동 예외 처리
+  const handleClose = () => {
+    clearDocsPart();
+    clearBestTrans();
+    clearTempSave();
+    clearSubmitData();
+    clearCurrentUserText();
+  };
+
+  useEffect(() => {
+    closeEditor();
+    closeArchive();
+    handleClose();
+  }, [location]);
 
   useEffect(() => {
     let isMounted = true; // 마운트 여부 추적
@@ -156,22 +179,27 @@ const TranslateViewer = () => {
       setLoading(true);
 
       try {
-        console.log("Initializing DB for docsId:", docsId);
+        // console.log("Initializing DB for docsId:", docsId);
         await initDB(dbName, objectStoreName);
         const loadedData = await loadData(objectStoreName);
-        console.log("Loaded data from DB:", loadedData.length);
+        // console.log("Loaded data from DB:", loadedData.length);
 
         if (!isMounted) return;
 
         if (!loadedData || loadedData.length === 0) {
-          console.log("Fetching data from server for docsId:", docsId);
+          // console.log("Fetching data from server for docsId:", docsId);
           try {
             const data = await fetchTranslateData(docsId, "");
+            if (data.length === 0) {
+              toast.info("문서 원본을 추가 중입니다.");
+              navigate(-1);
+              return;
+            }
             if (!isMounted) return;
             if (data && Array.isArray(data)) {
               docData.current = data;
               await addData(data, objectStoreName);
-              console.log("Server data saved, length:", data.length);
+              // console.log("Server data saved, length:", data.length);
               if (isMounted) {
                 setIsDbInitialized(true);
                 await loadMore();
@@ -184,7 +212,7 @@ const TranslateViewer = () => {
             console.error("Failed to fetch data from server:", error);
           }
         } else {
-          console.log("Using cached data from IndexedDB");
+          // console.log("Using cached data from IndexedDB");
           if (isMounted) {
             docData.current = loadedData;
             setIsDbInitialized(true);
@@ -193,7 +221,7 @@ const TranslateViewer = () => {
           }
         }
       } catch (error) {
-        console.log("Error in checkDB:", error);
+        // console.log("Error in checkDB:", error);
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -251,7 +279,7 @@ const TranslateViewer = () => {
   const handleArchive = async ({ props }) => {
     const { part } = props;
     const tmpTransList = await fetchBestTranslate(part.docsId, "");
-    console.log(tmpTransList);
+    // console.log(tmpTransList);
     setTransList(tmpTransList);
     setDocsPart(part.content);
     setDocsId(part.docsId);
@@ -263,7 +291,10 @@ const TranslateViewer = () => {
   };
 
   return (
-    <div className="h-screen min-w-[65vw] md:min-w-[65vw] lg:min-w-[60vw] bg-white fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto shadow-xl">
+    <div
+      id="mainContent"
+      className="h-screen min-w-[65vw] md:min-w-[65vw] lg:min-w-[60vw] bg-white fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto shadow-xl"
+    >
       <div className="flex flex-col gap-2">
         {docParts.map((part, index) => (
           <div
@@ -273,7 +304,6 @@ const TranslateViewer = () => {
                 e.preventDefault();
                 return;
               }
-
               setContextMenuPorder(part.pOrder);
               handleContextMenu(e, part);
               const tmpTransList = await fetchBestTranslate(
@@ -286,10 +316,7 @@ const TranslateViewer = () => {
                 const filteredTranslations = tmpTransList.filter(
                   (item) => item.originId === part.originId
                 );
-                if (
-                  filteredTranslations.length > 0 &&
-                  filteredTranslations[0].likeCount > 0
-                ) {
+                if (filteredTranslations.length > 0) {
                   setBestTrans(filteredTranslations[0].content);
                 } else {
                   setBestTrans("");
@@ -312,10 +339,7 @@ const TranslateViewer = () => {
                   const filteredTranslations = tmpTransList.filter(
                     (item) => item.originId === part.originId
                   );
-                  if (
-                    filteredTranslations.length > 0 &&
-                    filteredTranslations[0].likeCount > 0
-                  ) {
+                  if (filteredTranslations.length > 0) {
                     setBestTrans(filteredTranslations[0].content);
                   } else {
                     setBestTrans("");
@@ -325,7 +349,7 @@ const TranslateViewer = () => {
                 }
                 setTimeout(() => {
                   toggleDocpart(part.id);
-                }, 100);
+                }, 50);
               }}
               className="flex flex-col w-full h-fit rounded-md p-2 text-[#424242] hover:shadow-[0px_0px_15px_0px_rgba(149,_157,_165,_0.3)] hover:border-gray-200 cursor-pointer transition-all duration-250 ease-in-out"
             >

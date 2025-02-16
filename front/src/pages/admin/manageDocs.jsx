@@ -11,25 +11,17 @@ import LodingImage from "../../assets/loading.gif";
 
 const ManageDocs = () => {
   const [loading, setLoading] = useState(false);
-  const [currentDocsId, setCurrentDocsId] = useState(null);
 
   const [adminDocsList, setAdminDocsList] = useState([]);
-  const [selectedDocs, setSelectedDocs] = useState([]);
 
   //등록 관련 모달 상태관리
   const [openRegistDocs, setOpenRegistDocs] = useState(false);
-  const [openRegistDocsContent, setOpenRegistDocsContent] = useState(false);
-
-  const [file, setFile] = useState(null);
 
   const fetchAdminDocs = async () => {
     try {
       const response = await fetchDocsList();
       setAdminDocsList(response);
-      console.log(response);
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -39,11 +31,17 @@ const ManageDocs = () => {
   const handleFileChange = async (e, docsId) => {
     setLoading(true);
     const selectedFile = e.target.files[0];
-    console.log("Selected File:", selectedFile);
 
     if (selectedFile) {
-      if (selectedFile.size > 5 * 1000 * 1000) {
-        toast.error("파일 크기는 최대 5MB까지 업로드 가능합니다.");
+      if (selectedFile.size > 10 * 1000 * 1000) {
+        setLoading(false);
+        toast.warn("파일 크기는 최대 10MB까지 업로드 가능합니다.");
+        return;
+      }
+
+      if (selectedFile.type !== "application/txt") {
+        setLoading(false);
+        toast.warn("파일 형식은 .txt만 가능합니다.");
         return;
       }
 
@@ -54,11 +52,10 @@ const ManageDocs = () => {
       try {
         // 파일 업로드
         const result = await registDocumentContent(docsId, formData);
-        console.log("Upload result:", result);
 
-        if (result && result !== 400) {
-          toast.success("파일이 성공적으로 업로드되었습니다.");
+        if (result === 200) {
           setLoading(false);
+          toast.success("파일이 성공적으로 업로드되었습니다.");
           fetchAdminDocs();
         } else {
           setLoading(false);

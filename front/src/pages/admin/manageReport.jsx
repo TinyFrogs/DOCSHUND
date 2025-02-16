@@ -222,7 +222,9 @@ const ManageReport = () => {
                       <button className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150 cursor-pointer">
                         <a
                           onClick={(e) => e.stopPropagation()}
-                          download={report.reportFile}
+                          href={report.reportFile}
+                          download="신고이미지"
+                          target="_blank"
                         >
                           <Download />
                         </a>

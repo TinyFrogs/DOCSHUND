@@ -91,10 +91,8 @@ const ManageInquiry = () => {
         const processedData = await data.sort(
           (a, b) => b.inquiryCreatedAt - a.inquiryCreatedAt
         );
-        console.log(processedData);
         setInquiryList(processedData);
         inquiryListData.current = processedData;
-        console.log(data);
       } catch (error) {
         console.error("Error fetching inquiry:", error);
       }
@@ -188,7 +186,7 @@ const ManageInquiry = () => {
                     key={inquiry.inquiryId}
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log(inquiry.content);
+
                       toggleInquiryContent(inquiry.inquiryId);
                     }}
                     className="hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
@@ -208,8 +206,6 @@ const ManageInquiry = () => {
                       <span
                         onClick={(e) => {
                           e.stopPropagation();
-                          console.log(inquiry.inquiryId);
-                          // handleInquiryStatus(inquiry.inquiryId);
                         }}
                         className={`px-3 py-1 text-xs font-medium rounded-full ${
                           inquiry.answered
@@ -224,7 +220,9 @@ const ManageInquiry = () => {
                       <button className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150 cursor-pointer">
                         <a
                           onClick={(e) => e.stopPropagation()}
-                          download={inquiry.inquiryFile}
+                          href={inquiry.inquiryImageUrl}
+                          download="문의 이미지"
+                          target="_blank"
                         >
                           <Download />
                         </a>

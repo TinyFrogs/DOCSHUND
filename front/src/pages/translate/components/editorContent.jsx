@@ -59,10 +59,17 @@ const EditorContent = ({ initialTextContent, maxLength = 15000 }) => {
         ref={editorRef}
         initialValue={initialTextContent}
         height="100%"
+        initialEditType="wysiwyg"
         previewStyle="vertical"
         onChange={handleEditorChange}
-        toolbarItems={[["ul", "ol", "task"], ["link"], ["codeblock"]]}
-        useImageUpload={false}
+        toolbarItems={[
+          ["heading", "bold", "italic", "strike"],
+          ["hr", "quote"],
+          ["ul", "ol", "task", "indent", "outdent"],
+          ["table", "link"],
+          ["code", "codeblock"],
+        ]}
+        // hideModeSwitch={true}
         placeholder={"내용을 입력하기"}
       />
       <div className="text-xs text-gray-500 mt-1 mr-2 text-right">

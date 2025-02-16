@@ -12,6 +12,7 @@ const ToastModal = () => {
       pauseOnFocusLoss={false}
       draggable={false}
       pauseOnHover={false}
+      limit={1}
       theme="light"
     />
   );

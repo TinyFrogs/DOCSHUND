@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigationType } from "react-router-dom";
 import {
   initDB,
   addData,
@@ -17,12 +17,14 @@ import ToastViewer from "./components/toastViewer.jsx";
 
 //이미지 import
 import loadingGif from "../../assets/loading.gif";
-import { Trophy } from "lucide-react";
-import { Languages } from "lucide-react";
-import English from "../../assets/icon/english.png";
+
+//상태
+import useModalStore from "../../store/translateStore/translateModalStore.jsx";
+import useDocsStore from "../../store/translateStore/docsStore.jsx";
+import useEditorStore from "../../store/translateStore/editorStore.jsx";
 
 const BestTransViewer = () => {
-  const navigate = useNavigate();
+  const navigationType = useNavigationType();
   const { docsId } = useParams();
   const [docParts, setDocParts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -37,12 +39,29 @@ const BestTransViewer = () => {
   const loadingRef = useRef(null);
   const chunk_size = 20;
 
-  //번역 전체보기 관련
-
   //indexedDB 관련 변수
   const dbName = "docs";
   const objectStoreName = docsId;
   const [isDbInitialized, setIsDbInitialized] = useState(false);
+
+  //뒤로가기시 예외 처리
+  const { isEditorOpen, closeEditor, openArchive, closeArchive } =
+    useModalStore();
+  const {
+    clearDocsPart,
+    clearBestTrans,
+    clearCurrentUserText,
+    clearTempSave,
+    clearSubmitData,
+  } = useEditorStore();
+
+  const handleClose = () => {
+    clearDocsPart();
+    clearBestTrans();
+    clearTempSave();
+    clearSubmitData();
+    clearCurrentUserText();
+  };
 
   // 문서 내용 전부 가져오기
   const loadMore = async () => {
@@ -75,6 +94,15 @@ const BestTransViewer = () => {
       setLoading(false);
     }
   };
+
+  //뒤로가기 예외 처리
+  useEffect(() => {
+    if (navigationType === "POP") {
+      closeEditor();
+      closeArchive();
+      handleClose();
+    }
+  }, [navigationType]);
 
   useEffect(() => {
     let isMounted = true; // 컴포넌트 마운트 상태 추적
@@ -196,7 +224,7 @@ const BestTransViewer = () => {
                     }
                   />
                 ) : (
-                  <ToastViewer content={""} />
+                  <ToastViewer content={part.content} />
                 )}
               </div>
             </div>

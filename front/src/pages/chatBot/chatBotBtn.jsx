@@ -193,6 +193,7 @@ const ChatBotBtn = () => {
             )}
           </AnimatePresence>
           <div
+            id="chatBotBtn"
             onClick={() => {
               toggleChatBot();
               ChatStore.setState({ isChatVisible: false });
