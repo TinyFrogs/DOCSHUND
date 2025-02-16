@@ -24,25 +24,31 @@ import useDocsStore from "../../store/translateStore/docsStore.jsx";
 import modalStore from "../../store/myPageStore/myPageModalStore.jsx";
 import notificationModalStore from "../../store/notificationModalStore";
 
-//이미지 주소 import
+// **삭제 확인 모달 관련 import**
+import useAlertStore from "../../store/alertStore";
+import ConfirmModal from "../../components/alertModal/confirmModal";
+
 import Logo from "../../assets/logo.png";
 import { Bell, ScrollText, StickyNote, Plus, X } from "lucide-react";
 
 const LeftNav = () => {
-  //flowbite 라이트모드 강제 설정
+  // flowbite 라이트모드 강제 설정
   const { setMode } = useThemeMode();
-
   const navigate = useNavigate();
 
-  //내브 바 열림 및 닫힘
+  // 내브 바 열림 및 닫힘
   const { isNavOpen, openNav, closeNav } = useModalStore();
 
-  //메모 및 알림
+  // 메모 및 알림
   const { isOpen, openModal, closeModal } = modalStore();
   const { memos, setMemos, deleteMemo } = useMemoStore();
   const { memoData, setMemoData, handleOpenCreateModal, handleOpenEditModal } =
     useMemoMode();
   const [userId, setUserId] = useState(null);
+
+  const [memoToDelete, setMemoToDelete] = useState(null);
+  const { isAlertOpen, toggleAlert } = useAlertStore();
+
   const {
     toggleNotificationModal,
     isNotificationModalOpen,
@@ -117,19 +123,28 @@ const LeftNav = () => {
     }
   };
 
-  const handleDeleteMemo = async (memoId) => {
-    if (userId) {
+  const handleDeleteMemo = (memoId) => {
+    setMemoToDelete(memoId);
+    toggleAlert();
+  };
+
+  // **확인 모달에서 "확인" 클릭 시 실제 삭제를 진행합니다.**
+  const confirmDeleteMemo = async () => {
+    if (userId && memoToDelete) {
       try {
-        await memoService.deleteMemo(userId, memoId);
-        deleteMemo(memoId);
-        closeModal();
+        await memoService.deleteMemo(userId, memoToDelete);
+        deleteMemo(memoToDelete);
       } catch (error) {
         console.error("Error deleting memo:", error);
+      } finally {
+        setMemoToDelete(null);
+        closeModal();
+        toggleAlert();
       }
     }
   };
 
-  //문서 목록 관련 상태
+  // 문서 목록 관련 상태
   const { docsList, setDocsList } = useDocsStore();
 
   // 문서 목록 불러오기
@@ -189,7 +204,7 @@ const LeftNav = () => {
                           <ChevronDown className="w-6 h-6 text-[#7E7C77] ml-auto" />
                         )} */}
                       </div>
-                      {/* {isMenuOpen && ( */}
+                      {/* {isMenuOpen && ( */}{" "}
                       <div className="h-[200px] overflow-y-scroll ">
                         <div className="px-2">
                           {docsList.map((doc, index) => (
@@ -209,7 +224,6 @@ const LeftNav = () => {
                           ))}
                         </div>
                       </div>
-                      {/* )} */}
                     </Sidebar.Item>
                     <Sidebar.Item className="dark:hover:bg-transparent">
                       {localStorage.getItem("token") && (
@@ -225,7 +239,7 @@ const LeftNav = () => {
                           </div>
                           {createPortal(
                             <div
-                              className={`absolute  transition-all top-110 left-2 duration-300 z-[1600] transform ${
+                              className={`absolute transition-all top-110 left-2 duration-300 z-[1600] transform ${
                                 isNotificationModalOpen
                                   ? "opacity-100 translate-y-0"
                                   : "opacity-0 -translate-y-2 pointer-events-none"
@@ -290,7 +304,7 @@ const LeftNav = () => {
           </Sidebar>
         </Drawer.Items>
       </Drawer>
-      <div className="absolute z-[2500]">
+      <div className="absolute z-[3000]">
         <MemoModal
           title={memoData ? "메모 수정" : "새 메모"}
           buttonText={memoData ? "수정 완료" : "작성 완료"}
@@ -300,6 +314,15 @@ const LeftNav = () => {
           memoData={memoData}
           onDelete={memoData ? handleDeleteMemo : null}
         />
+      </div>
+      <div className="absolute z-[3000]">
+        {isAlertOpen && (
+          <ConfirmModal
+            message={{ title: "정말로 메모를 삭제하시겠습니까?" }}
+            onConfirm={confirmDeleteMemo}
+            onCancel={toggleAlert}
+          />
+        )}
       </div>
     </div>
   );

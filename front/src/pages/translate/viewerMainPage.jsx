@@ -28,8 +28,7 @@ const ViewerMainPage = () => {
   const { docsId } = useParams();
   const location = useLocation().pathname;
 
-  const { isArchiveOpen, isEditorOpen, openNav, closeNav, isNavOpen } =
-    useModalStore();
+  const { isArchiveOpen, isEditorOpen, openNav } = useModalStore();
   const { setDocsList, setBestDocsList } = useDocsStore();
 
   useEffect(() => {
@@ -51,35 +50,31 @@ const ViewerMainPage = () => {
       onContextMenu={(e) => {
         e.preventDefault();
       }}
-      className="md:min-w-[768px] h-screen flex overflow-hidden"
+      className="md:min-w-[768px] h-screen flex overflow-hidden relative"
       id="mainPage"
     >
       <Information />
 
       {/* 내브바 관련 버튼 */}
       <div
-        id="upperBtns"
-        className="fixed w-25 top-2 left-5 flex gap-4 justify-between z-[1200]"
+        id="navGroup"
+        className="fixed top-4 left-4 z-[1200] flex items-center gap-2 px-2 py-1 bg-white/80 backdrop-blur-md rounded-full shadow-lg"
       >
         <button
-          className="flex cursor-pointer items-center justify-center hover:shadow-lg bg-gradient-to-r from-[#BC5B39] to-[#ff835a] hover:w-11 hover:h-11 rounded-full w-10 h-10 border-2 border-white transition-all duration-300"
-          onClick={() => {
-            navigate("/translate");
-          }}
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:scale-105 transition-all duration-300"
+          onClick={() => navigate("/translate")}
         >
           <ArrowLeftToLine className="text-white" />
         </button>
         <button
-          className="flex cursor-pointer items-center justify-center hover:shadow-lg bg-gradient-to-r from-[#BC5B39] to-[#ff835a] hover:w-11 hover:h-11 rounded-full w-10 h-10 border-2 border-white transition-all duration-300"
-          onClick={() => openNav()}
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-teal-500 hover:scale-105 transition-all duration-300"
+          onClick={openNav}
         >
           <Menu className="text-white" />
         </button>
       </div>
 
-      {/* // */}
-
-      <ChatBotBtn />
+      {/* 원문보기 버튼 (가장 위) */}
       {!isArchiveOpen && !isEditorOpen && (
         <button
           id="translateAllBtn"
@@ -90,28 +85,37 @@ const ViewerMainPage = () => {
               navigate(`/translate/main/viewer/${docsId}/best`);
             }
           }}
-          className="transition-all duration-300 fixed bottom-26 right-2 z-[2500] group rounded-full w-10 h-10 bg-gradient-to-r from-[#BC5B39] to-[#ff835a] flex justify-center items-center cursor-pointer shadow-lg hover:shadow-xl hover:scale-110 border-2 border-white"
+          className="fixed bottom-34 right-4 z-[2500] flex items-center gap-2 bg-gradient-to-r from-orange-400 to-red-400 text-white rounded-full px-4 py-2 shadow-xl hover:scale-105 transition-all duration-300"
         >
-          {/* <img className="w-7 h-6" src={Korean} alt="전체 번역 보기" /> */}
           {location.includes("best") ? (
-            <img className="w-7 h-6" src={English} alt="원문 보기" />
+            <>
+              <img className="w-6 h-6" src={English} alt="원문 보기" />
+              <span className="text-sm font-medium">원문 보기</span>
+            </>
           ) : (
-            <img className="w-7 h-6" src={Korean} alt="전체 번역 보기" />
+            <>
+              <img className="w-6 h-6" src={Korean} alt="전체 번역 보기" />
+              <span className="text-sm font-medium">전체 번역 보기</span>
+            </>
           )}
         </button>
       )}
+
+      {/* 챗봇 버튼 (중간) */}
+      <ChatBotBtn />
+
+      {/* 채팅 버튼 (제일 아래) */}
       {localStorage.getItem("token") && (
         <div
           id="chatBtn"
           onClick={() => {
             toggleChat();
-            ChatBotStore.setState({
-              isChatBotVisible: false,
-            });
+            ChatBotStore.setState({ isChatBotVisible: false });
           }}
-          className="fixed right-2 bottom-4 z-[2500] rounded-full w-10 h-10 bg-gradient-to-r from-[#BC5B39] to-[#ff835a] flex justify-center items-center cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 border-2 border-white"
+          className="fixed right-4 bottom-6 z-[2500] flex items-center gap-2 bg-gradient-to-r from-blue-400 to-indigo-400 text-white rounded-full px-4 py-2 shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer"
         >
-          <MessageCircle className="text-white w-6 h-6 transition-transform duration-300" />
+          <MessageCircle className="w-6 h-6" />
+          <span className="text-sm font-medium">채팅</span>
         </div>
       )}
       {localStorage.getItem("token") && <Chat />}

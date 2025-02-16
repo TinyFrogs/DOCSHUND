@@ -6,8 +6,8 @@ import ListRender from "../../../components/pagination/listRender";
 import InquiryService from "../services/inquiryService";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import { format, isSameDay } from "date-fns";
 import { ChevronUp, ChevronDown } from "lucide-react";
+import useKoreanTime from "../../../hooks/useKoreanTime";
 
 const InquiryPage = () => {
   const navigate = useNavigate();
@@ -25,6 +25,7 @@ const InquiryPage = () => {
   const { setOpenId, openId, closeModal } = modalStore();
 
   const [itemsPerPage, setItmesPerPage] = useState(15);
+  const { convertToKoreanTime } = useKoreanTime();
 
   useEffect(() => {
     setLoading(true);
@@ -84,11 +85,8 @@ const InquiryPage = () => {
           </div>
           <div className="flex items-center space-x-4 sm:space-x-6 mt-2 sm:mt-0">
             <p className="text-xs sm:text-sm md:text-base">
-              {item.inquiryCreatedAt
-                ? isSameDay(new Date(item.inquiryCreatedAt), new Date())
-                  ? format(new Date(item.inquiryCreatedAt), "HH:mm")
-                  : format(new Date(item.inquiryCreatedAt), "yyyy-MM-dd")
-                : "표시할 수 없는 날짜입니다."}
+              {convertToKoreanTime(item.inquiryCreatedAt) ||
+                "표시할 수 없는 날짜입니다."}
             </p>
             <p
               className={`text-xs sm:text-sm font-semibold 

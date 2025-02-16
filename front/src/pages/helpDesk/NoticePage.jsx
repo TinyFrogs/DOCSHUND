@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { format, isSameDay } from "date-fns";
 import NoticeService from "../../services/helpDeskServices/noticeService";
 import useNoticeStore from "../../store/helpDeskStore/noticeStore";
 import ListRender from "../../components/pagination/listRender";
+import useKoreanTime from "../../hooks/useKoreanTime";
 
 const NoticePage = () => {
   const {
@@ -16,6 +16,7 @@ const NoticePage = () => {
     setTotalPages,
     setCurrentPage,
   } = useNoticeStore();
+  const { convertToKoreanTime } = useKoreanTime();
 
   useEffect(() => {
     const fetchNotices = async () => {
@@ -45,11 +46,7 @@ const NoticePage = () => {
         </Link>
       </div>
       <span className="whitespace-nowrap">
-        {item?.createdAt
-          ? isSameDay(new Date(item.createdAt), new Date())
-            ? format(new Date(item.createdAt), "HH:mm")
-            : format(new Date(item.createdAt), "yyyy-MM-dd")
-          : "표시할 수 없는 날짜입니다."}
+        {convertToKoreanTime(item.createdAt) || "표시할 수 없는 날짜입니다."}
       </span>
     </div>
   );

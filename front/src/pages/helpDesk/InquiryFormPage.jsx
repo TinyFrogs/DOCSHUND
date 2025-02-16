@@ -104,7 +104,7 @@ const InquiryFormPage = () => {
   };
 
   // 파일 용량 제한 및 형식 체크
-  const MAX_FILE_SIZE = 5 * 1000 * 1000;
+  const MAX_FILE_SIZE = 10 * 1000 * 1000;
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     const validTypes = ["image/jpeg", "image/png", "image/jpg"];
@@ -115,7 +115,7 @@ const InquiryFormPage = () => {
     }
     if (selectedFile) {
       if (selectedFile.size > MAX_FILE_SIZE) {
-        toast.warn("파일 크기는 최대 5MB까지 업로드 가능합니다.");
+        toast.warn("파일 크기는 최대 10MB까지 업로드 가능합니다.");
         return;
       }
       setFile(selectedFile);

@@ -2,13 +2,14 @@ import { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import useNoticeStore from "../../store/helpDeskStore/noticeStore";
 import NoticeService from "../../services/helpDeskServices/noticeService";
-import { format, isSameDay } from "date-fns";
 import MDEditor from "@uiw/react-md-editor";
+import useKoreanTime from "../../hooks/useKoreanTime";
 
 const NoticeDetail = () => {
   const { noticeId } = useParams();
   const { noticeDetail, setNoticeDetail, setLoading, setError } =
     useNoticeStore();
+  const { convertToKoreanTime } = useKoreanTime();
 
   useEffect(() => {
     const fetchNoticeDetail = async (noticeId) => {
@@ -49,11 +50,8 @@ const NoticeDetail = () => {
             </h1>
             <div className="flex justify-between items-center text-sm sm:text-base text-[#7d7c77]">
               <span>
-                {noticeDetail?.createdAt
-                  ? isSameDay(new Date(noticeDetail.createdAt), new Date())
-                    ? format(new Date(noticeDetail.createdAt), "HH:mm")
-                    : format(new Date(noticeDetail.createdAt), "yyyy-MM-dd")
-                  : "표시할 수 없는 날짜입니다."}
+                {convertToKoreanTime(noticeDetail.createdAt) ||
+                  "표시할 수 없는 날짜입니다."}
               </span>
             </div>
           </div>

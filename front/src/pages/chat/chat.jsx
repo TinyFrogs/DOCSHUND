@@ -222,147 +222,154 @@ const Chat = () => {
 
   return (
     <div>
-      <AnimatePresence>
-        {isChatVisible && (
-          <motion.div
-            key="chat-modal"
-            initial={{ opacity: 0, y: 1000 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 1000 }}
-            onAnimationComplete={() => {
-              scrollToBottom();
-            }}
-            transition={{ ease: "easeInOut", duration: 0.5 }}
-            className="fixed bottom-26 right-3.5 w-[400px] h-[600px] bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col z-[2600] -translate-x-[12.5%] translate-y-[16%]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <ReportModal />
-            <div className="p-4 bg-[#C96442] rounded-t-xl text-white font-semibold flex items-center justify-between">
-              <span>문서 채팅</span>
-              <button
-                onClick={() => {
-                  ChatStore.setState({ isChatVisible: false });
+      {localStorage.getItem("token") && (
+        <div className="fixed z-[2600] bottom-17 right-1 flex">
+          <AnimatePresence>
+            {isChatVisible && (
+              <motion.div
+                key="chat-modal"
+                initial={{ opacity: 0, y: 1000 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 1000 }}
+                onAnimationComplete={() => {
+                  scrollToBottom();
                 }}
-                className="cursor-pointer"
+                transition={{ ease: "easeInOut", duration: 0.5 }}
+                className="fixed bottom-26 right-3.5 w-[400px] h-[600px] bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col z-[2600] -translate-x-[12.5%] translate-y-[16%]"
+                onClick={(e) => e.stopPropagation()}
               >
-                &times;
-              </button>
-            </div>
-
-            <div
-              ref={containerRef}
-              className="flex-1 overflow-y-auto p-4 space-y-4"
-            >
-              {!loadingInitialMessages && (
-                <div className="text-center mb-2">
-                  {hasMore && messages.length > 0 ? (
-                    <button
-                      onClick={loadPreviousMessages}
-                      className="px-3 py-1 text-gray-400 underline rounded hover:text-gray-800"
-                    >
-                      이전 채팅 더 불러오기
-                    </button>
-                  ) : (
-                    messages.length > 0 && (
-                      <span className="text-xs text-gray-500">
-                        더 이상 불러올 메세지가 없습니다.
-                      </span>
-                    )
-                  )}
-                </div>
-              )}
-
-              {loadingInitialMessages ? (
-                <div className="text-center text-gray-500">
-                  메시지를 불러오는 중...
-                </div>
-              ) : messages.length === 0 ? (
-                <div className="text-center text-gray-500">
-                  메시지가 없습니다.
-                </div>
-              ) : (
-                messages.map((item, index) => (
-                  <div
-                    key={index}
-                    className={`flex ${
-                      item.userId === userId ? "justify-end" : "justify-start"
-                    }`}
+                <ReportModal />
+                <div className="p-4 bg-[#C96442] rounded-t-xl text-white font-semibold flex items-center justify-between">
+                  <span>문서 채팅</span>
+                  <button
+                    onClick={() => {
+                      ChatStore.setState({ isChatVisible: false });
+                    }}
+                    className="cursor-pointer"
                   >
-                    {item.userId !== userId && (
-                      <img
-                        src={item.profileImg}
-                        alt="Profile"
-                        className="w-10 h-10 rounded-full border border-[#c5afa7] cursor-pointer mr-2"
-                        onClick={() => {
-                          toggleChat();
-                          setTimeout(() => {
-                            navigate(`/userPage/${item.userId}`);
-                          }, 300);
-                        }}
-                      />
-                    )}
-                    <div className="max-w-[70%]">
-                      {item.userId !== userId && (
-                        <p className="text-xs font-semibold mb-1">
-                          {item.nickName}
-                        </p>
+                    &times;
+                  </button>
+                </div>
+
+                <div
+                  ref={containerRef}
+                  className="flex-1 overflow-y-auto p-4 space-y-4"
+                >
+                  {!loadingInitialMessages && (
+                    <div className="text-center mb-2">
+                      {hasMore && messages.length > 0 ? (
+                        <button
+                          onClick={loadPreviousMessages}
+                          className="px-3 py-1 text-gray-400 underline rounded hover:text-gray-800"
+                        >
+                          이전 채팅 더 불러오기
+                        </button>
+                      ) : (
+                        messages.length > 0 && (
+                          <span className="text-xs text-gray-500">
+                            더 이상 불러올 메세지가 없습니다.
+                          </span>
+                        )
                       )}
+                    </div>
+                  )}
+
+                  {loadingInitialMessages ? (
+                    <div className="text-center text-gray-500">
+                      메시지를 불러오는 중...
+                    </div>
+                  ) : messages.length === 0 ? (
+                    <div className="text-center text-gray-500">
+                      메시지가 없습니다.
+                    </div>
+                  ) : (
+                    messages.map((item, index) => (
                       <div
-                        className={`p-3 rounded-lg ${
+                        key={index}
+                        className={`flex ${
                           item.userId === userId
-                            ? "bg-[#bc5b39] text-white"
-                            : "bg-gray-100"
+                            ? "justify-end"
+                            : "justify-start"
                         }`}
                       >
-                        <p className="text-sm break-words">{item.content}</p>
                         {item.userId !== userId && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              useReportStore.setState({
-                                originContent: item.content,
-                                reportedUser: item.userId,
-                                commentId: null,
-                                articleId: null,
-                                transId: null,
-                                chatId: item.chatId,
-                              });
-                              openReport();
-                              toggleReport();
+                          <img
+                            src={item.profileImg}
+                            alt="Profile"
+                            className="w-10 h-10 rounded-full border border-[#c5afa7] cursor-pointer mr-2"
+                            onClick={() => {
+                              toggleChat();
+                              setTimeout(() => {
+                                navigate(`/userPage/${item.userId}`);
+                              }, 300);
                             }}
-                            className="text-xs text-red-500 flex items-center gap-1 mt-1 cursor-pointer hover:underline"
-                          >
-                            <Flag size={10} /> 신고
-                          </button>
+                          />
                         )}
+                        <div className="max-w-[70%]">
+                          {item.userId !== userId && (
+                            <p className="text-xs font-semibold mb-1">
+                              {item.nickName}
+                            </p>
+                          )}
+                          <div
+                            className={`p-3 rounded-lg ${
+                              item.userId === userId
+                                ? "bg-[#bc5b39] text-white"
+                                : "bg-gray-100"
+                            }`}
+                          >
+                            <p className="text-sm break-words">
+                              {item.content}
+                            </p>
+                            {item.userId !== userId && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  useReportStore.setState({
+                                    originContent: item.content,
+                                    reportedUser: item.userId,
+                                    commentId: null,
+                                    articleId: null,
+                                    transId: null,
+                                    chatId: item.chatId,
+                                  });
+                                  openReport();
+                                  toggleReport();
+                                }}
+                                className="text-xs text-red-500 flex items-center gap-1 mt-1 cursor-pointer hover:underline"
+                              >
+                                <Flag size={10} /> 신고
+                              </button>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                ))
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-
-            <div className="p-4 border-t border-gray-200 flex gap-2">
-              <input
-                type="text"
-                value={inputValue}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                {...keyComposingEvents}
-                className="flex-1 px-4 py-2 border rounded-full focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39]"
-                placeholder="메시지를 입력하세요..."
-              />
-              <button
-                onClick={sendMessage}
-                className="px-3 py-3 bg-[#bc5b39] text-white rounded-full hover:bg-[#C96442] cursor-pointer"
-              >
-                <Send />
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                    ))
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+                <div className="p-4 border-t border-gray-200 flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="text"
+                    value={inputValue}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    {...keyComposingEvents}
+                    className="flex-1 w-full px-4 py-2 border rounded-full focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39]"
+                    placeholder="메시지를 입력하세요..."
+                  />
+                  <button
+                    onClick={sendMessage}
+                    className="w-full sm:w-auto px-3 py-3 bg-[#bc5b39] text-white rounded-full hover:bg-[#C96442] cursor-pointer"
+                  >
+                    <Send />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 };

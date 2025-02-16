@@ -1,7 +1,9 @@
 import PropTypes from "prop-types";
-import { format, isSameDay } from "date-fns";
+import useKoreanTime from "../../../hooks/useKoreanTime";
 
 const MemoCard = ({ memo, onEditMemo }) => {
+  const { convertToKoreanTime } = useKoreanTime();
+
   return (
     <div className="bg-white rounded-xl p-4 border border-[#E1E1DF]">
       <h2 className="text-lg line-clamp-1 break-all font-bold mb-2">
@@ -12,11 +14,7 @@ const MemoCard = ({ memo, onEditMemo }) => {
       </p>
       <div className="flex text-sm justify-between items-center text-gray-400">
         <span>
-          {memo.createdAt
-            ? isSameDay(new Date(memo.createdAt), new Date())
-              ? format(new Date(memo.createdAt), "HH:mm")
-              : format(new Date(memo.createdAt), "yyyy-MM-dd")
-            : "표시할 수 없는 날짜입니다."}
+          {convertToKoreanTime(memo.createdAt) || "표시할 수 없는 날짜입니다."}
         </span>
         <button
           onClick={() => onEditMemo(memo.memoId, memo)}
