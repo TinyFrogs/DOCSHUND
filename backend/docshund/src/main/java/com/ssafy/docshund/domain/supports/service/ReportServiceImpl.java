@@ -3,8 +3,7 @@ package com.ssafy.docshund.domain.supports.service;
 import static com.ssafy.docshund.domain.docs.exception.DocsExceptionCode.TRANSLATION_NOT_FOUND;
 import static com.ssafy.docshund.domain.forums.exception.ForumExceptionCode.NOT_FOUND_ARTICLE;
 import static com.ssafy.docshund.domain.forums.exception.ForumExceptionCode.NOT_FOUND_COMMENT;
-import static com.ssafy.docshund.domain.supports.exception.report.ReportExceptionCode.ALREADY_REPORTED_REPORT;
-import static com.ssafy.docshund.domain.supports.exception.report.ReportExceptionCode.REPORT_NOT_FOUND;
+import static com.ssafy.docshund.domain.supports.exception.report.ReportExceptionCode.*;
 import static com.ssafy.docshund.domain.users.exception.auth.AuthExceptionCode.INVALID_MEMBER_ROLE;
 import static com.ssafy.docshund.domain.users.exception.user.UserExceptionCode.USER_NOT_FOUND;
 
@@ -74,6 +73,11 @@ public class ReportServiceImpl implements ReportService {
 		if (user == null) {
 			throw new AuthException(INVALID_MEMBER_ROLE);
 		}
+
+		if (userUtil.isMine(reportRequestDto.getReportedUser(), user)) {
+			throw new ReportException(REPORT_IS_MINE);
+		}
+
 		String imageUrl = null;
 		if (file != null) {
 			imageUrl = fileUploadService.uploadFile(file, "inquiry");
