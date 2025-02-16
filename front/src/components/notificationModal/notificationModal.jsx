@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
@@ -12,11 +12,16 @@ import useKoreanTime from "../../hooks/useKoreanTime";
 const NotificationModal = () => {
   const navigate = useNavigate();
   const { convertToKoreanTime } = useKoreanTime();
+  const modalRef = useRef(null);
+
   const token = localStorage.getItem("token");
   const notifications = notificationModalStore((state) => state.notifications); // 알림 목록
   const setNotifications = notificationModalStore(
     (state) => state.setNotifications
   ); // 알림 목록 설정
+  const closeNotificationModal = notificationModalStore(
+    (state) => state.closeNotificationModal
+  ); // 알림 모달 닫기
 
   // 알림 카테고리 관리
   const [categories] = useState([
@@ -32,6 +37,23 @@ const NotificationModal = () => {
     const decoded = jwtDecode(token);
     userId = decoded.userId;
   }
+
+  // INFO: 모달 외부 클릭 시, 모달 닫기
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      console.log(modalRef.current, !modalRef.current.contains(event.target));
+
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        closeNotificationModal();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [closeNotificationModal]);
 
   // 알림 SSE <- hook은 항상 최상단에 위치해야 함, 조건부 불가능
   // UseSSE(userId);
@@ -150,7 +172,10 @@ const NotificationModal = () => {
   };
 
   return (
-    <div className="w-[360px] h-[460px] bg-white rounded-lg shadow-lg overflow-hidden">
+    <div
+      ref={modalRef}
+      className="w-[360px] h-[460px] bg-white rounded-lg shadow-lg overflow-hidden"
+    >
       <div className="px-4 py-3 border-b border-gray-200">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold text-gray-900">알림</h2>
@@ -177,7 +202,7 @@ const NotificationModal = () => {
               <div
                 key={notification.alertId}
                 id={notification.alertId}
-                className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors
+                className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer
                   ${
                     notification.checkedAt === null ? "bg-white" : "bg-gray-100"
                   }`}
