@@ -41,17 +41,17 @@ const NotificationModal = () => {
   // INFO: 모달 외부 클릭 시, 모달 닫기
   useEffect(() => {
     const handleClickOutside = (event) => {
-      console.log(modalRef.current, !modalRef.current.contains(event.target));
-
+      // 이벤트가 modalRef 내부에서 시작되었는지 확인
       if (modalRef.current && !modalRef.current.contains(event.target)) {
         closeNotificationModal();
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    // mousedown 대신 mouseup 사용
+    document.addEventListener("mouseup", handleClickOutside, true);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mouseup", handleClickOutside, true);
     };
   }, [closeNotificationModal]);
 
@@ -174,6 +174,7 @@ const NotificationModal = () => {
   return (
     <div
       ref={modalRef}
+      onMouseDown={(e) => e.stopPropagation()}
       className="w-[360px] h-[460px] bg-white rounded-lg shadow-lg overflow-hidden"
     >
       <div className="px-4 py-3 border-b border-gray-200">
