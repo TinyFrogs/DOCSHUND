@@ -37,13 +37,13 @@ public class MailSendService {
 	private String HUNTER_IO_KEY;
 
 	public void sendEmail(String sendEmail, String subject, String body, String imageUrl) {
+		log.info("Validating email: " + sendEmail);
+
+		if (!isEmailValidWithHunter(sendEmail)) {
+			throw new MailException(MAIL_NOT_SEND);
+		}
+
 		try {
-			log.info("Validating email: " + sendEmail);
-
-			if (!isEmailValidWithHunter(sendEmail)) {
-				throw new MailException(MAIL_NOT_SEND);
-			}
-
 			log.info("Sending email to " + sendEmail);
 
 			MimeMessage message = mailSender.createMimeMessage();
