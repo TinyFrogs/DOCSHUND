@@ -18,6 +18,7 @@ const MemoModal = ({
   onDelete,
 }) => {
   const [formData, setFormData] = useState({ title: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { setCurrentUserText, currentUserText } = useEditorStore();
 
   useEffect(() => {
@@ -29,6 +30,8 @@ const MemoModal = ({
         setFormData({ title: "" });
         setCurrentUserText("");
       }
+      // 모달이 열릴 때 제출 상태 초기화
+      setIsSubmitting(false);
     } else {
       setFormData({ title: "" });
       setCurrentUserText("");
@@ -56,6 +59,10 @@ const MemoModal = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // 이미 제출 중이면 중복 제출 방지
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
     const editorContent = currentUserText;
     const submitData = { ...formData, content: editorContent };
     if (memoData && memoData.memoId) {
@@ -145,7 +152,12 @@ const MemoModal = ({
                 )}
                 <button
                   type="submit"
-                  className="text-sm bg-[#bc5b39] rounded-[12px] px-[20px] h-10 text-[#ffffff] hover:bg-[#C96442] cursor-pointer"
+                  disabled={isSubmitting}
+                  className={`text-sm rounded-[12px] px-[20px] h-10 text-[#ffffff] ${
+                    isSubmitting
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-[#bc5b39] hover:bg-[#C96442] cursor-pointer"
+                  }`}
                 >
                   {buttonText}
                 </button>

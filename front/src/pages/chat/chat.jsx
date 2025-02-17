@@ -286,9 +286,7 @@ const Chat = () => {
                             </p>
                           </div>
                           <div className="mt-1 ml-10 p-2 rounded-lg bg-gray-100 text-gray-800 max-w-[280px]">
-                            <p className="text-sm break-words">
-                              {item.content}
-                            </p>
+                            <p className="text-sm break-all">{item.content}</p>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -319,9 +317,7 @@ const Chat = () => {
                         // 본인 메시지
                         <div key={index} className="flex flex-col items-end">
                           <div className="mt-1 p-2 rounded-lg bg-[#bc5b39] text-white max-w-[280px]">
-                            <p className="text-sm break-words">
-                              {item.content}
-                            </p>
+                            <p className="text-sm break-all">{item.content}</p>
                           </div>
                           <div className="mt-1">
                             <span className="text-xs text-gray-500">

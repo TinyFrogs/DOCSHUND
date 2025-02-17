@@ -185,7 +185,11 @@ const InquiryFormPage = () => {
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              if (e.target.value.length <= 50) {
+                setEmail(e.target.value);
+              }
+            }}
             className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] text-xs md:text-sm"
             placeholder="이메일을 입력하세요"
           />

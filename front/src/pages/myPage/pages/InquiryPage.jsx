@@ -78,7 +78,7 @@ const InquiryPage = () => {
               onClick={() => {
                 setOpenId(item.inquiryId === openId ? null : item.inquiryId);
               }}
-              className="text-sm sm:text-base md:text-lg font-semibold text-[#7d7c77] hover:text-[#bc5b39] cursor-pointer"
+              className="line-clamp-1 text-sm sm:text-base md:text-lg font-semibold text-[#7d7c77] hover:text-[#bc5b39] cursor-pointer"
             >
               {item.inquiryTitle}
             </h3>

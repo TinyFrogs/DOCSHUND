@@ -95,7 +95,7 @@ const LikeTranslationPage = () => {
               await fetchDocsPart(item.docsId, item.originId);
               setOpenId(item.transId === openId ? null : item.transId);
             }}
-            className="cursor-pointer font-semibold text-xs sm:text-sm md:text-base lg:text-lg text-[#7d7c77] hover:text-[#bc5b39]"
+            className="cursor-pointer font-semibold text-xs sm:text-sm md:text-base lg:text-lg text-[#7d7c77] hover:text-[#bc5b39] line-clamp-1"
           >
             {item.documentName} {item.pOrder}번째 문단 번역본
           </h3>

@@ -188,13 +188,13 @@ const MyProfilePage = () => {
   };
 
   // 환경설정 (테마) 변경 처리
-  const handleThemeChange = (e) => {
-    const { value } = e.target;
-    setEditedProfile((prev) => ({
-      ...prev,
-      isDarkmode: value === "dark",
-    }));
-  };
+  //   const handleThemeChange = (e) => {
+  //     const { value } = e.target;
+  //     setEditedProfile((prev) => ({
+  //       ...prev,
+  //       isDarkmode: value === "dark",
+  //     }));
+  //   };
 
   return (
     <div>
@@ -233,12 +233,12 @@ const MyProfilePage = () => {
         handleNicknameCheck={checkNickname}
       />
 
-      <h1 className="font-bold text-2xl mt-5 mb-5">환경설정</h1>
+      {/* <h1 className="font-bold text-2xl mt-5 mb-5">환경설정</h1>
       <SettingsCard
         isEditing={isEditing}
         editedProfile={editedProfile}
         handleThemeChange={handleThemeChange}
-      />
+      /> */}
 
       <div className="mt-5 mr-2 flex justify-end">
         <button

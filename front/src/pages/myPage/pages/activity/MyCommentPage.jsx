@@ -58,7 +58,7 @@ const MyCommentPage = () => {
       <div className="flex-1 min-w-0 mr-3 font-semibold line-clamp-1 break-all text-xs sm:text-sm md:text-base">
         <Link
           to={`/community/article/${item.articleId}`}
-          className="text-[#7d7c77] hover:text-[#bc5b39]"
+          className="text-[#7d7c77] hover:text-[#bc5b39] break-all"
         >
           {item.content}
         </Link>
