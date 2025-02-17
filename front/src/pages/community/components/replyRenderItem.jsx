@@ -115,7 +115,7 @@ const ReplyRenderItem = ({
             <button
               className="text-[#7d7c77] underline text-sm cursor-pointer"
               onClick={() => {
-                setReCommentFlag(true);
+                setReCommentFlag(!reCommentFlag);
                 setReplyId(rootCommentId);
               }}
             >

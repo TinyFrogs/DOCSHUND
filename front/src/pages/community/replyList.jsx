@@ -5,6 +5,7 @@ import communityArticleStore from "../../store/communityStore/communityArticleSt
 import ReplyHeader from "./components/replyHeader";
 import ReplyItemArea from "./components/replyItemArea";
 import ReplyTextarea from "./components/replyTextarea";
+import { div } from "motion/react-client";
 
 /* INFO: 
   1. 대댓글 여부를 확인해 api 호출 시 다르게 처리
@@ -17,6 +18,13 @@ const ReplyList = () => {
   const [reCommentFlag, setReCommentFlag] = useState(false); // 대댓글 작성 여부를 알기 위한 flag
 
   const replyId = communityArticleStore((state) => state.replyId);
+  const setReplyId = communityArticleStore((state) => state.setReplyId);
+  const setIsReplied = communityArticleStore((state) => state.setIsReplied);
+
+  const handleRefreshClick = () => {
+    setReplyId(0);
+    setIsReplied((prev) => !prev);
+  };
 
   return (
     <div className="mt-6 bg-white rounded-lg border border-[#E1E1DF] p-6">
@@ -32,12 +40,20 @@ const ReplyList = () => {
 
       {/* 댓글 쓰기 창 */}
       {/* 로그인 한 회원만 보여주기 */}
-      {token && replyId == 0 && (
-        <ReplyTextarea
-          reCommentFlag={reCommentFlag}
-          commentId={0} // 대댓글 작성 시 대댓글을 작성하는 원댓글의 id. 원댓글 작성 시 사용X
-        />
-      )}
+      <div>
+        <button
+          className="mt-4 text-[#7d7c77] flex justify-self-end items-center underline text-sm cursor-pointer"
+          onClick={handleRefreshClick}
+        >
+          새로고침
+        </button>
+        {token && replyId == 0 && (
+          <ReplyTextarea
+            reCommentFlag={reCommentFlag}
+            commentId={0} // 대댓글 작성 시 대댓글을 작성하는 원댓글의 id. 원댓글 작성 시 사용X
+          />
+        )}
+      </div>
     </div>
   );
 };

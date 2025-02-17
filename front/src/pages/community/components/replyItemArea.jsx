@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 
 import communityArticleStore from "../../../store/communityStore/communityArticleStore";
@@ -10,6 +10,7 @@ import ReplyTextarea from "./replyTextarea";
 
 const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
   const { articleId } = useParams();
+  const replyTextareaRef = useRef(null);
   const token = localStorage.getItem("token");
 
   // store에서 데이터를 가져오기 위해 정의
@@ -29,6 +30,15 @@ const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
   const setReplySortType = communityArticleStore(
     (state) => state.setReplySortType
   );
+
+  useEffect(() => {
+    if (token && replyTextareaRef.current) {
+      replyTextareaRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [reCommentFlag, replyId, token]);
 
   // 댓글 정렬 방식을 default인 등록순으로 변경
   useEffect(() => {
@@ -116,9 +126,9 @@ const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
         )}
 
         {/* 대댓글 작성 영역 - 해당 댓글에 대한 댓글달기가 활성화된 경우에만 표시 */}
-        {token && reCommentFlag && replyId === item.commentId && (
-          <div className="ml-14 mt-2">
-            {console.log(item)}
+        {token && replyId === item.commentId && (
+          <div className="ml-14 mt-2" ref={replyTextareaRef}>
+            {/* ref 추가 */}
             <ReplyTextarea
               reCommentFlag={reCommentFlag}
               commentId={item.commentId}
