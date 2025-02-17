@@ -256,7 +256,7 @@ const TransLatePage = () => {
           </p>
           <button
             onClick={() => navigate("/helpDesk/inquiryForm")}
-            className="mt-4 px-4 py-2 bg-[#BC5B39] text-white rounded-lg hover:bg-[rgba(188,91,57,0.8)] font-semibold text-xs sm:text-lg shadow-md transition-all duration-300"
+            className="cursor-pointer mt-4 px-4 py-2 bg-[#BC5B39] text-white rounded-lg hover:bg-[rgba(188,91,57,0.8)] font-semibold text-xs sm:text-lg shadow-md transition-all duration-300"
           >
             문서 신청하기
           </button>

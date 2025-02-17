@@ -218,7 +218,8 @@ const Chat = () => {
                 exit={{ opacity: 0, y: 1000 }}
                 onAnimationComplete={scrollToBottom}
                 transition={{ ease: "easeInOut", duration: 0.5 }}
-                className="fixed inset-0 sm:inset-auto sm:bottom-35 sm:right-3.5 w-full h-full sm:w-[400px] sm:h-[95vh] bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col z-[2600] sm:-translate-x-[12.5%] sm:translate-y-[16%]"
+                // className="fixed inset-0 sm:inset-auto sm:bottom-35 sm:right-3.5 w-full h-full sm:w-[400px] sm:h-[95vh] bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col z-[2600] sm:-translate-x-[12.5%] sm:translate-y-[16%]"
+                className="fixed inset-0 sm:inset-auto sm:bottom-[9vh] sm:right-[1vw] w-full h-full sm:w-[400px] sm:h-[95vh] bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col z-[2600] sm:-translate-x-[12.5%] sm:translate-y-[8%]"
                 onClick={(e) => e.stopPropagation()}
               >
                 <ReportModal />

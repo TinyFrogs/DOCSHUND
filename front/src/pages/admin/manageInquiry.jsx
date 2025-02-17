@@ -159,7 +159,7 @@ const ManageInquiry = () => {
         <div className="relative w-64">
           <input
             type="text"
-            placeholder="제목, 닉네임으로 검색"
+            placeholder="이메일로 검색"
             onChange={(e) => handleSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#bc5b39] focus:ring-1 focus:ring-[#bc5b39] transition-colors duration-200"
           />

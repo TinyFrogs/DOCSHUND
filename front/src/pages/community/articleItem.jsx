@@ -184,7 +184,7 @@ const ArticleItem = () => {
 
   return (
     <div className="flex justify-center w-full">
-      <main className="flex-1 max-w-[1280px]">
+      <main className="flex-1 w-[50vw] max-w-[90vw]">
         {/* Header */}
         <CommunityHeader />
         {/* 게시글 전체 박스 영역 */}
@@ -193,7 +193,7 @@ const ArticleItem = () => {
             {/* 게시글 헤더 */}
             <div className="border-b border-[#E1E1DF] pb-4 mb-4">
               <div className="flex w-full justify-between items-center mb-4">
-                <h1 className="text-xl md:text-2xl font-bold flex-1 mr-4">
+                <h1 className="text-xl md:text-2xl font-bold flex-1 mr-4 break-all">
                   {articleItems.title}
                 </h1>
                 <div className="flex gap-2">
@@ -244,7 +244,7 @@ const ArticleItem = () => {
 
             {/* 게시글 본문 */}
             <div className="border-b border-[#E1E1DF] pb-4 mb-4">
-              <div className="min-h-[200px] whitespace-pre-wrap mb-6 text-sm md:text-base">
+              <div className="min-h-[200px] w-full whitespace-pre-wrap mb-6 text-sm md:text-base">
                 <ToastViewer content={articleItems.content} />
               </div>
               <div className="flex justify-center items-center gap-4">
