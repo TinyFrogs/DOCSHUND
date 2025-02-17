@@ -11,6 +11,7 @@ import useDocsStore from "../../store/translateStore/docsStore";
 import chatStore from "../../store/chatStore";
 
 const TransLatePage = () => {
+  const [filteredDocsList, setFilteredDocsList] = useState([]);
   const userId = useRef(0);
   if (localStorage.getItem("token")) {
     const decodedToken = jwtDecode(localStorage.getItem("token"));
@@ -48,10 +49,11 @@ const TransLatePage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const tmpDocsList = await fetchDocsList();
-      tmpDocsList.sort((a, b) => b.viewCount - a.viewCount);
+      let tmpDocsList = await fetchDocsList();
+      tmpDocsList = await tmpDocsList.sort((a, b) => b.viewCount - a.viewCount);
+
       setDocsList(tmpDocsList);
-      setBestDocsList(tmpDocsList);
+      setBestDocsList([...tmpDocsList]);
     };
     closeChat();
     fetchData();
@@ -71,9 +73,7 @@ const TransLatePage = () => {
 
   const handleLike = async (docsId) => {
     await likeDocs(docsId);
-    const tmpDocsList = await fetchDocsList();
-    tmpDocsList.sort((a, b) => b.viewCount - a.viewCount);
-    setDocsList(tmpDocsList);
+    await handleFilter(selectedCategory);
   };
 
   const handleFilter = async (position) => {

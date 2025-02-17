@@ -9,6 +9,7 @@ import {
 import {
   fetchTranslateData,
   fetchBestTranslate,
+  fetchDocsList,
 } from "./services/translateGetService.jsx";
 // 컴포넌트 import
 import TranslateEditor from "./translateEditor.jsx";
@@ -65,6 +66,18 @@ const BestTransViewer = () => {
     clearCurrentUserText();
   };
 
+  const showCurrentDocumentName = async () => {
+    const tmpDocsList = await fetchDocsList();
+    const currentDocs = await tmpDocsList.filter(
+      (doc) => doc.docsId === Number(docsId)
+    );
+    if (currentDocs.length !== 0) {
+      setDocumentName(currentDocs[0].documentName);
+    } else {
+      setDocumentName("");
+    }
+  };
+
   // 문서 내용 전부 가져오기
   const loadMore = async () => {
     if (loading || !hasMore) return;
@@ -107,6 +120,7 @@ const BestTransViewer = () => {
   }, [navigationType]);
 
   useEffect(() => {
+    showCurrentDocumentName();
     let isMounted = true; // 컴포넌트 마운트 상태 추적
     closeAllConnections();
     // 상태 초기화

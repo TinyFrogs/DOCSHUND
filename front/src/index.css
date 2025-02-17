@@ -1,10 +1,5 @@
 @import "tailwindcss";
-/* body {
-  font-family: "Inter", sans-serif;
-} */
-/* body {
-  font-family: "Malgun Gothic", sans-serif;
-} */
+
 ::-webkit-scrollbar {
   width: 8px; /* 세로축 스크롤바 폭 너비 */
   height: 8px; /* 가로축 스크롤바 폭 너비 */

@@ -41,6 +41,7 @@ const TranslateArchive = () => {
   const {
     transList,
     transUserList,
+    orderBy,
     orderByLike,
     defaultStyle,
     toggledStyle,
@@ -70,6 +71,7 @@ const TranslateArchive = () => {
   const handleLike = async (docsId, transId) => {
     const status = await likeTranslate(docsId, transId);
     const tmpTransList = await fetchBestTranslate(docsId, "");
+
     setTransList(tmpTransList);
     return status;
   };
@@ -79,7 +81,6 @@ const TranslateArchive = () => {
 
   const handleClose = () => {
     clearDocsPart();
-    clearBestTrans();
     clearTempSave();
     clearSubmitData();
     clearDocsId();
@@ -110,14 +111,12 @@ const TranslateArchive = () => {
     const fetchData = async () => {
       if (isArchiveOpen) {
         const tmpTransList = await fetchBestTranslate(docsId, "");
-        tmpTransList.sort((a, b) => b.likeCount - a.likeCount);
-        // console.log(docsId, "번역 전체", tmpTransList);
         setTransList(tmpTransList);
-        changeOrderBy("like", tmpTransList);
+        changeOrderBy(orderBy, tmpTransList);
       }
     };
     fetchData();
-  }, []);
+  }, [isArchiveOpen]);
 
   return (
     <AnimatePresence>

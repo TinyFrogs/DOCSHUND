@@ -17,7 +17,7 @@ const ManageInquiry = () => {
   const [inquiryStates, setInquiryStates] = useState({});
   const [userList, setUserList] = useState([]);
   const [inquiryList, setInquiryList] = useState([]);
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [activeFilter, setActiveFilter] = useState("ALL");
   const { currentUserList, addUserList, removeUserList } =
     useUserManagerStore();
 
@@ -74,9 +74,15 @@ const ManageInquiry = () => {
     setLoading(true);
     const data = await respondInquiry(inquiryId, answer);
 
-    if (data.status === 200) {
+    if (data === 200) {
       setLoading(false);
       toast.success("작성 완료");
+      const data = await fetchInquiryList();
+      const processedData = await data.sort(
+        (a, b) => new Date(b.inquiryCreatedAt) - new Date(a.inquiryCreatedAt)
+      );
+      inquiryListData.current = processedData;
+      await handleFilter(activeFilter);
     } else {
       setLoading(false);
       toast.error("작성 실패");
@@ -123,6 +129,8 @@ const ManageInquiry = () => {
         const processedData = await data.sort(
           (a, b) => new Date(b.inquiryCreatedAt) - new Date(a.inquiryCreatedAt)
         );
+        await handleFilter(activeFilter);
+
         setInquiryList(processedData);
         inquiryListData.current = processedData;
       } catch (error) {
@@ -271,12 +279,12 @@ const ManageInquiry = () => {
                             : "max-h-0 opacity-0"
                         }`}
                       >
-                        <div className="border-t border-slate-200 p-4 text-slate-700 leading-relaxed">
-                          <div className="mb-4">
+                        <div className="border-t border-slate-200 p-4 text-slate-700 leading-relaxed max-h-[45vh] overflow-y-scroll">
+                          <div className="mb-4 overflow-y-scroll">
                             <div className="font-medium text-slate-900 mb-2">
                               문의 내용
                             </div>
-                            <div className="bg-gray-50 rounded-lg p-3">
+                            <div className="bg-gray-50 rounded-lg p-3 overflow-y-scroll w-[300px]">
                               <ToastViewer content={inquiry.inquiryContent} />
                             </div>
                           </div>

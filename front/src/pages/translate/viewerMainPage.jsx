@@ -63,7 +63,7 @@ const ViewerMainPage = () => {
       id="mainPage"
     >
       <Information />
-      <div className="fixed top-5.5 left-35 text-2xl font-bold mb-4">
+      <div className="fixed top-20 left-5 text-4xl font-bold mb-4 text-[#424242]">
         {documentName}
       </div>
 
@@ -97,7 +97,7 @@ const ViewerMainPage = () => {
               navigate(`/translate/main/viewer/${docsId}/best`);
             }
           }}
-          className="cursor-pointer group fixed bottom-34 right-4 z-[2700] flex items-center overflow-hidden w-10 h-10 rounded-full bg-gradient-to-r from-[#BC5B39] to-[#ff835a] text-white transition-all duration-300 hover:w-42 hover:shadow-2xl"
+          className="cursor-pointer group fixed bottom-34 right-4 z-[2500] flex items-center overflow-hidden w-10 h-10 rounded-full bg-gradient-to-r from-[#BC5B39] to-[#ff835a] text-white transition-all duration-300 hover:w-42 hover:shadow-2xl"
         >
           {/* 아이콘 영역 */}
           <div className="flex-shrink-0 flex items-center justify-center w-10 h-10">
@@ -125,7 +125,7 @@ const ViewerMainPage = () => {
             toggleChat();
             ChatBotStore.setState({ isChatBotVisible: false });
           }}
-          className="group fixed right-4 bottom-6 z-[2700] flex items-center overflow-hidden w-10 h-10 rounded-full bg-gradient-to-r from-[#BC5B39] to-[#ff835a] text-white transition-all duration-300 hover:w-24 hover:shadow-2xl cursor-pointer"
+          className="group fixed right-4 bottom-6 z-[2500] flex items-center overflow-hidden w-10 h-10 rounded-full bg-gradient-to-r from-[#BC5B39] to-[#ff835a] text-white transition-all duration-300 hover:w-24 hover:shadow-2xl cursor-pointer"
         >
           <div className="flex-shrink-0 flex items-center justify-center w-10 h-10">
             <MessageCircle className="w-6 h-6" />
