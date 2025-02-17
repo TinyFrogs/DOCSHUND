@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import RectBtn from "../../../components/button/rectBtn";
-
 const CommunityHeader = () => {
   const token = localStorage.getItem("token");
 
@@ -27,18 +25,20 @@ const CommunityHeader = () => {
         {/* NOTE: 로그인한 회원이고, 글 목록에서만 보이게 함 */}
         {isArticleList ? (
           isLoggedIn && (
-            <RectBtn
+            <button
               onClick={() => navigate("/community/write")}
-              text="글쓰기"
-              className="px-4 py-2 text-base"
-            />
+              className="bg-[#bc5b39] rounded-[12px] px-[20px] w-fit h-10 relative flex items-center justify-center text-white hover:bg-[#C96442] cursor-pointer"
+            >
+              글쓰기
+            </button>
           )
         ) : (
-          <RectBtn
+          <button
             onClick={() => navigate("/community/list")}
-            text="목록으로"
-            className="px-4 py-2 text-base"
-          />
+            className="bg-[#bc5b39] rounded-[12px] px-[20px] w-fit h-10 relative flex items-center justify-center text-white hover:bg-[#C96442] cursor-pointer"
+          >
+            목록으로
+          </button>
         )}
       </div>
     </div>

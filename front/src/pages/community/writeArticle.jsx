@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import _ from "lodash";
 
-// stroe
+// store
 import communityArticleStore from "../../store/communityStore/communityArticleStore";
 import docsCategoryStore from "../../store/docsCategoryStore";
 import useEditorStore from "../../store/translateStore/editorStore";
@@ -29,7 +29,7 @@ const WriteArticle = () => {
 
   const setFileUrl = communityArticleStore((state) => state.setFileUrl);
 
-  // 제목 입력 핸들러
+  // 제목 입력 핸들러 (debounce)
   const handleTitleChange = _.debounce((e) => {
     setTitle(e.target.value);
   }, 300);
@@ -46,11 +46,11 @@ const WriteArticle = () => {
     setSubCategory(e.target.value);
   };
 
-  // 파일 첨부 핸들링 함수
+  // 파일 첨부 핸들링 함수 (debounce)
   const handleFileChange = _.debounce(async (e) => {
     const selectedFile = e.target.files[0];
 
-    // INFO: 파일 타입 조회해서 이미지만 가능하게
+    // 이미지 파일만 가능
     if (!selectedFile.type.includes("image"))
       return toast.info("이미지 파일만 업로드 가능합니다.");
 
@@ -64,9 +64,7 @@ const WriteArticle = () => {
       setFile(selectedFile);
 
       // S3에 파일 업로드 후 url 받아오기
-      const response = await ArticleItemService.uploadImageFile(
-        e.target.files[0]
-      );
+      const response = await ArticleItemService.uploadImageFile(selectedFile);
 
       setImageUrl(response.data.imageUrl); // 이미지 URL 상태 업데이트
     }
@@ -80,7 +78,7 @@ const WriteArticle = () => {
   const debouncedSubmit = _.debounce(async () => {
     const content = currentUserText; // 에디터 내용
 
-    // 제목, 대분류, 소분류, 내용, 파일이 모두 입력되었는지 확인
+    // 제목, 대분류, 소분류, 내용이 모두 입력되었는지 확인
     if (
       !title.trim() ||
       !mainCategory.trim() ||
@@ -112,23 +110,23 @@ const WriteArticle = () => {
 
   const handleSubmit = useCallback(
     (e) => {
-      e.preventDefault(); // 기본 동작 방지(NOTE: debounce보다 먼저 실행돼야 합니다.)
+      e.preventDefault(); // 기본 동작 방지 (debounce보다 먼저 실행)
       debouncedSubmit();
     },
     [title, mainCategory, subCategory, currentUserText, navigate]
   );
 
-  // DOM 요소 반환
   return (
-    <div className="flex justify-center w-full min-w-[768px]">
-      <main className="flex-1 p-4 max-w-[1280px] min-w-[768px]">
+    <div className="flex justify-center w-full">
+      <main className="w-full max-w-[1280px]">
         {/* header */}
         <CommunityHeader />
 
         {/* main content */}
-        <div className="bg-white rounded-tl-xl rounded-tr-xl border-t rounded-bl-xl rounded-br-xl border-b border-l border-r border-[#E1E1DF]">
+        <div className="bg-white rounded-xl border border-[#E1E1DF] my-4">
           <div className="p-6">
             <form onSubmit={handleSubmit}>
+              {/* 제목 및 분류 */}
               <div className="border-b border-[#E1E1DF] pb-4 mb-4">
                 <div className="mb-2">
                   <div className="flex items-center">
@@ -138,7 +136,7 @@ const WriteArticle = () => {
                     <input
                       type="text"
                       value={title}
-                      className="flex-1 py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
+                      className="flex-1 py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] text-sm"
                       placeholder="제목을 입력하세요"
                       onChange={(e) =>
                         e.target.value.length <= MAX_TITLE_LENGTH &&
@@ -146,18 +144,17 @@ const WriteArticle = () => {
                       }
                     />
                   </div>
-                  <p className="text-xs text-gray-500 mt-1 mr-2 text-right">
+                  <p className="text-xs text-gray-500 mt-1 text-right">
                     {title.length} / {MAX_TITLE_LENGTH}
                   </p>
                 </div>
-                <div className="flex items-center">
-                  <label className="block text-lg font-medium text-black min-w-[100px]">
+                <div className="flex flex-col md:flex-row items-start md:items-center">
+                  <label className="block text-lg font-medium text-black min-w-[100px] mb-2 md:mb-0">
                     분류 <span className="text-red-500">*</span>
                   </label>
-                  {/*대분류 선택시 그에 해당하는 문서가 나오도록 */}
-                  <div className="flex flex-1 gap-4">
+                  <div className="w-full flex flex-col md:flex-row flex-1 gap-4">
                     <select
-                      className="flex-1 py-2 px-3 border bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
+                      className="w-full md:flex-1 py-2 px-3 border bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] text-sm"
                       onChange={handleMainCategoryChange}
                       value={mainCategory}
                     >
@@ -169,12 +166,11 @@ const WriteArticle = () => {
                       ))}
                     </select>
                     <select
-                      className="flex-1 py-2 px-3 border bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
+                      className="w-full md:flex-1 py-2 px-3 border bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] text-sm"
                       onChange={handleSubCategoryChange}
                       value={subCategory}
                     >
                       <option value="">문서를 선택하세요</option>
-                      {/* mainCategory에 속하는 문서 이름만 나오게 */}
                       {mainCategory &&
                         documentNames[mainCategory]?.map((item) => (
                           <option key={item} value={item}>
@@ -199,22 +195,21 @@ const WriteArticle = () => {
 
                 {/* 파일 첨부 */}
                 <div className="mb-6">
-                  <div className="flex items-center mb-2">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center mb-2">
                     <label className="block text-lg font-medium text-black">
                       사진 첨부
                     </label>
                     {file && (
-                      <p className="text-sm text-gray-800 ml-6">
+                      <p className="text-sm text-gray-800 ml-0 sm:ml-6 mt-2 sm:mt-0">
                         파일 제목 혹은 사진을 선택해 본문에 첨부할 수 있습니다.
                       </p>
                     )}
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center">
                     <div className="relative">
                       <input
                         type="file"
                         accept="image/png, image/jpeg, image/jpg"
-                        // 파일 첨부 로직(s3에 업로드 후 url 받아오기)
                         onChange={handleFileChange}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
@@ -223,33 +218,28 @@ const WriteArticle = () => {
                       </div>
                     </div>
                     {!file && (
-                      <p className="ml-4 text-sm text-gray-500">
+                      <p className="ml-0 sm:ml-4 mt-2 text-sm text-gray-500">
                         첨부할 사진을 선택하세요 (1개만 가능)
                       </p>
                     )}
                     {file && (
-                      <div className="ml-4 flex items-center gap-4">
+                      <div className="ml-0 sm:ml-4 mt-2 flex flex-col sm:flex-row items-start sm:items-center gap-4">
                         <img
                           src={imageUrl}
                           alt="이미지 파일 미리보기"
                           className="h-24 w-24 object-cover rounded-md border border-gray-300 cursor-pointer"
-                          onClick={() => {
-                            setFileUrl(imageUrl);
-                          }}
+                          onClick={() => setFileUrl(imageUrl)}
                         />
                         <p
                           className="text-sm text-black mr-2 truncate max-w-md cursor-pointer hover:underline border border-gray-300 rounded-md px-2 py-1"
-                          onClick={() => {
-                            setFileUrl(imageUrl);
-                          }}
+                          onClick={() => setFileUrl(imageUrl)}
                         >
                           {file.name}
                         </p>
-
                         <button
                           type="button"
                           onClick={handleFileCancel}
-                          className="py-1 px-2 hover:text-red-600 text-sm underline"
+                          className="py-1 px-2 text-sm underline hover:text-red-600"
                         >
                           삭제
                         </button>
@@ -259,10 +249,11 @@ const WriteArticle = () => {
                 </div>
               </div>
 
+              {/* 작성 완료 버튼 */}
               <div className="flex justify-center">
                 <button
                   type="submit"
-                  className="py-2 px-8 bg-[#bc5b39] text-white rounded-md shadow-sm hover:bg-[#C96442] cursor-pointer"
+                  className="py-2 px-8 bg-[#bc5b39] text-white rounded-md shadow-sm hover:bg-[#C96442] cursor-pointer text-sm"
                 >
                   작성완료
                 </button>
