@@ -15,6 +15,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.docshund.global.mail.exception.MailException;
@@ -37,13 +38,12 @@ public class MailSendService {
 	private String HUNTER_IO_KEY;
 
 	public void sendEmail(String sendEmail, String subject, String body, String imageUrl) {
-		log.info("Validating email: " + sendEmail);
-
-		if (!isEmailValidWithHunter(sendEmail)) {
-			throw new MailException(MAIL_NOT_SEND);
-		}
-
 		try {
+			log.info("Validating email: " + sendEmail);
+			if (!isEmailValidWithHunter(sendEmail)) {
+				throw new MailException(MAIL_NOT_SEND);
+			}
+
 			log.info("Sending email to " + sendEmail);
 
 			MimeMessage message = mailSender.createMimeMessage();
@@ -61,9 +61,11 @@ public class MailSendService {
 			}
 
 			mailSender.send(message);
-		} catch (MessagingException e) {
+		} catch (MessagingException | JsonProcessingException e) {
+			e.printStackTrace(); // 스택 트레이스 출력
 			throw new MailException(MAIL_NOT_SEND);
 		}
+
 	}
 
 	private byte[] downloadImageFromUrl(String imageUrl) {
@@ -74,25 +76,20 @@ public class MailSendService {
 		}
 	}
 
-	private boolean isEmailValidWithHunter(String email) {
+	private boolean isEmailValidWithHunter(String email) throws JsonProcessingException {
 		String url = "https://api.hunter.io/v2/email-verifier?email=" + email + "&api_key=" + HUNTER_IO_KEY;
 
-		try {
-			RestTemplate restTemplate = new RestTemplate();
-			ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
-			if (response.getStatusCode() == OK) {
-				ObjectMapper objectMapper = new ObjectMapper();
-				JsonNode jsonNode = objectMapper.readTree(response.getBody());
+		if (response.getStatusCode() == OK) {
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode jsonNode = objectMapper.readTree(response.getBody());
 
-				// 응답에서 status 값이 "valid"인지 확인
-				String status = jsonNode.path("data").path("status").asText();
-				log.info("status {}", status);
-				return "valid".equals(status);
-			}
-		} catch (Exception e) {
-			log.error("Failed to validate email: " + email, e);
-			return false;
+			// 응답에서 status 값이 "valid"인지 확인
+			String status = jsonNode.path("data").path("status").asText();
+			log.info("status {}", status);
+			return "valid".equals(status);
 		}
 
 		return false; // 실패 시 기본적으로 유효하지 않은 것으로 간주
