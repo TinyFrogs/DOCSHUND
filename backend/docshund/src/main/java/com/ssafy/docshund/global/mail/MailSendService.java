@@ -92,7 +92,7 @@ public class MailSendService {
 			}
 		} catch (Exception e) {
 			log.error("Failed to validate email: " + email, e);
-			throw new MailException(MAIL_NOT_SEND);
+			return false;
 		}
 
 		return false; // 실패 시 기본적으로 유효하지 않은 것으로 간주
