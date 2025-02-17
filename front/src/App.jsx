@@ -43,6 +43,8 @@ function App() {
     }
 
     if (location.search.includes("token")) {
+      localStorage.removeItem("hasClearedDB");
+      localStorage.removeItem("hasAgreed");
       toast.success("로그인에 성공했습니다!", {
         autoClose: 1000,
         hideProgressBar: true,
