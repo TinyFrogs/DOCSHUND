@@ -31,8 +31,7 @@ const ViewerMainPage = () => {
   const location = useLocation().pathname;
 
   const { isArchiveOpen, isEditorOpen, openNav } = useModalStore();
-  const { setDocsList, setBestDocsList } = useDocsStore();
-  const { currentProgress } = useProgressStore();
+  const { setDocsList, setBestDocsList, documentName } = useDocsStore();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -65,12 +64,9 @@ const ViewerMainPage = () => {
       id="mainPage"
     >
       <Information />
-      <Progress
-        progress={currentProgress}
-        size="sm"
-        color="dark"
-        className="fixed z-[1050]"
-      />
+      <div className="fixed top-5.5 left-35 text-2xl font-bold mb-4">
+        {documentName}
+      </div>
 
       {/* 내브바 관련 버튼 (왼쪽 상단) */}
       <div
@@ -78,13 +74,13 @@ const ViewerMainPage = () => {
         className="fixed top-4 left-4 z-[1200] flex items-center gap-2 px-2 py-1 bg-white/80 backdrop-blur-md rounded-full shadow-lg"
       >
         <button
-          className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-[#BC5B39] to-[#ff835a] text-white hover:scale-105 hover:shadow-lg transition-all duration-300"
+          className="cursor-pointer flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-[#BC5B39] to-[#ff835a] text-white hover:scale-105 hover:shadow-lg transition-all duration-300"
           onClick={() => navigate("/translate")}
         >
           <ArrowLeftToLine />
         </button>
         <button
-          className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-[#BC5B39] to-[#ff835a] text-white hover:scale-105 hover:shadow-lg transition-all duration-300"
+          className="cursor-pointer flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-[#BC5B39] to-[#ff835a] text-white hover:scale-105 hover:shadow-lg transition-all duration-300"
           onClick={openNav}
         >
           <Menu />
@@ -102,7 +98,7 @@ const ViewerMainPage = () => {
               navigate(`/translate/main/viewer/${docsId}/best`);
             }
           }}
-          className="group fixed bottom-34 right-4 z-[2500] flex items-center overflow-hidden w-10 h-10 rounded-full bg-gradient-to-r from-[#BC5B39] to-[#ff835a] text-white transition-all duration-300 hover:w-42 hover:shadow-2xl"
+          className="cursor-pointer group fixed bottom-34 right-4 z-[2500] flex items-center overflow-hidden w-10 h-10 rounded-full bg-gradient-to-r from-[#BC5B39] to-[#ff835a] text-white transition-all duration-300 hover:w-42 hover:shadow-2xl"
         >
           {/* 아이콘 영역 */}
           <div className="flex-shrink-0 flex items-center justify-center w-10 h-10">

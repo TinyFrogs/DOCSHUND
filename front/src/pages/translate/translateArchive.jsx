@@ -103,7 +103,6 @@ const TranslateArchive = () => {
     const date = new Date(time);
     const kor = date.getHours() + 9;
     date.setHours(kor);
-    console.log(date);
     return date;
   };
 

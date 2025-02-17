@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { axiosJsonInstance } from "../../utils/axiosInstance.jsx";
 import ChatStore from "../../store/chatStore.jsx";
-import { Flag, Send } from "lucide-react";
+import { Flag, Send, X } from "lucide-react";
 import { toast } from "react-toastify";
 import ReportModal from "../report.jsx";
 import useReportStore from "../../store/reportStore.jsx";
@@ -212,7 +212,7 @@ const Chat = () => {
           <AnimatePresence>
             {isChatVisible && (
               <motion.div
-                key="chat-modal"
+                key="chatbot-modal"
                 initial={{ opacity: 0, y: 1000 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 1000 }}
@@ -230,7 +230,7 @@ const Chat = () => {
                     }}
                     className="cursor-pointer"
                   >
-                    &times;
+                    <X className="h-8 w-8 text-white" />
                   </button>
                 </div>
 

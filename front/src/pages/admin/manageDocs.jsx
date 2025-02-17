@@ -20,6 +20,7 @@ const ManageDocs = () => {
   const fetchAdminDocs = async () => {
     try {
       const response = await fetchDocsList();
+      response.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setAdminDocsList(response);
     } catch (error) {}
   };
@@ -70,6 +71,13 @@ const ManageDocs = () => {
     }
   };
 
+  const handleUTC = (time) => {
+    const date = new Date(time);
+    const kor = date.getHours() + 9;
+    date.setHours(kor);
+    return date;
+  };
+
   return (
     <div className="p-6 max-w-[1200px] mx-auto">
       <RegistDocs
@@ -80,7 +88,6 @@ const ManageDocs = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-gray-800">문서관리</h1>
-        <h2>* 삭제하실 문서를 선택 후 삭제 버튼을 눌러주세요.</h2>
         <div className="flex gap-2">
           {/* <button className="cursor-pointer px-2 py-2 bg-[#ff2121] text-white rounded-lg hover:bg-[#a34e31] transition-colors duration-200">
             - 문서삭제
@@ -139,9 +146,7 @@ const ManageDocs = () => {
                     {adminDocs.license}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(
-                      new Date(adminDocs.createdAt).toISOString()
-                    ).toLocaleString()}
+                    {handleUTC(adminDocs.createdAt).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {adminDocs.viewCount}

@@ -22,10 +22,9 @@ const ManageNotification = () => {
   const fetchNoticeData = async () => {
     try {
       const data = await fetchNoticeList();
-      console.log(data);
       setNotifications(data.content);
     } catch (error) {
-      console.log("공지사항 목록 조회 실패", error);
+      // console.log("공지사항 목록 조회 실패", error);
     }
   };
 
@@ -111,7 +110,7 @@ const ManageNotification = () => {
     const date = new Date(time);
     const kor = date.getHours() + 9;
     date.setHours(kor);
-    console.log(date);
+
     return date;
   };
 

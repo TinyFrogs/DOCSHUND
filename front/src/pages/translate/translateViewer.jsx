@@ -13,6 +13,7 @@ import {
   fetchTranslateData,
   fetchBestTranslate,
 } from "./services/translateGetService.jsx";
+import { fetchDocsList } from "./services/translateGetService.jsx";
 import useMemoService from "../myPage/services/memoService.jsx";
 
 // 컴포넌트 import
@@ -94,7 +95,7 @@ const TranslateViewer = () => {
     clearTempSave,
     clearSubmitData,
   } = useEditorStore();
-  const { documentName } = useDocsStore();
+  const { documentName, setDocumentName, docsList } = useDocsStore();
   // 모달 관련 상태
   const { openEditor, openArchive, closeEditor, closeArchive } =
     useModalStore();
@@ -171,6 +172,18 @@ const TranslateViewer = () => {
     clearCurrentUserText();
   };
 
+  const showCurrentDocumentName = async () => {
+    const tmpDocsList = await fetchDocsList();
+    const currentDocs = await tmpDocsList.filter(
+      (doc) => doc.docsId === Number(docsId)
+    );
+    if (currentDocs.length !== 0) {
+      setDocumentName(currentDocs[0].documentName);
+    } else {
+      setDocumentName("");
+    }
+  };
+
   useEffect(() => {
     closeEditor();
     closeArchive();
@@ -178,6 +191,8 @@ const TranslateViewer = () => {
   }, [location]);
 
   useEffect(() => {
+    //현재 문서 이름 설정
+    showCurrentDocumentName();
     let isMounted = true; // 마운트 여부 추적
     closeAllConnections();
     // 상태 초기화
@@ -286,7 +301,6 @@ const TranslateViewer = () => {
     });
 
     await openEditor();
-    toggleEditor();
   };
 
   // 메뉴 항목: 번역 기록
@@ -306,10 +320,11 @@ const TranslateViewer = () => {
   return (
     <div
       id="mainContent"
-      className="h-screen min-w-[90vw] md:min-w-[65vw] lg:min-w-[60vw] bg-white fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto shadow-xl"
+      className="h-screen w-[90vw] md:w-[60vw] bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] mx-auto shadow-xl"
     >
       {createPortal(<SearchDB tableId={docsId} />, document.body)}
-      <div className="flex flex-col gap-2">
+
+      <div className="flex flex-col gap-2 w-full">
         {docParts.map((part, index) => (
           <div
             key={index}
@@ -339,7 +354,7 @@ const TranslateViewer = () => {
                 setBestTrans("");
               }
             }}
-            className="paragraph flex flex-row gap-4 w-full"
+            className="paragraph flex flex-row gap-4 w-ful"
           >
             <div
               onClick={async (e) => {

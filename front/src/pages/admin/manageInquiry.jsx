@@ -39,6 +39,16 @@ const ManageInquiry = () => {
         (inquiry) => inquiry.inquiryCategory === "REPORT"
       );
       setInquiryList(tmpInquiryList);
+    } else if (category === "ANSWERED") {
+      const tmpInquiryList = inquiryListData.current.filter(
+        (inquiry) => inquiry.answered === true
+      );
+      setInquiryList(tmpInquiryList);
+    } else if (category === "NOTANSWERED") {
+      const tmpInquiryList = inquiryListData.current.filter(
+        (inquiry) => inquiry.answered === false
+      );
+      setInquiryList(tmpInquiryList);
     }
   };
 
@@ -73,6 +83,28 @@ const ManageInquiry = () => {
     }
   }, 500); // 500ms delay
 
+  const handleSearch = async (text) => {
+    if (!text) {
+      const data = await fetchInquiryList();
+      setInquiryList(data);
+      return;
+    } else {
+      const filteredList = inquiryList.filter(
+        (item) =>
+          item.inquiryTitle.includes(text.toLowerCase()) ||
+          item.email.includes(text.toLowerCase())
+      );
+      setInquiryList(filteredList);
+    }
+  };
+
+  const handleUTC = (time) => {
+    const date = new Date(time);
+    const kor = date.getHours() + 9;
+    date.setHours(kor);
+    return date;
+  };
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -89,7 +121,7 @@ const ManageInquiry = () => {
       try {
         const data = await fetchInquiryList();
         const processedData = await data.sort(
-          (a, b) => b.inquiryCreatedAt - a.inquiryCreatedAt
+          (a, b) => new Date(b.inquiryCreatedAt) - new Date(a.inquiryCreatedAt)
         );
         setInquiryList(processedData);
         inquiryListData.current = processedData;
@@ -107,17 +139,20 @@ const ManageInquiry = () => {
     { label: "회원 관련", value: "MEMBER" },
     { label: "문서 요청 관련", value: "DOCUMENT_REQUEST" },
     { label: "신고 관련", value: "REPORT" },
+    { label: "답변 완료", value: "ANSWERED" },
+    { label: "답변 대기", value: "NOTANSWERED" },
   ];
 
   return (
     <div className="p-6 max-w-[1200px] mx-auto">
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-800">신고 관리</h1>
+        <h1 className="text-2xl font-bold text-gray-800">문의 관리</h1>
         <div className="relative w-64">
           <input
             type="text"
-            placeholder="이메일로 검색"
+            placeholder="제목, 닉네임으로 검색"
+            onChange={(e) => handleSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#bc5b39] focus:ring-1 focus:ring-[#bc5b39] transition-colors duration-200"
           />
           <svg
@@ -195,12 +230,10 @@ const ManageInquiry = () => {
                       {inquiry.inquiryTitle}
                     </td>
                     <td className="flex gap-1 px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {currentUserList[inquiry.userId]}
+                      {inquiry.email}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(
-                        new Date(inquiry.inquiryCreatedAt).toISOString()
-                      ).toLocaleString()}
+                      {handleUTC(inquiry.inquiryCreatedAt).toLocaleString()}
                     </td>
                     <td className="px-3 py-4 whitespace-nowrap w-28 flex items-center gap-2">
                       <span

@@ -77,6 +77,30 @@ const ManageReport = () => {
     }));
   };
 
+  const handleSearch = async (e) => {
+    const searchKeyword = e.target.value;
+    if (!searchKeyword) {
+      const data = await fetchReportList();
+      data.sort((a, b) => b.reportCount - a.reportCount);
+      setReportList(data);
+      return;
+    } else {
+      const filteredList = reportList.filter(
+        (item) =>
+          item.title.includes(searchKeyword.toLowerCase()) ||
+          item.nickname.includes(searchKeyword.toLowerCase())
+      );
+      setUserList(filteredList);
+    }
+  };
+
+  const handleUTC = (time) => {
+    const date = new Date(time);
+    const kor = date.getHours() + 9;
+    date.setHours(kor);
+    return date;
+  };
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -112,26 +136,6 @@ const ManageReport = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-gray-800">신고 관리</h1>
-        <div className="relative w-64">
-          <input
-            type="text"
-            placeholder="이메일로 검색"
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#bc5b39] focus:ring-1 focus:ring-[#bc5b39] transition-colors duration-200"
-          />
-          <svg
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-        </div>
       </div>
 
       {/* Filter Buttons */}
@@ -185,7 +189,6 @@ const ManageReport = () => {
                     key={report.reportId}
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log(report.content);
                       toggleReportContent(report.reportId);
                     }}
                     className="hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
@@ -198,15 +201,12 @@ const ManageReport = () => {
                       {currentUserList[report.reportedUser]}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(
-                        new Date(report.createdAt).toISOString()
-                      ).toLocaleString()}
+                      {handleUTC(report.createdAt).toLocaleString()}
                     </td>
                     <td className="px-3 py-4 whitespace-nowrap w-28 flex items-center gap-2">
                       <span
                         onClick={(e) => {
                           e.stopPropagation();
-                          console.log(report.reportId);
                           handleReportStatus(report.reportId);
                         }}
                         className={`px-3 py-1 text-xs font-medium rounded-full ${

@@ -55,6 +55,8 @@ const BestTransViewer = () => {
     clearSubmitData,
   } = useEditorStore();
 
+  const { documentName, setDocumentName } = useDocsStore();
+
   const handleClose = () => {
     clearDocsPart();
     clearBestTrans();
@@ -178,7 +180,7 @@ const BestTransViewer = () => {
           }
         }
       } catch (error) {
-        console.log("Error in checkDB:", error);
+        // console.log("Error in checkDB:", error);
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -211,7 +213,7 @@ const BestTransViewer = () => {
   // Race Condition Prevention Pattern : useEffect에서 함수가 동시 실행되는 것을 방지
 
   return (
-    <div className="h-screen min-w-[90vw] md:min-w-[65vw] lg:min-w-[60vw] bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto shadow-xl">
+    <div className="h-screen w-[90vw] md:w-[60vw] bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] mx-auto shadow-xl">
       <div className="flex flex-col gap-2">
         {docParts.map((part, index) => (
           <div key={index} className="paragraph flex flex-row gap-4 relative">

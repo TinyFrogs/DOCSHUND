@@ -7,7 +7,7 @@ const menuItems = [
   { text: "회원관리", path: "/admin/manageUser" },
   { text: "신고관리", path: "/admin/manageReport" },
   { text: "문의관리", path: "/admin/manageInquiry" },
-  { text: "공지사항 등록", path: "/admin/manageNotification" },
+  { text: "공지사항 관리", path: "/admin/manageNotification" },
   { text: "문서관리", path: "/admin/manageDocs" },
 ];
 
