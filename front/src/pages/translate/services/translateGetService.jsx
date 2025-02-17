@@ -55,7 +55,7 @@ export const fetchBestTranslate = async (docsId, isBest) => {
       return data;
     }
   } catch (error) {
-    // console.log(error);
+    console.log(error);
     return null;
   }
 };

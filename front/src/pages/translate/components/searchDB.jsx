@@ -41,7 +41,7 @@ const SearchDB = ({ tableId }) => {
   };
 
   return (
-    <div className="fixed flex flex-col items-center p-4 max-w-md mx-auto z-[1100] top-1 left-[50vw] translate-x-[-50%] w-[45vw]">
+    <div className="fixed flex flex-col items-center p-4 max-w-md mx-auto z-[1100] top-1 left-[60vw] sm:left-[50vw] translate-x-[-50%] w-[45vw]">
       <input
         type="text"
         placeholder="검색어 입력 후 Enter"

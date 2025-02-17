@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { fetchDocsList } from "./services/translateGetService";
 import { likeDocs } from "./services/translatePostService";
+import { clearDB } from "./services/indexedDbService.jsx";
 import { motion } from "framer-motion";
 
 import useModalStore from "../../store/translateStore/translateModalStore";
@@ -34,10 +35,10 @@ const TransLatePage = () => {
 
   const filteredBestDocsList =
     windowWidth < 768
-      ? bestDocsList.slice(0, 4)
+      ? bestDocsList.sort((a, b) => b.likeCount - a.likeCount).slice(0, 4)
       : windowWidth < 1024
-      ? bestDocsList.slice(0, 3)
-      : bestDocsList.slice(0, 4);
+      ? bestDocsList.sort((a, b) => b.likeCount - a.likeCount).slice(0, 3)
+      : bestDocsList.sort((a, b) => b.likeCount - a.likeCount).slice(0, 4);
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -48,17 +49,24 @@ const TransLatePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       const tmpDocsList = await fetchDocsList();
-      tmpDocsList.sort((a, b) => b.likeCount - a.likeCount);
+      tmpDocsList.sort((a, b) => b.viewCount - a.viewCount);
       setDocsList(tmpDocsList);
       setBestDocsList(tmpDocsList);
     };
-    // 채팅 모달 상태 초기화
     closeChat();
     fetchData();
   }, []);
 
   useEffect(() => {
     document.body.style.overflow = "auto";
+
+    const resetDB = async () => {
+      if (!localStorage.getItem("hasClearedDB")) {
+        await clearDB("docs");
+        localStorage.setItem("hasClearedDB", "true");
+      }
+    };
+    resetDB();
   }, []);
 
   const handleLike = async (docsId) => {

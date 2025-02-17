@@ -28,6 +28,7 @@ const useAuthStore = create((set, get) => ({
     localStorage.removeItem("communityArticle-storage");
     localStorage.removeItem("flowbite-theme-mode");
     localStorage.removeItem("hasAgreed");
+    localStorage.removeItem("hasClearedDB");
     set({ token: null });
   },
 

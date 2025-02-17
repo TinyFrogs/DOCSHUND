@@ -116,3 +116,7 @@ export const searchData = (objectStoreName, fieldName, query) => {
     };
   });
 };
+
+export const clearDB = async () => {
+  await indexedDB.deleteDatabase("docs");
+};

@@ -126,7 +126,6 @@ const BestTransViewer = () => {
           element,
           key: element.originId,
         };
-        console.log(tmpBestTransList.current);
       });
       // console.log(
       //   "번역 전체 보기 데이터를 불러왔습니다.: ",

@@ -54,7 +54,7 @@ const TranslateEditor = () => {
           toast.error("제출 실패");
         } else {
           toast.success("제출 완료");
-          const tmpTransList = await fetchBestTranslate(docsId, "", false);
+          const tmpTransList = await fetchBestTranslate(docsId, "");
           tmpTransList.sort((a, b) => b.likeCount - a.likeCount);
           setTransList(tmpTransList);
           generateUserList(tmpTransList);

@@ -61,7 +61,7 @@ const Information = () => {
       target: "#mainContent",
       content:
         "각 문단을 클릭하면 베스트 번역본의 내용을 볼 수 있고, 우클릭하면 번역을 작성하거나 기록을 볼 수 있습니다.",
-      placement: "center",
+      placement: "top-start",
       styles: {
         options: {
           backgroundColor: "#E4DCD4",
