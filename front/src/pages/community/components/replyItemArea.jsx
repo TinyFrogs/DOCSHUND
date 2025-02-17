@@ -30,6 +30,7 @@ const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
   const setReplySortType = communityArticleStore(
     (state) => state.setReplySortType
   );
+  const setReplyId = communityArticleStore((state) => state.setReplyId);
 
   useEffect(() => {
     if (token && replyTextareaRef.current) {
@@ -45,6 +46,10 @@ const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
     if (replySortType === "latest") {
       setReplySortType("regist");
     }
+
+    return () => {
+      setReplyId(0);
+    };
   }, []);
 
   useEffect(() => {
