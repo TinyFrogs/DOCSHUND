@@ -22,6 +22,10 @@ const notificationModalStore = create((set) => ({
     })),
   clearNotifications: () => set({ notifications: [] }),
   setNotifications: (notifications) => set({ notifications }),
+
+  // 알림 확인
+  isAllChecked: false,
+  setIsAllChecked: (isAllChecked) => set({ isAllChecked }),
 }));
 
 export default notificationModalStore;

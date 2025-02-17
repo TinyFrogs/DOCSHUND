@@ -16,12 +16,16 @@ const NotificationModal = () => {
 
   const token = localStorage.getItem("token");
   const notifications = notificationModalStore((state) => state.notifications); // 알림 목록
+  const isAllChecked = notificationModalStore((state) => state.isAllChecked); // 모든 알림 읽음 여부
   const setNotifications = notificationModalStore(
     (state) => state.setNotifications
   ); // 알림 목록 설정
   const closeNotificationModal = notificationModalStore(
     (state) => state.closeNotificationModal
   ); // 알림 모달 닫기
+  const setIsAllChecked = notificationModalStore(
+    (state) => state.setIsAllChecked
+  ); // 모든 알림 읽음 처리
 
   // 알림 카테고리 관리
   const [categories] = useState([
@@ -59,8 +63,16 @@ const NotificationModal = () => {
     };
   }, [closeNotificationModal]);
 
-  // 알림 SSE <- hook은 항상 최상단에 위치해야 함, 조건부 불가능
-  // UseSSE(userId);
+  // 새로운 useEffect 추가
+  useEffect(() => {
+    // notifications 배열에 읽지 않은 알림이 있는지 확인
+    const hasUnreadNotifications = notifications.some(
+      (notification) => notification.checkedAt === null
+    );
+
+    // 모든 알림이 읽혔거나 알림이 없는 경우 isAllChecked를 true로 설정
+    setIsAllChecked(!hasUnreadNotifications);
+  }, [notifications, setIsAllChecked]);
 
   if (!token) {
     toast.warn("로그인이 필요한 서비스입니다.");
@@ -70,7 +82,7 @@ const NotificationModal = () => {
   // INFO: 알림 클릭 시, 알림 내용 확인 및 그에 해당하는 페이지로 이동
   const handleNotificationClick = async (e, notification) => {
     try {
-      const alertId = e.currentTarget.id;
+      const alertId = Number(e.currentTarget.id);
 
       // NOTE: checkedAt이 null이면 읽지 않은 알림
       // 읽은 알림은 다시 읽지 않음
@@ -82,6 +94,18 @@ const NotificationModal = () => {
           toast.warn("알림을 불러오는 중 오류가 발생했습니다.");
           return;
         }
+      }
+
+      // 현재 notifications 배열에서 읽지 않은 알림이 있는지 확인
+      const hasUnreadNotifications = notifications.some(
+        (notif) =>
+          notif.alertId !== alertId && // 현재 클릭한 알림 제외
+          notif.checkedAt === null // 읽지 않은 알림 체크
+      );
+
+      // 모든 알림이 읽혔다면 isAllChecked를 true로 설정
+      if (!hasUnreadNotifications) {
+        setIsAllChecked(true);
       }
 
       const notificationCategory = notification.category;
@@ -125,6 +149,7 @@ const NotificationModal = () => {
 
         if (data) {
           setNotifications(data.reverse());
+          setIsAllChecked(true);
         }
       }
     } catch (err) {
@@ -204,13 +229,15 @@ const NotificationModal = () => {
         {notifications.length > 0 ? (
           <div className="overflow-y-auto">
             {notifications.map((notification) => (
+              // 읽지 않은 알람이 하나라도 있을 경우
+
               <div
                 key={notification.alertId}
                 id={notification.alertId}
                 className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer
-                  ${
-                    notification.checkedAt === null ? "bg-white" : "bg-gray-200"
-                  }`}
+                ${
+                  notification.checkedAt === null ? "bg-white" : "bg-gray-200"
+                }`}
                 onClick={(event) =>
                   handleNotificationClick(event, notification)
                 }

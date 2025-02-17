@@ -32,7 +32,7 @@ function App() {
   const isAdminPage = pathname.includes("/admin");
 
   const { token, setToken } = useAuthStore();
-  const { setNotifications } = notificationModalStore();
+  const { setNotifications, setIsAllChecked } = notificationModalStore();
   const { fetchProfile } = useUserProfileStore();
 
   useScrollToTop(); // added hook usage
@@ -61,6 +61,7 @@ function App() {
         if (data) {
           // NOTE: 알림 데이터가 id 오름차순으로 들어오므로 최신순으로 정렬하기 위해서 reverse() 적용
           setNotifications(data.reverse());
+          setIsAllChecked(false);
         }
       } catch (error) {
         console.error(error);

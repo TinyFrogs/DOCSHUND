@@ -31,6 +31,7 @@ const UpperNav = () => {
     toggleNotificationModal,
     isNotificationModalOpen,
     closeNotificationModal,
+    isAllChecked,
   } = notificationModalStore();
   const { clearArticles } = communityArticleStore();
 
@@ -134,12 +135,35 @@ const UpperNav = () => {
           <div className="flex items-center gap-3">
             {isAuthenticated() && (
               <div className="relative">
-                <img
-                  className="w-[clamp(20px,2.1vw,32px)] h-auto cursor-pointer"
-                  src={notification}
-                  alt="알림 아이콘"
-                  onClick={handleToggleNotificationModal}
-                />
+                {isAllChecked ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="2 2 20 20"
+                    className="w-[clamp(20px,2.1vw,32px)] h-auto cursor-pointer"
+                    onClick={handleToggleNotificationModal}
+                    alt="알림 아이콘"
+                  >
+                    <path
+                      d="M12 2.5c-0.3 0-0.5 0.2-0.5 0.5v1.1c-3 0.4-5.5 3-5.5 6.2v3.8l-2 2v1h16v-1l-2-2v-3.8c0-3.2-2.5-5.8-5.5-6.2V3c0-0.3-0.2-0.5-0.5-0.5zM7.9 18c0.5 1.2 1.7 2 3.1 2s2.6-0.8 3.1-2H7.9z"
+                      fill="#CD412A"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="2 2 20 20"
+                    className="w-[clamp(20px,2.1vw,32px)] h-auto cursor-pointer"
+                    onClick={handleToggleNotificationModal}
+                    alt="알림 아이콘"
+                  >
+                    <path
+                      d="M12 2.5c-0.3 0-0.5 0.2-0.5 0.5v1.1c-3 0.4-5.5 3-5.5 6.2v3.8l-2 2v1h16v-1l-2-2v-3.8c0-3.2-2.5-5.8-5.5-6.2V3c0-0.3-0.2-0.5-0.5-0.5zM7.9 18c0.5 1.2 1.7 2 3.1 2s2.6-0.8 3.1-2H7.9z"
+                      fill="#CD412A"
+                    />
+                    <circle cx="17" cy="17" r="4" fill="white" />
+                    <circle cx="17" cy="17" r="3" fill="#CD412A" />
+                  </svg>
+                )}
                 <div
                   className={`absolute left-1/2 -translate-x-1/2 top-[calc(100%+1.8rem)] z-[1000] transition-all duration-300 transform ${
                     isNotificationModalOpen
@@ -284,12 +308,35 @@ const UpperNav = () => {
           <div className="flex items-center gap-4">
             {isAuthenticated() && (
               <div className="relative">
-                <img
-                  className="w-[clamp(20px,2.1vw,32px)] h-auto cursor-pointer"
-                  src={notification}
-                  alt="알림 아이콘"
-                  onClick={handleToggleNotificationModal}
-                />
+                {isAllChecked ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="2 2 20 20"
+                    className="w-[clamp(20px,2.1vw,32px)] h-auto cursor-pointer"
+                    onClick={handleToggleNotificationModal}
+                    alt="알림 아이콘"
+                  >
+                    <path
+                      d="M12 2.5c-0.3 0-0.5 0.2-0.5 0.5v1.1c-3 0.4-5.5 3-5.5 6.2v3.8l-2 2v1h16v-1l-2-2v-3.8c0-3.2-2.5-5.8-5.5-6.2V3c0-0.3-0.2-0.5-0.5-0.5zM7.9 18c0.5 1.2 1.7 2 3.1 2s2.6-0.8 3.1-2H7.9z"
+                      fill="#CD412A"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="2 2 20 20"
+                    className="w-[clamp(20px,2.1vw,32px)] h-auto cursor-pointer"
+                    onClick={handleToggleNotificationModal}
+                    alt="알림 아이콘"
+                  >
+                    <path
+                      d="M12 2.5c-0.3 0-0.5 0.2-0.5 0.5v1.1c-3 0.4-5.5 3-5.5 6.2v3.8l-2 2v1h16v-1l-2-2v-3.8c0-3.2-2.5-5.8-5.5-6.2V3c0-0.3-0.2-0.5-0.5-0.5zM7.9 18c0.5 1.2 1.7 2 3.1 2s2.6-0.8 3.1-2H7.9z"
+                      fill="#CD412A"
+                    />
+                    <circle cx="17" cy="17" r="4" fill="white" />
+                    <circle cx="17" cy="17" r="3" fill="#CD412A" />
+                  </svg>
+                )}
                 <div
                   className={`absolute left-1/2 -translate-x-1/2 top-[calc(100%+1.8rem)] z-[1000] transition-all duration-300 transform ${
                     isNotificationModalOpen
