@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import notificationModalStore from "../store/notificationModalStore";
 
 const UseSSE = (userId) => {
+  const token = localStorage.getItem("token");
   const addNotification = notificationModalStore(
     (state) => state.addNotification
   );
@@ -32,6 +33,12 @@ const UseSSE = (userId) => {
           eventSource.close();
         }
 
+        // token이 없고(로그아웃 상태) 연결이 되어있으면 return
+        if (!token && isConnected) {
+          setIsConnected(false);
+          return;
+        }
+
         // INFO: EventSource 객체 생성 -> stream 주소, 헤더 설정
         eventSource = new EventSource(
           `https://i12a703.p.ssafy.io/api/v1/docshund/alerts/stream`,
@@ -53,25 +60,29 @@ const UseSSE = (userId) => {
         };
 
         // INFO: Backend에서 설정한 'alert' 이벤트 리스닝
-        eventSource.addEventListener("alert", (event) => {
-          try {
-            const notification = JSON.parse(event.data);
+        eventSource.addEventListener(
+          "alert",
+          (event) => {
+            try {
+              const notification = JSON.parse(event.data);
 
-            // INFO: 알림 추가, requestAnimationFrame으로 비동기 처리
-            requestAnimationFrame(() => {
-              addNotification(notification);
+              // INFO: 알림 추가, requestAnimationFrame으로 비동기 처리
+              requestAnimationFrame(() => {
+                addNotification(notification);
 
-              // NOTE: 알림왔다고 알려주기
-              toast.info(notification.content, {
-                position: "top-right",
-                autoClose: 2000,
-                hideProgressBar: true,
+                // NOTE: 알림왔다고 알려주기
+                toast.info(notification.content, {
+                  position: "top-right",
+                  autoClose: 2000,
+                  hideProgressBar: true,
+                });
               });
-            });
-          } catch (err) {
-            console.error("알림 데이터 파싱 오류:", err);
-          }
-        });
+            } catch (err) {
+              console.error("알림 데이터 파싱 오류:", err);
+            }
+          },
+          [token]
+        );
 
         // INFO: 에러 핸들링
         eventSource.onerror = (error) => {

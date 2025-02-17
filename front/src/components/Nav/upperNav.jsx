@@ -88,7 +88,6 @@ const UpperNav = () => {
 
   const handleToggleNotificationModal = (e) => {
     e.stopPropagation();
-    console.log("toggleNotificationModal", isNotificationModalOpen);
     toggleNotificationModal();
   };
 
