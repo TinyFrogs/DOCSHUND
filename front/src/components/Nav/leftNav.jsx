@@ -50,11 +50,15 @@ const LeftNav = () => {
   const [memoToDelete, setMemoToDelete] = useState(null);
   const { isAlertOpen, toggleAlert } = useAlertStore();
 
-  const {
-    toggleNotificationModal,
-    isNotificationModalOpen,
-    closeNotificationModal,
-  } = notificationModalStore();
+  const toggleNotificationModal = notificationModalStore(
+    (state) => state.toggleNotificationModal
+  );
+  const isNotificationModalOpen = notificationModalStore(
+    (state) => state.isNotificationModalOpen
+  );
+  const closeNotificationModal = notificationModalStore(
+    (state) => state.closeNotificationModal
+  );
 
   const token = localStorage.getItem("token");
   useEffect(() => {
@@ -130,6 +134,12 @@ const LeftNav = () => {
     }
   };
 
+  const handleToggleNotificationModal = (e) => {
+    e.stopPropagation();
+    console.log("toggleNotificationModal", isNotificationModalOpen);
+    toggleNotificationModal();
+  };
+
   const { docsList, setDocsList } = useDocsStore();
 
   // 문서 목록 불러오기 (DocsList 높이는 모바일: h-48, 데스크탑: h-[200px])
@@ -203,7 +213,8 @@ const LeftNav = () => {
                         <div className="flex-1 overflow-y-auto">
                           <div
                             className="px-2 py-2.5 mb-2 flex items-center hover:bg-[#F5F4F0] cursor-pointer transition-colors duration-200"
-                            onClick={() => toggleNotificationModal()}
+                            onClick={handleToggleNotificationModal}
+                            alt="알림 아이콘"
                           >
                             <Bell className="w-6 h-6 text-[#7E7C77]" />
                             <span className="ml-5 font-medium text-[#7E7C77]">

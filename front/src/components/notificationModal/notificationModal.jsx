@@ -41,13 +41,17 @@ const NotificationModal = () => {
   // INFO: 모달 외부 클릭 시, 모달 닫기
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // 이벤트가 modalRef 내부에서 시작되었는지 확인
+      // 알림 아이콘 클릭 무시
+      if (event.target.closest('[alt="알림 아이콘"]')) {
+        return;
+      }
+
+      // 모달 외부 클릭 시에만 닫기
       if (modalRef.current && !modalRef.current.contains(event.target)) {
         closeNotificationModal();
       }
     };
 
-    // mousedown 대신 mouseup 사용
     document.addEventListener("mouseup", handleClickOutside, true);
 
     return () => {
@@ -205,7 +209,7 @@ const NotificationModal = () => {
                 id={notification.alertId}
                 className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer
                   ${
-                    notification.checkedAt === null ? "bg-white" : "bg-gray-100"
+                    notification.checkedAt === null ? "bg-white" : "bg-gray-200"
                   }`}
                 onClick={(event) =>
                   handleNotificationClick(event, notification)
