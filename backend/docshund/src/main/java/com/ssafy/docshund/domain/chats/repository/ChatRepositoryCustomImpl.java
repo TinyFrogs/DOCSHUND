@@ -34,14 +34,15 @@ public class ChatRepositoryCustomImpl implements ChatRepositoryCustom {
 				chat.document.docsId,
 				chat.chatId,
 				chat.content,
+				chat.createdAt,
 				chat.user.userId,
 				chat.user.nickname,
 				chat.user.profileImage
 			))
 			.from(chat)
-			.join(user).on(chat.user.userId.eq(user.userId)) // ✅ user 조인은 필요함!
+			.join(user).on(chat.user.userId.eq(user.userId))
 			.where(chat.document.docsId.eq(docsId),
-				chat.status.eq(Status.VISIBLE)) // ✅ docsId 필터링 및 Status 체크
+				chat.status.eq(Status.VISIBLE))
 			.orderBy(chat.createdAt.desc())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
@@ -52,7 +53,7 @@ public class ChatRepositoryCustomImpl implements ChatRepositoryCustom {
 					.select(chat.count())
 					.from(chat)
 					.where(chat.document.docsId.eq(docsId),
-						chat.status.eq(Status.VISIBLE)) // ✅ total도 동일한 조건으로 필터링
+						chat.status.eq(Status.VISIBLE))
 					.fetchOne())
 			.orElse(0L);
 
