@@ -40,13 +40,12 @@ const InquiryFormPage = () => {
     _.debounce(async (inquiry, formData) => {
       try {
         await InquiryService.submitInquiry(formData);
-        toast.success("문의가 성공적으로 제출되었습니다.");
         setCategory("");
         setTitle("");
         setEmail("");
         setContent("");
         setFile(null);
-        navigate("/");
+        toast.success("문의가 성공적으로 제출되었습니다.");
       } catch (error) {
         toast.error("문의 제출 중 오류가 발생했습니다.");
         console.error("문의 등록 실패", error);
@@ -178,7 +177,10 @@ const InquiryFormPage = () => {
         {/* 이메일 */}
         <div className="mb-6">
           <label className="block text-base md:text-lg font-medium text-black mb-2">
-            이메일 <span className="text-red-500">*</span>
+            이메일 <span className="text-red-500">*</span>{" "}
+            <span className="text-xs text-gray-500 mt-1 mr-2">
+              이메일을 잘못 입력한 경우, 메일이 전송되지 않을 수 있습니다.
+            </span>
           </label>
           <input
             type="email"

@@ -109,9 +109,12 @@ const CommunityLeftNav = () => {
             clearArticles();
             navigate("/community");
           }}
-          className="text-sm hover:text-[#bc5b39] cursor-pointer py-1 mb-3"
+          className="w-full flex items-center justify-between p-2 bg-[#424242] text-white rounded cursor-pointer mb-2"
         >
-          {"전체 보기"}
+          <div className="flex items-center gap-2">
+            <Layout size={18} />
+            <span className="text-sm font-medium">{"ALL"}</span>
+          </div>
         </button>
         {/* navData에 있는 각 entry들 조회 */}
         {Object.entries(navData).map(([section, items]) => (

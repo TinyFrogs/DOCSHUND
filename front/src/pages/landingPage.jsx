@@ -299,11 +299,12 @@ const LandingPage = () => {
               "Android",
               "Kubernetes",
               "TensorFlow",
+              "React",
             ].map((tech, index) => (
               <div
                 key={index}
                 className="p-3 bg-white rounded-md shadow-sm flex items-center justify-center mx-2"
-                style={{ minWidth: "80px", minHeight: "35px" }}
+                style={{ minWidth: "150px", minHeight: "35px" }}
               >
                 <span className="text-xs md:text-sm">{tech}</span>
               </div>
