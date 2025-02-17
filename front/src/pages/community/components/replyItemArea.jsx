@@ -6,15 +6,18 @@ import communityArticleStore from "../../../store/communityStore/communityArticl
 import ReplyItemService from "../services/replyItemService";
 import ListRender from "../../../components/pagination/listRender";
 import ReplyRenderItem from "./replyRenderItem";
+import ReplyTextarea from "./replyTextarea";
 
 const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
   const { articleId } = useParams();
+  const token = localStorage.getItem("token");
 
   // store에서 데이터를 가져오기 위해 정의
   const [replyList, setReplyList] = useState([]);
 
   const isReplied = communityArticleStore((state) => state.isReplied);
   const replySortType = communityArticleStore((state) => state.replySortType);
+  const replyId = communityArticleStore((state) => state.replyId);
 
   // store의 메소드를 가져오기 위해 정의
   const setArticleId = communityArticleStore((state) => state.setArticleId);
@@ -44,33 +47,15 @@ const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
       try {
         const data = await ReplyItemService.fetchReplyItem(articleId);
 
-        if (data?.length > 0) {
-          // NOTE: 정렬 방법에 따라 다르게 정렬
-          if (replySortType === "latest") {
-            setReplyList(data.reverse());
-          } else {
-            // default는 등록순
-            setReplyList(data); // 댓글 리스트 데이터를 state에 저장
-          }
-
-          // let tmpReplyCount = 0; // INFO: 댓글 전체 개수(대댓글 포함)을 저장하기 위한 임시 변수
-
-          // data.map((item) => {
-          //   // 대댓글이 있는 경우 대댓글의 개수 만큼 댓글 개수 증가
-          //   if (item.replies?.length > 0) {
-          //     tmpReplyCount += item.replies.length; // 대댓글 개수
-          //   }
-
-          //   // 삭제된 댓글이 아닐 경우 원댓글 개수 증가
-          //   // INFO: 대댓글이 있는 상태에서 삭제된 원댓글은 userId가 없음
-          //   if (item.userId) {
-          //     tmpReplyCount++; // 원댓글 개수
-          //   }
-          // });
-
-          // setCommentCount(tmpReplyCount); // 전체 댓글 개수를 state에 저장
-          setArticleId(articleId); // articleId를 state에 저장
+        // NOTE: 정렬 방법에 따라 다르게 정렬
+        if (replySortType === "latest") {
+          setReplyList(data.reverse());
+        } else {
+          // default는 등록순
+          setReplyList(data); // 댓글 리스트 데이터를 state에 저장
         }
+
+        setArticleId(articleId); // articleId를 state에 저장
       } catch (error) {
         setError(error);
       } finally {
@@ -92,17 +77,16 @@ const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
         setReCommentFlag={setReCommentFlag}
       />
 
-      {/* 대댓글 렌더링 */}
-      {item.replies?.length > 0 && (
-        <div className="flex flex-col mt-4 w-full">
-          {/* 대댓글 목록을 세로 정렬 */}
+      {/* 대댓글 영역 */}
+      <div className="flex flex-col mt-4 w-full">
+        {/* 대댓글 목록 */}
+        {item.replies?.length > 0 && (
           <div className="flex flex-col space-y-2 w-full">
             {item.replies.map((reply) => (
               <div
                 key={reply.commentId}
                 className="flex items-center border-t-2 border-gray-200 pt-2 w-full"
               >
-                {/* 대댓글 표시 꺾쇠 */}
                 <div className="pb-2 pr-2">
                   <svg
                     viewBox="0 0 24 24"
@@ -122,15 +106,26 @@ const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
                   <ReplyRenderItem
                     item={reply}
                     rootCommentId={item.commentId}
-                    reCommentFlag={true}
+                    reCommentFlag={reCommentFlag}
                     setReCommentFlag={setReCommentFlag}
                   />
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
+
+        {/* 대댓글 작성 영역 - 해당 댓글에 대한 댓글달기가 활성화된 경우에만 표시 */}
+        {token && reCommentFlag && replyId === item.commentId && (
+          <div className="ml-14 mt-2">
+            {console.log(item)}
+            <ReplyTextarea
+              reCommentFlag={reCommentFlag}
+              commentId={item.commentId}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 

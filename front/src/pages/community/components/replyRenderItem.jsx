@@ -7,7 +7,6 @@ import _ from "lodash";
 import ReportModal from "../../report";
 import useReportStore from "../../../store/reportStore";
 import communityArticleStore from "../../../store/communityStore/communityArticleStore";
-import ReplyTextarea from "./replyTextarea";
 import ReplyItemService from "../services/replyItemService";
 import useKoreanTime from "../../../hooks/useKoreanTime";
 
@@ -20,9 +19,11 @@ const ReplyRenderItem = ({
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
+  const commentCount = communityArticleStore((state) => state.commentCount);
   const setIsReplied = communityArticleStore((state) => state.setIsReplied);
-  const replyId = communityArticleStore((state) => state.replyId);
-
+  const setCommentCount = communityArticleStore(
+    (state) => state.setCommentCount
+  );
   const setReplyId = communityArticleStore((state) => state.setReplyId);
   const openReport = useReportStore((state) => state.openReport);
   const toggleReport = useReportStore((state) => state.toggleReport);
@@ -55,6 +56,8 @@ const ReplyRenderItem = ({
       toast.info("댓글이 삭제되었습니다.");
 
       //  삭제 후 댓글 리스트 리렌더링
+      const newCommentCount = commentCount - 1;
+      setCommentCount(newCommentCount);
       setIsReplied((prev) => !prev);
     }
   }, 100);
@@ -112,8 +115,8 @@ const ReplyRenderItem = ({
             <button
               className="text-[#7d7c77] underline text-sm cursor-pointer"
               onClick={() => {
-                setReCommentFlag(true); // 대댓글 작성 여부를 알기 위한 flag
-                setReplyId(item.commentId); // 대댓글 작성 시 대댓글을 작성하는 원댓글의 id
+                setReCommentFlag(true);
+                setReplyId(rootCommentId);
               }}
             >
               댓글 달기
@@ -122,18 +125,6 @@ const ReplyRenderItem = ({
         </div>
         <ReportModal />
       </div>
-
-      {/* 유저고, 대댓글이고, 원댓글의 밑에 대해서 */}
-      {token && reCommentFlag && replyId === item.commentId && (
-        <div className="ml-14 mt-2">
-          {/* 대댓글 작성 */}
-          <ReplyTextarea
-            reCommentFlag={reCommentFlag} // 대댓글 작성 여부를 알기 위한 flag
-            commentId={rootCommentId} // 대댓글 작성 시 대댓글을 작성하는 원댓글의 id
-          />
-        </div>
-      )}
-      <ReportModal />
     </div>
   );
 };

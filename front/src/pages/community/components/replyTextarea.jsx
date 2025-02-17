@@ -12,6 +12,10 @@ const ReplyTextarea = ({ reCommentFlag, commentId }) => {
   const [replyContent, setReplyContent] = useState("");
   const [contentLength, setContentLength] = useState(0);
 
+  const commentCount = communityArticleStore((state) => state.commentCount);
+  const setCommentCount = communityArticleStore(
+    (state) => state.setCommentCount
+  );
   const setIsReplied = communityArticleStore((state) => state.setIsReplied);
 
   // Debounced submit handler
@@ -35,6 +39,8 @@ const ReplyTextarea = ({ reCommentFlag, commentId }) => {
           await ReplyItemService.postReplyItem(articleId, formattedContent);
         }
 
+        const newCommentCount = commentCount + 1;
+        setCommentCount(newCommentCount);
         setReplyContent("");
         setContentLength(0);
         setIsReplied((prev) => !prev);
