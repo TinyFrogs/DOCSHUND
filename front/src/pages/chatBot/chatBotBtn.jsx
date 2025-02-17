@@ -50,7 +50,7 @@ const ChatBotBtn = () => {
         isUser: false,
         timestamp: new Date().toLocaleTimeString(),
       };
-      console.log("Processed bot response:", botResponse);
+
       setMessages((prev) => [...prev, botResponse]);
     } catch (error) {
       const errorMessage = {
@@ -99,7 +99,6 @@ const ChatBotBtn = () => {
   const onSubmit = (e) => {
     e.preventDefault();
     handleSubmit(e);
-    // console.log(messages);
   };
 
   // 챗봇 창이 열릴 때, 메시지가 없으면 인사말 API 호출

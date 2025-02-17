@@ -277,7 +277,7 @@ const TranslateViewer = () => {
     return () => {
       isMounted = false;
     };
-  }, [docsId]);
+  }, [docsId, location]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -333,6 +333,7 @@ const TranslateViewer = () => {
 
   return (
     <div
+      key={docsId}
       id="mainContent"
       className="h-screen w-[90vw] md:w-[60vw] bg-white fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] mx-auto shadow-xl"
     >
@@ -397,21 +398,7 @@ const TranslateViewer = () => {
               }}
               className="flex flex-col w-full h-fit rounded-md p-2 text-[#424242] hover:shadow-[0px_0px_15px_0px_rgba(149,_157,_165,_0.3)] hover:border-gray-200 cursor-pointer transition-all duration-250 ease-in-out"
             >
-              <div
-              // ref={(element) => {
-              //   if (element && !initialHeights.current[part.id]) {
-              //     // ToastViewer 렌더 후 높이 측정
-              //     setTimeout(() => {
-              //       const height = element.offsetHeight;
-              //       initialHeights.current[part.id] = height + "px";
-              //       setHeightStates((prev) => ({
-              //         ...prev,
-              //         [part.id]: initialHeights.current[part.id],
-              //       }));
-              //     }, 50);
-              //   }
-              // }}
-              >
+              <div>
                 {!docpartStates[part.id] ? (
                   <ToastViewer content={part.content} />
                 ) : (
