@@ -1,8 +1,9 @@
 package com.ssafy.docshund.domain.chats.service;
 
-import static com.ssafy.docshund.domain.chats.exception.WebSocketExceptionCode.*;
+import static com.ssafy.docshund.domain.chats.exception.WebSocketExceptionCode.CHAT_NOT_FOUND;
 import static com.ssafy.docshund.domain.docs.exception.DocsExceptionCode.DOCS_NOT_FOUND;
-import static com.ssafy.docshund.domain.users.exception.user.UserExceptionCode.*;
+import static com.ssafy.docshund.domain.users.exception.auth.AuthExceptionCode.INVALID_MEMBER_ROLE;
+import static com.ssafy.docshund.domain.users.exception.user.UserExceptionCode.USER_NOT_FOUND;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,7 @@ import com.ssafy.docshund.domain.docs.entity.Document;
 import com.ssafy.docshund.domain.docs.exception.DocsException;
 import com.ssafy.docshund.domain.docs.repository.DocumentRepository;
 import com.ssafy.docshund.domain.users.entity.User;
+import com.ssafy.docshund.domain.users.exception.auth.AuthException;
 import com.ssafy.docshund.domain.users.exception.user.UserException;
 import com.ssafy.docshund.domain.users.repository.UserRepository;
 import com.ssafy.docshund.global.util.user.UserUtil;
@@ -29,44 +31,44 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
 
-	private final UserUtil userUtil;
-	private final DocumentRepository documentRepository;
-	private final ChatRepository chatRepository;
-	private final UserRepository userRepository;
+    private final UserUtil userUtil;
+    private final DocumentRepository documentRepository;
+    private final ChatRepository chatRepository;
+    private final UserRepository userRepository;
 
-	@Override
-	@Transactional
-	public Chat createChat(Integer docsId, Long userId, ChatDto chatDto) {
+    @Override
+    @Transactional
+    public Chat createChat(Integer docsId, Long userId, ChatDto chatDto) {
 
-		Document document = documentRepository.findByDocsId(docsId);
-		if (document == null || document.getDocsId() != chatDto.getDocsId()) {
-			throw new DocsException(DOCS_NOT_FOUND);
-		}
+        Document document = documentRepository.findByDocsId(docsId);
+        if (document == null || document.getDocsId() != chatDto.getDocsId()) {
+            throw new DocsException(DOCS_NOT_FOUND);
+        }
 
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new UserException(USER_NOT_FOUND));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(USER_NOT_FOUND));
 
-		return chatRepository.save(new Chat(document, user, chatDto.getContent()));
-	}
+        return chatRepository.save(new Chat(document, user, chatDto.getContent()));
+    }
 
-	@Override
-	@Transactional(readOnly = true)
-	public Page<ChatInfoDto> getChatsByDocsId(Integer docsId, Pageable pageable) {
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ChatInfoDto> getChatsByDocsId(Integer docsId, Pageable pageable) {
 
-		if (!documentRepository.existsById(docsId)) {
-			throw new DocsException(DOCS_NOT_FOUND);
-		}
-		return chatRepository.findAllByDocsId(docsId, pageable);
-	}
+        if (!documentRepository.existsById(docsId)) {
+            throw new DocsException(DOCS_NOT_FOUND);
+        }
+        return chatRepository.findAllByDocsId(docsId, pageable);
+    }
 
-	@Override
-	public void modifyChatStatus(Long chatId, Status status) {
-		User user = userUtil.getUser();
-		if (!userUtil.isAdmin(user)) {
-			throw new UserException(USER_NOT_ADMIN);
-		}
+    @Override
+    public void modifyChatStatus(Long chatId, Status status) {
+        User user = userUtil.getUser();
+        if (!userUtil.isAdmin(user)) {
+            throw new AuthException(INVALID_MEMBER_ROLE);
+        }
 
-		Chat chat = chatRepository.findById(chatId).orElseThrow(() -> new WebSocketException(CHAT_NOT_FOUND));
-		chat.modifyStatus(status);
-	}
+        Chat chat = chatRepository.findById(chatId).orElseThrow(() -> new WebSocketException(CHAT_NOT_FOUND));
+        chat.modifyStatus(status);
+    }
 }

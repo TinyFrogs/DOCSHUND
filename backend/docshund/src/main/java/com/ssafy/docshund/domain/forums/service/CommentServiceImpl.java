@@ -3,7 +3,8 @@ package com.ssafy.docshund.domain.forums.service;
 import static com.ssafy.docshund.domain.forums.exception.ForumExceptionCode.MISMATCH_ARTICLE;
 import static com.ssafy.docshund.domain.forums.exception.ForumExceptionCode.NOT_FOUND_ARTICLE;
 import static com.ssafy.docshund.domain.forums.exception.ForumExceptionCode.NOT_FOUND_COMMENT;
-import static com.ssafy.docshund.domain.users.exception.user.UserExceptionCode.*;
+import static com.ssafy.docshund.domain.users.exception.auth.AuthExceptionCode.INVALID_MEMBER_ROLE;
+import static com.ssafy.docshund.domain.users.exception.auth.AuthExceptionCode.NOT_AUTHORIZATION_USER;
 import static com.ssafy.docshund.global.exception.GlobalErrorCode.INVALID_RESOURCE_OWNER;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import com.ssafy.docshund.domain.forums.exception.ForumException;
 import com.ssafy.docshund.domain.forums.repository.ArticleRepository;
 import com.ssafy.docshund.domain.forums.repository.CommentRepository;
 import com.ssafy.docshund.domain.users.entity.User;
+import com.ssafy.docshund.domain.users.exception.auth.AuthException;
 import com.ssafy.docshund.domain.users.exception.user.UserException;
 import com.ssafy.docshund.global.util.user.UserUtil;
 
@@ -72,7 +74,7 @@ public class CommentServiceImpl implements CommentService {
 
 		User user = userUtil.getUser();
 		if (user == null) {
-			throw new UserException(USER_NOT_FOUND);
+			throw new AuthException(NOT_AUTHORIZATION_USER);
 		}
 
 		Comment savedComment = commentRepository.save(new Comment(null, user, article, commentDto.getContent()));
@@ -92,16 +94,16 @@ public class CommentServiceImpl implements CommentService {
 	@Transactional
 	public CommentInfoDto createReply(Integer articleId, Integer commentId, CommentDto commentDto) {
 
+		User user = userUtil.getUser();
+		if (user == null) {
+			throw new AuthException(NOT_AUTHORIZATION_USER);
+		}
+
 		Article article = articleRepository.findById(articleId)
 			.orElseThrow(() -> new ForumException(NOT_FOUND_ARTICLE));
 
 		Comment parentComment = commentRepository.findById(commentId)
 			.orElseThrow(() -> new ForumException(NOT_FOUND_COMMENT));
-
-		User user = userUtil.getUser();
-		if (user == null) {
-			throw new UserException(USER_NOT_FOUND);
-		}
 
 		Comment savedComment = commentRepository.save(
 			new Comment(parentComment, user, article, commentDto.getContent()));
@@ -161,7 +163,7 @@ public class CommentServiceImpl implements CommentService {
 	public void modifyCommentStatus(Integer articleId, Status status) {
 		User user = userUtil.getUser();
 		if (!userUtil.isAdmin(user)) {
-			throw new UserException(USER_NOT_ADMIN);
+			throw new AuthException(INVALID_MEMBER_ROLE);
 		}
 
 		Comment comment = commentRepository.findById(articleId)

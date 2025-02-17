@@ -1,30 +1,32 @@
 package com.ssafy.docshund.domain.forums.service;
 
-import static com.ssafy.docshund.global.exception.GlobalErrorCode.RESOURCE_NOT_FOUND;
+import static com.ssafy.docshund.domain.docs.exception.DocsExceptionCode.DOCS_NOT_FOUND;
+import static com.ssafy.docshund.domain.forums.exception.ForumExceptionCode.INVALID_CATEGORY;
+import static com.ssafy.docshund.domain.forums.exception.ForumExceptionCode.NOT_FOUND_ARTICLE;
+import static com.ssafy.docshund.domain.users.exception.auth.AuthExceptionCode.INVALID_MEMBER_ROLE;
+import static com.ssafy.docshund.domain.users.exception.auth.AuthExceptionCode.NOT_AUTHORIZATION_USER;
+import static com.ssafy.docshund.global.exception.GlobalErrorCode.INVALID_RESOURCE_OWNER;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.docshund.domain.alerts.service.AlertsService;
 import com.ssafy.docshund.domain.docs.entity.Document;
 import com.ssafy.docshund.domain.docs.entity.Position;
+import com.ssafy.docshund.domain.docs.exception.DocsException;
 import com.ssafy.docshund.domain.docs.repository.DocumentRepository;
 import com.ssafy.docshund.domain.forums.dto.ArticleDto;
 import com.ssafy.docshund.domain.forums.dto.ArticleInfoDto;
 import com.ssafy.docshund.domain.forums.entity.Article;
 import com.ssafy.docshund.domain.forums.entity.Status;
 import com.ssafy.docshund.domain.forums.exception.ForumException;
-import com.ssafy.docshund.domain.forums.exception.ForumExceptionCode;
 import com.ssafy.docshund.domain.forums.repository.ArticleLikeRepository;
 import com.ssafy.docshund.domain.forums.repository.ArticleRepository;
 import com.ssafy.docshund.domain.users.entity.User;
 
+import com.ssafy.docshund.domain.users.exception.auth.AuthException;
 import com.ssafy.docshund.domain.users.exception.user.UserException;
-import com.ssafy.docshund.global.exception.GlobalErrorCode;
-import com.ssafy.docshund.global.exception.ResourceNotFoundException;
 import com.ssafy.docshund.global.util.user.UserUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -40,7 +42,6 @@ public class ArticleServiceImpl implements ArticleService {
 	private final ArticleRepository articleRepository;
 	private final ArticleLikeRepository articleLikeRepository;
 	private final DocumentRepository documentRepository;
-	private final AlertsService alertsService;
 
 	@Override
 	@Transactional
@@ -48,11 +49,11 @@ public class ArticleServiceImpl implements ArticleService {
 
 		User user = userUtil.getUser();
 		if (user == null) {
-			throw new AccessDeniedException("NO PERMISSION TO UNLOGINED USER");
+			throw new AuthException(NOT_AUTHORIZATION_USER);
 		}
 
 		Document document = documentRepository.findByDocumentName(articleDto.getCategory())
-				.orElseThrow(() -> new ForumException(ForumExceptionCode.INVALID_CATEGORY));
+				.orElseThrow(() -> new ForumException(INVALID_CATEGORY));
 
 		Article savedArticle = articleRepository.save(
 				new Article(user, document, articleDto.getTitle(), articleDto.getContent()));
@@ -72,11 +73,11 @@ public class ArticleServiceImpl implements ArticleService {
 	public void updateArticle(Integer articleId, ArticleDto articleDto) {
 
 		Article article = articleRepository.findById(articleId)
-				.orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NOT_FOUND));
+				.orElseThrow(() -> new ForumException(NOT_FOUND_ARTICLE));
 
 		User user = userUtil.getUser();
 		if (user == null || !article.getUser().getUserId().equals(user.getUserId())) {
-			throw new UserException(GlobalErrorCode.INVALID_RESOURCE_OWNER);
+			throw new UserException(INVALID_RESOURCE_OWNER);
 		}
 
 		if (articleDto.getTitle() != null) {
@@ -89,8 +90,7 @@ public class ArticleServiceImpl implements ArticleService {
 
 		if (articleDto.getCategory() != null) {
 			Document document = documentRepository.findByDocumentName(articleDto.getCategory())
-					.orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NOT_FOUND));
-
+					.orElseThrow(() -> new DocsException(DOCS_NOT_FOUND));
 			article.modifyDocument(document);
 		}
 	}
@@ -120,7 +120,7 @@ public class ArticleServiceImpl implements ArticleService {
 
 		User user = userUtil.getUser();
 		if (user == null) {
-			throw new UserException(GlobalErrorCode.INVALID_RESOURCE_OWNER);
+			throw new UserException(INVALID_RESOURCE_OWNER);
 		}
 
 		return articleRepository.findArticlesLikedByUserId(user.getUserId(), pageable);
@@ -134,12 +134,12 @@ public class ArticleServiceImpl implements ArticleService {
 		Long userId = (user != null) ? user.getUserId() : 0L;
 
 		Article article = articleRepository.findById(articleId).orElseThrow(
-				() -> new ResourceNotFoundException(RESOURCE_NOT_FOUND));
-		article.increaseViewCount();
+				() -> new ForumException(NOT_FOUND_ARTICLE));
 
-		ArticleInfoDto articleInfo = articleRepository.findArticleById(articleId, userId);
-
-		return articleInfo;
+		if(!article.getUser().getUserId().equals(userId)) {
+			article.increaseViewCount();
+		}
+		return articleRepository.findArticleById(articleId, userId);
 	}
 
 	@Override
@@ -147,11 +147,11 @@ public class ArticleServiceImpl implements ArticleService {
 	public void deleteArticle(Integer articleId) {
 
 		Article article = articleRepository.findById(articleId)
-				.orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NOT_FOUND));
+				.orElseThrow(() -> new ForumException(NOT_FOUND_ARTICLE));
 
 		User user = userUtil.getUser();
 		if (user == null || !article.getUser().getUserId().equals(user.getUserId())) {
-			throw new UserException(GlobalErrorCode.INVALID_RESOURCE_OWNER);
+			throw new UserException(INVALID_RESOURCE_OWNER);
 		}
 
 		article.modifyToDelete();
@@ -163,7 +163,7 @@ public class ArticleServiceImpl implements ArticleService {
 
 		User user = userUtil.getUser();
 		if (user == null) {
-			throw new AccessDeniedException("NO PERMISSION TO UNLOGINED USER");
+			throw new AuthException(NOT_AUTHORIZATION_USER);
 		}
 
 		if (articleLikeRepository.existsLike(user.getUserId(), articleId) == 1) {
@@ -178,11 +178,11 @@ public class ArticleServiceImpl implements ArticleService {
 	public void modifyArticleStatus(Integer articleId, Status status) {
 		User user = userUtil.getUser();
 		if (!userUtil.isAdmin(user)) {
-			throw new RuntimeException("어드민이 아닙니다.");
+			throw new AuthException(INVALID_MEMBER_ROLE);
 		}
 
 		Article article = articleRepository.findById(articleId)
-				.orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NOT_FOUND));
+				.orElseThrow(() -> new ForumException(NOT_FOUND_ARTICLE));
 
 		article.modifyStatus(status);
 	}
