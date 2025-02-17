@@ -10,7 +10,8 @@ import { Flag, Send } from "lucide-react";
 import { toast } from "react-toastify";
 import ReportModal from "../report.jsx";
 import useReportStore from "../../store/reportStore.jsx";
-import useKeyComposing from "../../hooks/useKeyComposing"; // 경로에 맞게 조정하세요
+import useKeyComposing from "../../hooks/useKeyComposing";
+import useKoreanTime from "../../hooks/useKoreanTime";
 
 const Chat = () => {
   const { isChatVisible, toggleChat } = ChatStore();
@@ -19,8 +20,8 @@ const Chat = () => {
   const docsId = location.pathname.split("/")[4];
   const token = localStorage.getItem("token");
   const { openReport, toggleReport } = useReportStore();
-
   const { isComposing, keyComposingEvents } = useKeyComposing();
+  const { convertToKoreanTime } = useKoreanTime();
 
   const [userId, setUserId] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -40,15 +41,12 @@ const Chat = () => {
     }
   }, [token]);
 
-  // 스크롤을 맨 아래로 이동하는 함수
   const scrollToBottom = () => {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
   };
 
-  // useLayoutEffect: 초기 메시지 로드 후 또는 메시지 업데이트 시
-  // 컨테이너가 최하단 근처에 있을 경우에만 스크롤 이동합니다.
   useLayoutEffect(() => {
     if (!loadingInitialMessages && isChatVisible) {
       const container = containerRef.current;
@@ -64,10 +62,8 @@ const Chat = () => {
     }
   }, [loadingInitialMessages, isChatVisible, messages]);
 
-  // 웹소켓 연결 (실시간 채팅)
   const connect = () => {
     if (stompClient.current && stompClient.current.connected) return;
-
     const socketFactory = () => {
       const socket = new WebSocket("wss://i12a703.p.ssafy.io/ws-connect");
       socket.onerror = (event) => {
@@ -80,19 +76,15 @@ const Chat = () => {
       };
       return socket;
     };
-
     stompClient.current = Stomp.over(socketFactory);
     stompClient.current.debug = () => {};
     stompClient.current.connect(
       { Authorization: `Bearer ${token}` },
       () => {
-        // 채팅 메시지 구독
         stompClient.current.subscribe(`/sub/chats/${docsId}`, (message) => {
           const newMessage = JSON.parse(message.body);
           const container = containerRef.current;
           setMessages((prev) => [...prev, newMessage]);
-          // 본인이 보낸 메시지인 경우 항상 스크롤 이동,
-          // 다른 사람의 메시지인 경우 사용자가 최하단 근처에 있을 때만 스크롤 이동
           if (newMessage.userId === userId) {
             setTimeout(() => {
               scrollToBottom();
@@ -109,8 +101,6 @@ const Chat = () => {
             }, 300);
           }
         });
-
-        // STOMP 에러 구독
         stompClient.current.subscribe("/user/queue/errors", (message) => {
           const errorData = JSON.parse(message.body);
           console.error("STOMP 구독 에러:", errorData);
@@ -133,7 +123,6 @@ const Chat = () => {
     }
   };
 
-  // 초기 메시지 로드 (페이지 0, size 50)
   const loadInitialMessages = async () => {
     setLoadingInitialMessages(true);
     try {
@@ -151,7 +140,6 @@ const Chat = () => {
     setLoadingInitialMessages(false);
   };
 
-  // 이전 채팅 더 불러오기 (다음 페이지 불러오기)
   const loadPreviousMessages = async () => {
     if (!hasMore) return;
     const container = containerRef.current;
@@ -185,7 +173,6 @@ const Chat = () => {
     }
   };
 
-  // keyDown 이벤트에서 isComposing 상태를 확인하여 전송 실행
   const handleKeyDown = (event) => {
     if (event.key === "Enter" && !isComposing) {
       event.preventDefault();
@@ -206,7 +193,6 @@ const Chat = () => {
         JSON.stringify(body)
       );
       setInputValue("");
-      // 본인이 메시지를 보냈으므로, 바로 스크롤 이동 처리
       setTimeout(() => {
         scrollToBottom();
       }, 300);
@@ -217,13 +203,12 @@ const Chat = () => {
     connect();
     loadInitialMessages();
     return () => disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <div>
       {localStorage.getItem("token") && (
-        <div className="fixed z-[2600] bottom-17 right-1 flex">
+        <div className="fixed z-[2600] right-1 flex">
           <AnimatePresence>
             {isChatVisible && (
               <motion.div
@@ -231,15 +216,13 @@ const Chat = () => {
                 initial={{ opacity: 0, y: 1000 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 1000 }}
-                onAnimationComplete={() => {
-                  scrollToBottom();
-                }}
+                onAnimationComplete={scrollToBottom}
                 transition={{ ease: "easeInOut", duration: 0.5 }}
-                className="fixed bottom-26 right-3.5 w-[400px] h-[600px] bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col z-[2600] -translate-x-[12.5%] translate-y-[16%]"
+                className="fixed inset-0 sm:inset-auto sm:bottom-35 sm:right-3.5 w-full h-full sm:w-[400px] sm:h-[95vh] bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col z-[2600] sm:-translate-x-[12.5%] sm:translate-y-[16%]"
                 onClick={(e) => e.stopPropagation()}
               >
                 <ReportModal />
-                <div className="p-4 bg-[#C96442] rounded-t-xl text-white font-semibold flex items-center justify-between">
+                <div className="p-2 bg-[#C96442] rounded-t-xl text-white font-semibold flex items-center justify-between">
                   <span>문서 채팅</span>
                   <button
                     onClick={() => {
@@ -253,14 +236,14 @@ const Chat = () => {
 
                 <div
                   ref={containerRef}
-                  className="flex-1 overflow-y-auto p-4 space-y-4"
+                  className="flex-1 overflow-y-auto p-2 space-y-2"
                 >
                   {!loadingInitialMessages && (
                     <div className="text-center mb-2">
                       {hasMore && messages.length > 0 ? (
                         <button
                           onClick={loadPreviousMessages}
-                          className="px-3 py-1 text-gray-400 underline rounded hover:text-gray-800"
+                          className="px-2 py-1 text-gray-400 underline rounded hover:text-gray-800"
                         >
                           이전 채팅 더 불러오기
                         </button>
@@ -283,84 +266,88 @@ const Chat = () => {
                       메시지가 없습니다.
                     </div>
                   ) : (
-                    messages.map((item, index) => (
-                      <div
-                        key={index}
-                        className={`flex ${
-                          item.userId === userId
-                            ? "justify-end"
-                            : "justify-start"
-                        }`}
-                      >
-                        {item.userId !== userId && (
-                          <img
-                            src={item.profileImg}
-                            alt="Profile"
-                            className="w-10 h-10 rounded-full border border-[#c5afa7] cursor-pointer mr-2"
-                            onClick={() => {
-                              toggleChat();
-                              setTimeout(() => {
-                                navigate(`/userPage/${item.userId}`);
-                              }, 300);
-                            }}
-                          />
-                        )}
-                        <div className="max-w-[70%]">
-                          {item.userId !== userId && (
-                            <p className="text-xs font-semibold mb-1">
+                    messages.map((item, index) =>
+                      item.userId !== userId ? (
+                        <div key={index} className="flex flex-col items-start">
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={item.profileImg}
+                              alt="Profile"
+                              className="w-8 h-8 rounded-full border border-[#c5afa7] cursor-pointer"
+                              onClick={() => {
+                                toggleChat();
+                                setTimeout(() => {
+                                  navigate(`/userPage/${item.userId}`);
+                                }, 300);
+                              }}
+                            />
+                            <p className="text-xs font-semibold">
                               {item.nickName}
                             </p>
-                          )}
-                          <div
-                            className={`p-3 rounded-lg ${
-                              item.userId === userId
-                                ? "bg-[#bc5b39] text-white"
-                                : "bg-gray-100"
-                            }`}
-                          >
+                          </div>
+                          <div className="mt-1 ml-10 p-2 rounded-lg bg-gray-100 text-gray-800 max-w-[280px]">
                             <p className="text-sm break-words">
                               {item.content}
                             </p>
-                            {item.userId !== userId && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  useReportStore.setState({
-                                    originContent: item.content,
-                                    reportedUser: item.userId,
-                                    commentId: null,
-                                    articleId: null,
-                                    transId: null,
-                                    chatId: item.chatId,
-                                  });
-                                  openReport();
-                                  toggleReport();
-                                }}
-                                className="text-xs text-red-500 flex items-center gap-1 mt-1 cursor-pointer hover:underline"
-                              >
-                                <Flag size={10} /> 신고
-                              </button>
-                            )}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                useReportStore.setState({
+                                  originContent: item.content,
+                                  reportedUser: item.userId,
+                                  commentId: null,
+                                  articleId: null,
+                                  transId: null,
+                                  chatId: item.chatId,
+                                });
+                                openReport();
+                                toggleReport();
+                              }}
+                              className="mt-1 text-xs text-red-500 flex items-center gap-1 cursor-pointer hover:underline"
+                            >
+                              <Flag size={10} /> 신고
+                            </button>
+                          </div>
+                          <div className="ml-10 mt-1">
+                            <span className="text-xs text-gray-500">
+                              {convertToKoreanTime(item.createdAt) ||
+                                "표시할 수 없는 날짜입니다."}
+                            </span>
                           </div>
                         </div>
-                      </div>
-                    ))
+                      ) : (
+                        // 본인 메시지
+                        <div key={index} className="flex flex-col items-end">
+                          <div className="mt-1 p-2 rounded-lg bg-[#bc5b39] text-white max-w-[280px]">
+                            <p className="text-sm break-words">
+                              {item.content}
+                            </p>
+                          </div>
+                          <div className="mt-1">
+                            <span className="text-xs text-gray-500">
+                              {convertToKoreanTime(item.createdAt) ||
+                                "표시할 수 없는 날짜입니다."}
+                            </span>
+                          </div>
+                        </div>
+                      )
+                    )
                   )}
                   <div ref={messagesEndRef} />
                 </div>
-                <div className="p-4 border-t border-gray-200 flex flex-col sm:flex-row gap-2">
+                <div className="p-2 border-t border-gray-200 flex flex-row gap-2">
                   <input
                     type="text"
                     value={inputValue}
                     onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
                     {...keyComposingEvents}
-                    className="flex-1 w-full px-4 py-2 border rounded-full focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39]"
+                    className="flex-1 w-full px-3 py-2 border rounded-full focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39]"
                     placeholder="메시지를 입력하세요..."
                   />
                   <button
                     onClick={sendMessage}
-                    className="w-full sm:w-auto px-3 py-3 bg-[#bc5b39] text-white rounded-full hover:bg-[#C96442] cursor-pointer"
+                    className="sm:w-auto px-3 py-2 bg-[#bc5b39] text-white rounded-full hover:bg-[#C96442] cursor-pointer"
                   >
                     <Send />
                   </button>

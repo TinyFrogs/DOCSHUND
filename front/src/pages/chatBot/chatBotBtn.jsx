@@ -27,7 +27,6 @@ const ChatBotBtn = () => {
   const [inputMessage, setInputMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -36,10 +35,9 @@ const ChatBotBtn = () => {
     toggleChatBot();
   };
 
-  // Gemini API 호출 함수
   const testGeminiAPI = async (fullPrompt) => {
     setLoading(true);
-    // console.log("Sending prompt:", fullPrompt);
+    console.log("Sending chat content:", chatContent);
     try {
       const cloudFunctionUrl = `${import.meta.env.VITE_CLOUD_FUNCTION_URL}`;
       const response = await axios.post(
@@ -47,14 +45,12 @@ const ChatBotBtn = () => {
         { prompt: fullPrompt },
         { headers: { "Content-Type": "application/json" } }
       );
-
       const botResponse = {
         text: response.data.response || "응답을 받아오는데 실패했습니다.",
         isUser: false,
         timestamp: new Date().toLocaleTimeString(),
       };
-
-      // console.log("Processed bot response:", botResponse);
+      console.log("Processed bot response:", botResponse);
       setMessages((prev) => [...prev, botResponse]);
     } catch (error) {
       const errorMessage = {
@@ -130,11 +126,8 @@ const ChatBotBtn = () => {
                 initial={{ opacity: 0, y: 1000 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 1000 }}
-                transition={{
-                  ease: "easeInOut",
-                  duration: 0.5,
-                }}
-                className="w-[400px] h-[600px] bg-white rounded-xl shadow-lg border border-gray-200 z-[2500] flex flex-col -translate-x-[15%] translate-y-[10%]"
+                transition={{ ease: "easeInOut", duration: 0.5 }}
+                className="w-[30vw] h-[97vh] bg-white rounded-xl shadow-lg border border-gray-200 z-[2500] flex flex-col -translate-x-[15%] translate-y-[10%]"
               >
                 {/* 챗봇 헤더 */}
                 <div className="flex items-center p-4 border-b border-gray-200 bg-[#C96442] rounded-t-xl w-full">
@@ -161,7 +154,7 @@ const ChatBotBtn = () => {
                       <div
                         className={`max-w-[70%] p-3 rounded-lg ${
                           message.isUser
-                            ? "bg-red-900 text-white rounded-br-none"
+                            ? "bg-[#bc5b39] text-white rounded-br-none"
                             : "bg-gray-100 text-gray-800 rounded-bl-none"
                         }`}
                       >
@@ -203,7 +196,7 @@ const ChatBotBtn = () => {
                       value={inputMessage}
                       onChange={(e) => setInputMessage(e.target.value)}
                       placeholder="메시지를 입력하세요..."
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:border-[#C96442]"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:border-[#C96442] flex-wrap"
                     />
                     <button
                       type="submit"
@@ -218,17 +211,21 @@ const ChatBotBtn = () => {
             )}
           </AnimatePresence>
 
-          {/* 챗봇 토글 버튼 (위치 변경: bottom-20) */}
+          {/* 챗봇 토글 버튼 */}
           <div
             id="chatBotBtn"
             onClick={() => {
               toggleChatBot();
               ChatStore.setState({ isChatVisible: false });
             }}
-            className="fixed bottom-20 right-4 z-[2500] flex items-center gap-2 bg-gradient-to-r from-pink-400 to-purple-400 text-white rounded-full px-4 py-2 shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer"
+            className="group fixed bottom-20 right-4 z-[2500] flex items-center overflow-hidden w-10 h-10 rounded-full bg-gradient-to-r from-[#BC5B39] to-[#ff835a] text-white transition-all duration-300 hover:w-24 hover:shadow-2xl cursor-pointer"
           >
-            <Bot className="w-6 h-6" />
-            <span className="text-sm font-medium">챗봇</span>
+            <div className="flex-shrink-0 flex items-center justify-center w-10 h-10">
+              <Bot className="w-6 h-6" />
+            </div>
+            <span className="ml-2 whitespace-nowrap opacity-0 transition-all duration-300 group-hover:opacity-100">
+              챗봇
+            </span>
           </div>
         </div>
       )}

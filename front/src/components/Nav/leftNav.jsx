@@ -9,7 +9,7 @@ import {
   Flowbite,
 } from "flowbite-react";
 import { jwtDecode } from "jwt-decode";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import MemoModal from "../../pages/myPage/components/MemoModal.jsx";
 import { fetchDocsList } from "../../pages/translate/services/translateGetService.jsx";
 import memoService from "../../pages/myPage/services/memoService";
@@ -35,6 +35,7 @@ const LeftNav = () => {
   // flowbite 라이트모드 강제 설정
   const { setMode } = useThemeMode();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // 내브 바 열림 및 닫힘
   const { isNavOpen, openNav, closeNav } = useModalStore();
@@ -71,19 +72,13 @@ const LeftNav = () => {
     if (userId) {
       fetchMemos(userId);
     }
-  }, [userId]);
+  }, [userId, location]);
 
   const fetchMemos = async (userId) => {
-    if (!userId) {
-      return;
-    }
+    if (!userId) return;
     try {
       const data = await memoService.fetchMemos(userId);
-      if (data) {
-        setMemos(data.reverse());
-      } else {
-        setMemos([]);
-      }
+      setMemos(data ? data.reverse() : []);
     } catch (error) {
       console.error("Error fetching memos:", error);
     }
@@ -94,11 +89,7 @@ const LeftNav = () => {
       try {
         await memoService.createMemo(userId, memoData);
         const data = await memoService.fetchMemos(userId);
-        if (data) {
-          setMemos(data.reverse());
-        } else {
-          setMemos([]);
-        }
+        setMemos(data ? data.reverse() : []);
         closeModal();
       } catch (error) {
         console.error("Error creating memo:", error);
@@ -111,11 +102,7 @@ const LeftNav = () => {
       try {
         await memoService.updateMemo(userId, memoId, memoData);
         const data = await memoService.fetchMemos(userId);
-        if (data) {
-          setMemos(data.reverse());
-        } else {
-          setMemos([]);
-        }
+        setMemos(data ? data.reverse() : []);
         closeModal();
       } catch (error) {
         console.error("Error updating memo:", error);
@@ -128,7 +115,6 @@ const LeftNav = () => {
     toggleAlert();
   };
 
-  // **확인 모달에서 "확인" 클릭 시 실제 삭제를 진행합니다.**
   const confirmDeleteMemo = async () => {
     if (userId && memoToDelete) {
       try {
@@ -144,15 +130,13 @@ const LeftNav = () => {
     }
   };
 
-  // 문서 목록 관련 상태
   const { docsList, setDocsList } = useDocsStore();
 
-  // 문서 목록 불러오기
+  // 문서 목록 불러오기 (DocsList 높이는 모바일: h-48, 데스크탑: h-[200px])
   useEffect(() => {
     fetchDocsList(true);
   }, [docsList]);
 
-  // 알림 모달 상태 초기화
   useEffect(() => {
     closeNotificationModal();
   }, []);
@@ -162,7 +146,7 @@ const LeftNav = () => {
       <Drawer
         open={isNavOpen}
         onClose={closeNav}
-        className="dark:bg-[#FAF9F5] max-w-[36vw] shadow-2xl"
+        className="dark:bg-[#FAF9F5] max-w-full md:max-w-[36vw] shadow-2xl"
         backdrop={false}
       >
         <div className="flex items-center justify-center">
@@ -190,30 +174,19 @@ const LeftNav = () => {
                 <Sidebar.Items>
                   <Sidebar.ItemGroup>
                     <Sidebar.Item className="dark:hover:bg-transparent">
-                      <div
-                        className="px-2 py-2.5 mb-2 flex flex-row items-center cursor-pointer hover:bg-[#F5F4F0] transition-colors duration-200"
-                        // onClick={() => setIsMenuOpen(!isMenuOpen)}
-                      >
+                      <div className="px-2 py-2.5 mb-2 flex flex-row items-center cursor-pointer hover:bg-[#F5F4F0] transition-colors duration-200">
                         <ScrollText className="w-6 h-6 text-[#7E7C77]" />
                         <span className="ml-5 font-medium text-[#7E7C77]">
                           문서목록
-                        </span>{" "}
-                        {/* {isMenuOpen ? (
-                          <ChevronUp className="w-6 h-6 text-[#7E7C77] ml-auto" />
-                        ) : (
-                          <ChevronDown className="w-6 h-6 text-[#7E7C77] ml-auto" />
-                        )} */}
+                        </span>
                       </div>
-                      {/* {isMenuOpen && ( */}{" "}
-                      <div className="h-[200px] overflow-y-scroll ">
+                      <div className="h-48 md:h-[200px] overflow-y-scroll">
                         <div className="px-2">
                           {docsList.map((doc, index) => (
                             <div
-                              onClick={async () => {
-                                navigate(
-                                  `/translate/main/viewer/${doc.docsId}`
-                                );
-                              }}
+                              onClick={async () =>
+                                navigate(`/translate/main/viewer/${doc.docsId}`)
+                              }
                               key={index}
                               className="cursor-pointer py-2.5 flex justify-between items-center border-b border-[#E0DED9] hover:bg-[#F5F4F0] transition-colors duration-200"
                             >
@@ -269,7 +242,7 @@ const LeftNav = () => {
                           </div>
                           <div className="px-2">
                             {Array.isArray(memos) && memos.length === 0 ? (
-                              <p className="text-[#7E7C77] text-xs">
+                              <p className="text-[#7E7C77] text-xs sm:text-sm">
                                 작성된 메모가 없습니다.
                               </p>
                             ) : (
@@ -279,14 +252,14 @@ const LeftNav = () => {
                                   key={index}
                                   className="py-2.5 flex justify-between items-center border-b border-[#E0DED9] hover:bg-[#F5F4F0] transition-colors duration-200"
                                 >
-                                  <span className="sm:w-25 md:w-36 text-[#7E7C77] break-all line-clamp-1">
+                                  <span className="sm:w-25 md:w-36 text-[#7E7C77] break-all line-clamp-1 text-xs sm:text-sm">
                                     {memo.title}
                                   </span>
                                   <button
                                     onClick={() =>
                                       handleOpenEditModal(memo, openModal)
                                     }
-                                    className="text-[#7E7C77] hover:text-[#4A4A4A] underline cursor-pointer text-sm transition-colors duration-200"
+                                    className="text-[#7E7C77] hover:text-[#4A4A4A] underline cursor-pointer text-xs sm:text-sm transition-colors duration-200"
                                   >
                                     보기
                                   </button>

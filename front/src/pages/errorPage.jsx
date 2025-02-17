@@ -21,31 +21,31 @@ const ErrorPage = () => {
       case 401:
         return {
           title: "로그인이 필요합니다",
-          description: "로그인 후 이용해주세요.",
+          description: message,
           image: errorImage400,
         };
       case 403:
         return {
           title: "접근이 금지되었습니다",
-          description: "해당 페이지에 접근할 수 있는 권한이 없습니다.",
+          description: message,
           image: errorImage400,
         };
       case 404:
         return {
           title: "페이지를 찾을 수 없습니다",
-          description: "요청한 페이지가 존재하지 않습니다.",
+          description: message,
           image: errorImage400,
         };
       case 410:
         return {
           title: "계정이 탈퇴되었습니다",
-          description: "이 계정은 더 이상 존재하지 않습니다.",
+          description: message,
           image: errorImage400,
         };
       case 500:
         return {
           title: "서버 오류",
-          description: "알 수 없는 오류가 발생했습니다.",
+          description: message,
           image: errorImage500,
         };
       default:

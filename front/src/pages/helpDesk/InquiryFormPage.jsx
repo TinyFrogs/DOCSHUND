@@ -73,6 +73,17 @@ const InquiryFormPage = () => {
       return;
     }
 
+    // 이메일 도메인에 "github"가 포함된 경우 제출 차단
+    const emailParts = email.split("@");
+    if (
+      emailParts.length > 1 &&
+      emailParts[1].toLowerCase().includes("github")
+    ) {
+      toast.info("유효하지 않은 이메일 도메인입니다.");
+      setLoading(false);
+      return;
+    }
+
     let userId = null;
     const token = localStorage.getItem("token");
     if (token) {
