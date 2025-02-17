@@ -10,7 +10,7 @@ import useEditorStore from "../../store/translateStore/editorStore";
 
 // components
 import CommunityHeader from "./components/communityHeader";
-import EditorContent from "../translate/components/editorContent";
+import EditorContent from "../translate/components/godEditorContent";
 import ArticleItemService from "./services/articleItemService";
 
 const WriteArticle = () => {
@@ -26,11 +26,7 @@ const WriteArticle = () => {
 
   const documentNames = docsCategoryStore((state) => state.documentNames);
   const currentUserText = useEditorStore((state) => state.currentUserText);
-  const contentLength = communityArticleStore((state) => state.contentLength);
-  const setContentLength = communityArticleStore(
-    (state) => state.setContentLength
-  );
-  const fileUrl = communityArticleStore((state) => state.fileUrl);
+
   const setFileUrl = communityArticleStore((state) => state.setFileUrl);
 
   // 제목 입력 핸들러

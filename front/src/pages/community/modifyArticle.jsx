@@ -10,7 +10,7 @@ import useEditorStore from "../../store/translateStore/editorStore";
 
 // components
 import CommunityHeader from "./components/communityHeader";
-import EditorContent from "../translate/components/editorContent";
+import EditorContent from "../translate/components/godEditorContent";
 import ArticleItemService from "./services/articleItemService";
 
 const ModifyArticle = () => {
@@ -31,14 +31,19 @@ const ModifyArticle = () => {
 
   const documentNames = docsCategoryStore((state) => state.documentNames);
   const setFileUrl = communityArticleStore((state) => state.setFileUrl);
+  const currentUserText = useEditorStore((state) => state.currentUserText);
 
   useEffect(() => {
     const loadArticleData = async () => {
+      // console.log("articleItems", articleItems);
+
       try {
         // articleItems가 비어있거나 현재 articleId와 다른 경우에만 데이터를 새로 불러옵니다
         if (!articleItems?.articleId && articleItems.articleId !== articleId) {
           const data = await ArticleItemService.fetchArticleItem(articleId);
           setArticleItems(data); // store에 데이터 저장
+
+          // console.log("data", data);
 
           if (data) {
             // 로컬 상태 업데이트
@@ -124,7 +129,7 @@ const ModifyArticle = () => {
         articleId,
         title,
         subCategory,
-        content
+        currentUserText
       );
 
       if (response.status === 204) {
@@ -133,7 +138,7 @@ const ModifyArticle = () => {
           title,
           position: mainCategory,
           documentName: subCategory,
-          content,
+          currentUserText,
         });
         toast.info("글 수정이 완료되었습니다.");
         navigate(`/community/article/${articleId}`);
@@ -242,7 +247,6 @@ const ModifyArticle = () => {
                       <input
                         type="file"
                         accept="image/png, image/jpeg, image/jpg"
-                        // INFO: 파일 첨부 로직(s3에 업로드 후 url 받아오기)
                         onChange={handleFileChange}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
