@@ -1,11 +1,9 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import _ from "lodash";
 import useUserProfileStore from "../../store/myPageStore/userProfileStore";
 import useAuthStore from "../../store/authStore";
-
 import InquiryService from "../../services/helpDeskServices/inquiryService";
 import LodingImage from "../../assets/loading.gif";
 
@@ -36,56 +34,7 @@ const InquiryFormPage = () => {
   const MAX_TITLE_LENGTH = 50;
   const MAX_CONTENT_LENGTH = 2000;
 
-  const debouncedSubmit = useCallback(
-    _.debounce(async (inquiry, formData) => {
-      try {
-        await InquiryService.submitInquiry(formData);
-        setCategory("");
-        setTitle("");
-        if (profile && profile.email) {
-          setEmail(profile.email);
-        } else {
-          setEmail("");
-        }
-        setContent("");
-        setFile(null);
-        toast.success("문의가 성공적으로 제출되었습니다.");
-      } catch (error) {
-        if (
-          error.response &&
-          error.response.status === 400 &&
-          error.response.data?.message === "유효하지 않은 메일입니다."
-        ) {
-          toast.warn("유효하지 않은 메일입니다.", {
-            toastId: "report-warning",
-          });
-        } else if (
-          error.response &&
-          error.response.status === 400 &&
-          error.response.data?.message === "이미지 형식이 아닙니다."
-        ) {
-          toast.warn("이미지 형식이 아닙니다.", {
-            toastId: "report-warning",
-          });
-        } else {
-          toast.error("문의 제출 중 오류가 발생했습니다.", {
-            toastId: "report-error",
-          });
-        }
-      } finally {
-        setLoading(false);
-      }
-    }, 1000),
-    [navigate]
-  );
-
-  useEffect(() => {
-    return () => {
-      debouncedSubmit.cancel();
-    };
-  }, [debouncedSubmit]);
-
-  // 폼 제출
+  // 폼 제출 (debounce 제거)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -107,9 +56,9 @@ const InquiryFormPage = () => {
     }
 
     let userId = null;
-    const token = localStorage.getItem("token");
-    if (token) {
-      const decodedToken = jwtDecode(token);
+    const tokenFromLocal = localStorage.getItem("token");
+    if (tokenFromLocal) {
+      const decodedToken = jwtDecode(tokenFromLocal);
       userId = decodedToken.userId;
     }
 
@@ -133,7 +82,39 @@ const InquiryFormPage = () => {
       formData.append("file", file);
     }
 
-    debouncedSubmit(inquiry, formData);
+    try {
+      await InquiryService.submitInquiry(formData);
+      setCategory("");
+      setTitle("");
+      if (profile && profile.email) {
+        setEmail(profile.email);
+      } else {
+        setEmail("");
+      }
+      setContent("");
+      setFile(null);
+      toast.success("문의가 성공적으로 제출되었습니다.");
+    } catch (error) {
+      if (
+        error.response &&
+        error.response.status === 400 &&
+        error.response.data?.message === "유효하지 않은 메일입니다."
+      ) {
+        toast.warn("유효하지 않은 메일입니다.", { toastId: "report-warning" });
+      } else if (
+        error.response &&
+        error.response.status === 400 &&
+        error.response.data?.message === "이미지 형식이 아닙니다."
+      ) {
+        toast.warn("이미지 형식이 아닙니다.", { toastId: "report-warning" });
+      } else {
+        toast.error("문의 제출 중 오류가 발생했습니다.", {
+          toastId: "report-error",
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   // 파일 용량 제한 및 형식 체크

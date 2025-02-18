@@ -295,7 +295,7 @@ const LandingPage = () => {
       >
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-8 text-[#424242]">지원 문서</h2>
-          <Marquee gradient={false} speed={40} pauseOnHover={true}>
+          <Marquee gradient={false} speed={40} pauseOnHover={false}>
             {[
               "Spring",
               "Docker",

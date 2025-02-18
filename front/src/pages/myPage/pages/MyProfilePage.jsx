@@ -9,7 +9,6 @@ import ProfileCard from "./ProfileCard";
 // import SettingsCard from "./SettingsCard";
 import ConfirmModal from "../../../components/alertModal/confirmModal";
 import useAlertStore from "../../../store/alertStore";
-import _ from "lodash";
 
 const MyProfilePage = () => {
   const { profile, error, fetchProfile, updateProfile, deleteAccount } =
@@ -99,8 +98,8 @@ const MyProfilePage = () => {
     }
   };
 
-  // 편집 모드 저장
-  const handleSaveClick = _.debounce(async (e) => {
+  // 편집 모드 저장 (debounce 제거)
+  const handleSaveClick = async (e) => {
     e.preventDefault();
     if (
       !editedProfile.nickname ||
@@ -147,7 +146,7 @@ const MyProfilePage = () => {
         });
       }
     }
-  }, 500);
+  };
 
   // 이미지 변경 처리 (최대 1MB)
   const MAX_FILE_SIZE = 1 * 1000 * 1000;
@@ -188,7 +187,8 @@ const MyProfilePage = () => {
     toggleAlert();
   };
 
-  const confirmDeleteAccount = _.debounce(async () => {
+  // 계정 탈퇴 확인 (debounce 제거)
+  const confirmDeleteAccount = async () => {
     try {
       const success = await deleteAccount(userId);
       if (success) {
@@ -210,22 +210,13 @@ const MyProfilePage = () => {
       console.error("계정 탈퇴 실패", error);
       toggleAlert();
     }
-  }, 500);
+  };
 
   // 입력 값 처리
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditedProfile((prev) => ({ ...prev, [name]: value }));
   };
-
-  // 환경설정 (테마) 변경 처리
-  //   const handleThemeChange = (e) => {
-  //     const { value } = e.target;
-  //     setEditedProfile((prev) => ({
-  //       ...prev,
-  //       isDarkmode: value === "dark",
-  //     }));
-  //   };
 
   return (
     <div>
@@ -263,13 +254,6 @@ const MyProfilePage = () => {
         handleImageChange={handleImageChange}
         handleNicknameCheck={checkNickname}
       />
-
-      {/* <h1 className="font-bold text-2xl mt-5 mb-5">환경설정</h1>
-      <SettingsCard
-        isEditing={isEditing}
-        editedProfile={editedProfile}
-        handleThemeChange={handleThemeChange}
-      /> */}
 
       <div className="mt-5 mr-2 flex justify-end">
         <button

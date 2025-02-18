@@ -5,7 +5,6 @@ import * as motion from "motion/react-client";
 import { toast } from "react-toastify";
 import ReportStore from "../store/reportStore";
 import ReportService from "../services/reportService";
-import _ from "lodash";
 import { X } from "lucide-react";
 
 const ReportModal = () => {
@@ -41,7 +40,8 @@ const ReportModal = () => {
     }
   }, [isReportOpen]);
 
-  const debouncedHandleSubmit = _.debounce(async (e) => {
+  // 신고 제출 처리 (debounce 제거)
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // 필수 필드 확인
@@ -92,7 +92,7 @@ const ReportModal = () => {
       toast.success("신고가 성공적으로 제출되었습니다.", {
         toastId: "report-success",
       });
-      // 신고 성공 시 상태 초기화 (이미 useEffect로 처리되지만, 여기서도 해도 무방)
+      // 신고 성공 시 상태 초기화
       setCategory("");
       setContent("");
       setFile(null);
@@ -124,13 +124,6 @@ const ReportModal = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, 1000);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (isSubmitting) return; // 이미 제출 중이면 무시
-    setIsSubmitting(true);
-    debouncedHandleSubmit(e);
   };
 
   const handleFileChange = (e) => {
@@ -230,7 +223,6 @@ const ReportModal = () => {
                       onClick={() => setIsSelected(false)}
                       value="PERSONAL_INFORMATION_EXPOSURE"
                     >
-                      {" "}
                       개인정보 노출
                     </option>
                     <option value="COPYRIGHT_INFRINGEMENT">저작권 침해</option>

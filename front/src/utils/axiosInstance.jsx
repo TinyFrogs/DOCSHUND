@@ -38,19 +38,21 @@ const responseInterceptor = (error) => {
     if (status === 401) {
       useAuthStore.getState().logout();
       if (window.location.pathname !== "/") {
-        window.location.href = "/"; // 홈 페이지로 강제 이동
+        window.location.href = "/";
       }
+      return Promise.reject(error);
+    } else if (
+      status === 400 &&
+      (message === "이미 신고한 상태입니다." ||
+        message === "유효하지 않은 메일입니다." ||
+        message === "이미지 형식이 아닙니다.")
+    ) {
+      return Promise.reject(error);
     } else {
-      if (
-        !(status === 400 && message === "이미 신고한 상태입니다.") &&
-        !(status === 400 && message === "유효하지 않은 메일입니다.") &&
-        !(status === 400 && message === "이미지 형식이 아닙니다.")
-      ) {
-        if (window.location.pathname !== "/error") {
-          window.location.href = `/error?status=${status}&message=${encodeURIComponent(
-            message
-          )}`;
-        }
+      if (window.location.pathname !== "/error") {
+        window.location.href = `/error?status=${status}&message=${encodeURIComponent(
+          message
+        )}`;
       }
     }
   }
