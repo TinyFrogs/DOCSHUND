@@ -4,16 +4,16 @@ import static com.ssafy.docshund.global.mail.exception.MailExceptionCode.MAIL_NO
 import static org.springframework.http.HttpStatus.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.ssafy.docshund.global.mail.exception.MailException;
 
@@ -21,20 +21,30 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@ControllerAdvice
+@RestControllerAdvice
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity processValidationError(MethodArgumentNotValidException exception) {
-		BindingResult bindingResult = exception.getBindingResult();
+	public ResponseEntity<List<String>> handleMethodArgumentNotValid(MethodArgumentNotValidException exception) {
+		List<String> errors = exception.getBindingResult()
+			.getFieldErrors()
+			.stream()
+			.map(error -> error.getField() + " " + error.getDefaultMessage())
+			.collect(Collectors.toList());
 
-		List<ObjectError> errors = bindingResult.getAllErrors();
-		for (ObjectError error : errors) {
-			log.error(error.getObjectName());
-		}
+		return ResponseEntity.badRequest().body(errors);
+	}
 
-		return new ResponseEntity<>(errors, BAD_REQUEST);
+	@ExceptionHandler(BindException.class)
+	public ResponseEntity<List<String>> handleBindException(BindException exception) {
+		List<String> errors = exception.getBindingResult()
+			.getFieldErrors()
+			.stream()
+			.map(error -> error.getField() + " " + error.getDefaultMessage())
+			.collect(Collectors.toList());
+
+		return ResponseEntity.badRequest().body(errors);
 	}
 
 	@ExceptionHandler(DataIntegrityViolationException.class)

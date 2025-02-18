@@ -18,6 +18,6 @@ public class NoticeRequestDto {
 	private String title;
 
 	@NotNull(message = "내용은 필수 입력값입니다.")
-	@Size(max = 16000, message = "내용은 최대 16000글자까지 가능합니다.")
+	@Size(max = 15000, message = "내용은 최대 15000글자까지 가능합니다.")
 	private String content;
 }
