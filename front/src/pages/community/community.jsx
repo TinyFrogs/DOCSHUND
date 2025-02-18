@@ -1,8 +1,11 @@
 import CommunityLeftNav from "./components/communityLeftNav";
-
+import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 
 const community = () => {
+  useEffect(() => {
+    document.body.style.overflow = "auto";
+  }, []);
   return (
     <div className="w-full flex flex-col md:flex-row px-4 md:px-8 py-5 max-w-screen-xl mx-auto gap-4">
       {/* 좌측 내비게이션 바 */}

@@ -228,6 +228,7 @@ const BestTransViewer = () => {
   return (
     <div className="h-screen w-[90vw] md:w-[60vw] bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] mx-auto shadow-xl">
       <div className="flex flex-col gap-2">
+        <div className="h-[8vh]"></div>
         {docParts.map((part, index) => (
           <div key={index} className="paragraph flex flex-row gap-4 relative">
             <div className="flex flex-col w-full p-1 rounded-sm text-[#424242]">

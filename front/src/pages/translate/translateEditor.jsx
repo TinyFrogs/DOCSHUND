@@ -18,7 +18,7 @@ import useArchiveStore from "../../store/translateStore/archiveStore";
 //
 
 const TranslateEditor = () => {
-  let disabled = false;
+  const [loading, setLoading] = useState(false);
   const { docsPart, bestTrans, docsId, originId, porder, currentUserText } =
     useEditorStore();
   const [isVisible, setIsVisible] = useState(false);
@@ -54,6 +54,7 @@ const TranslateEditor = () => {
           toast.error("제출 실패");
         } else {
           toast.success("제출 완료");
+          setLoading(false);
           const tmpTransList = await fetchBestTranslate(docsId, "");
           tmpTransList.sort((a, b) => b.likeCount - a.likeCount);
           setTransList(tmpTransList);
@@ -111,6 +112,8 @@ const TranslateEditor = () => {
                 <div className="flex space-x-6 ">
                   <RectBtn
                     onClick={async () => {
+                      setLoading(true);
+
                       if (
                         currentUserText === "" ||
                         currentUserText === null ||

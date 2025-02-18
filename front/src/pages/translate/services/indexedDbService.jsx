@@ -103,7 +103,10 @@ export const searchData = (objectStoreName, fieldName, query) => {
       const cursor = event.target.result;
       if (cursor) {
         const value = cursor.value[fieldName];
-        if (value && value.toString().toLowerCase().includes(query)) {
+        if (
+          value &&
+          value.toString().toLowerCase().includes(query.toLowerCase())
+        ) {
           results.push(cursor.value);
         }
         cursor.continue();

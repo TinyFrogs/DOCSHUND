@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import ChatBotBtn from "../chatBot/chatBotBtn.jsx";
 import Information from "./page/information.jsx";
 import { MessageCircle } from "lucide-react";
+import { contextMenu } from "react-contexify";
 
 // 아이콘
 import Korean from "../../assets/icon/korean.png";
@@ -13,6 +14,7 @@ import { Menu } from "lucide-react";
 // 상태
 import useModalStore from "../../store/translateStore/translateModalStore.jsx";
 import useDocsStore from "../../store/translateStore/docsStore.jsx";
+import useReportStore from "../../store/reportStore.jsx";
 
 // 채팅
 import Chat from "../chat/chat.jsx";
@@ -21,7 +23,6 @@ import ChatBotStore from "../../store/chatBotStore.jsx";
 
 // 서비스
 import { fetchDocsList } from "./services/translateGetService.jsx";
-import { clearDB } from "./services/indexedDbService.jsx";
 
 const ViewerMainPage = () => {
   const { isChatVisible, toggleChat } = ChatStore();
@@ -30,7 +31,9 @@ const ViewerMainPage = () => {
   const location = useLocation().pathname;
 
   const { isArchiveOpen, isEditorOpen, openNav } = useModalStore();
-  const { setDocsList, setBestDocsList, documentName } = useDocsStore();
+  const { isReportOpen, closeReport } = useReportStore();
+  const { setDocsList, setBestDocsList, documentName, clearSearchResults } =
+    useDocsStore();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,6 +51,9 @@ const ViewerMainPage = () => {
 
   // URL 변경 시 채팅창과 챗봇을 닫도록 하는 useEffect
   useEffect(() => {
+    if (isReportOpen) {
+      closeReport();
+    }
     if (isChatVisible) {
       toggleChat(); // 채팅창이 열려있다면 닫기
     }
@@ -56,6 +62,11 @@ const ViewerMainPage = () => {
 
   return (
     <div
+      onClick={(e) => {
+        e.stopPropagation();
+        contextMenu.hideAll();
+        clearSearchResults();
+      }}
       onContextMenu={(e) => {
         e.preventDefault();
       }}

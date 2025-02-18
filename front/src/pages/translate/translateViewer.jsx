@@ -48,6 +48,7 @@ import { createPortal } from "react-dom";
 
 const TranslateViewer = () => {
   let userId = 0;
+  const menuRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
   const [bestTransMap, setBestTransMap] = useState({});
@@ -96,7 +97,8 @@ const TranslateViewer = () => {
     clearTempSave,
     clearSubmitData,
   } = useEditorStore();
-  const { documentName, setDocumentName, docsList } = useDocsStore();
+  const { documentName, setDocumentName, docsList, clearSearchResults } =
+    useDocsStore();
   // 모달 관련 상태
   const { openEditor, openArchive, closeEditor, closeArchive } =
     useModalStore();
@@ -117,18 +119,6 @@ const TranslateViewer = () => {
       transUserList[trans.userId] = user.nickname;
     });
   };
-
-  // const toggleDocpart = (partId) => {
-  //   setDocpartStates((prev) => ({
-  //     ...Object.keys(prev).reduce((acc, key) => {
-  //       if (key !== partId) {
-  //         acc[key] = false;
-  //       }
-  //       return acc;
-  //     }, {}),
-  //     [partId]: !prev[partId],
-  //   }));
-  // };
 
   const toggleDocpart = (partId) => {
     const partKey = String(partId);
@@ -326,13 +316,12 @@ const TranslateViewer = () => {
     setDocsId(part.docsId);
     setOriginId(part.originId);
     setPorder(part.pOrder);
-    // await fetchBestTranslate(part.docsId, "");
-    // await generateUserList(transList);
     await openArchive();
   };
 
   return (
     <div
+      onClick={() => clearSearchResults()}
       key={docsId}
       id="mainContent"
       className="h-screen w-[90vw] md:w-[60vw] bg-white fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] mx-auto shadow-xl"
@@ -340,6 +329,7 @@ const TranslateViewer = () => {
       {createPortal(<SearchDB tableId={docsId} />, document.body)}
 
       <div className="flex flex-col gap-2 w-full">
+        <div className="h-[8vh]"></div>
         {docParts.map((part, index) => (
           <div
             key={index}
@@ -350,10 +340,7 @@ const TranslateViewer = () => {
               }
               setContextMenuPorder(part.pOrder);
               handleContextMenu(e, part);
-              const tmpTransList = await fetchBestTranslate(
-                part.docsId,
-                "best"
-              );
+              const tmpTransList = await fetchBestTranslate(part.docsId, "");
               setTransList(tmpTransList);
               await generateUserList(tmpTransList);
               if (tmpTransList !== undefined) {
@@ -374,6 +361,7 @@ const TranslateViewer = () => {
             <div
               onClick={async (e) => {
                 e.stopPropagation();
+                clearSearchResults();
                 const tmpTransList = await fetchBestTranslate(
                   part.docsId,
                   "best"
@@ -446,6 +434,7 @@ const TranslateViewer = () => {
       {/* Menu를 Portal로 document.body에 렌더링하고 z-index를 높게 지정 */}
       {createPortal(
         <Menu
+          ref={menuRef}
           id="translate-menu"
           theme="none"
           animation="scale"

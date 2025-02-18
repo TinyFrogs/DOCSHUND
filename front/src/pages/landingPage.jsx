@@ -63,6 +63,10 @@ const LandingPage = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = "auto";
+  }, []);
+
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },

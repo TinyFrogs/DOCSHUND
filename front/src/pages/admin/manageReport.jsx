@@ -193,14 +193,14 @@ const ManageReport = () => {
                     }}
                     className="hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 overflow-hidden text-ellipsis max-w-[300px]">
                       {report.category}
                     </td>
-                    <td className="flex gap-1 px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="flex gap-1 px-6 py-4 whitespace-nowrap text-sm text-gray-900 overflow-hidden text-ellipsis max-w-[300px]">
                       {currentUserList[report.userId]} <MoveRight />{" "}
                       {currentUserList[report.reportedUser]}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 overflow-hidden text-ellipsis max-w-[300px]">
                       {handleUTC(report.createdAt).toLocaleString()}
                     </td>
                     <td className="px-3 py-4 whitespace-nowrap w-28 flex items-center gap-2">

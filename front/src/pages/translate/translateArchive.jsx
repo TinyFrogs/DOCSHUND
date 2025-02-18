@@ -9,6 +9,7 @@ import ReportModal from "../report.jsx";
 // 서비스
 import { fetchBestTranslate } from "./services/translateGetService.jsx";
 import { likeTranslate } from "./services/translatePostService.jsx";
+import userProfileService from "../myPage/services/userProfileService.jsx";
 
 //상태관리
 import useEditorStore from "../../store/translateStore/editorStore.jsx";
@@ -116,13 +117,14 @@ const TranslateArchive = () => {
       }
     };
     fetchData();
+    console.log(transUserList);
   }, [isArchiveOpen]);
 
   return (
     <AnimatePresence>
       {isArchiveOpen && (
         <motion.div
-          className="fixed inset-0 flex items-center justify-center z-[2100] backdrop-brightness-60"
+          className="fixed inset-0 flex items-center justify-center z-[2800] backdrop-brightness-60"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -190,7 +192,7 @@ const TranslateArchive = () => {
                     return (
                       <div
                         key={trans.transId}
-                        className="w-full flex flex-col bg-white border border-[#87867F] py-4 px-5 rounded-xl hover:shadow-lg transition-all duration-300 ease-in-out"
+                        className="w-full flex flex-col max-h-[45vh] bg-white border border-[#87867F] py-4 px-5 rounded-xl hover:shadow-lg transition-all duration-300 ease-in-out"
                       >
                         <div
                           onClick={() => {
@@ -230,7 +232,7 @@ const TranslateArchive = () => {
                               </button>
                             )}
 
-                            <div
+                            <button
                               onClick={async (e) => {
                                 e.stopPropagation();
                                 await debouncedHandleLike(
@@ -262,18 +264,18 @@ const TranslateArchive = () => {
                               >
                                 {trans.likeCount}
                               </span>
-                            </div>
+                            </button>
                           </div>
                         </div>
 
                         <div
-                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                          className={`overflow-y-scroll transition-all duration-300 ease-in-out ${
                             transStates[trans.transId]
                               ? "max-h-[500px] opacity-100"
                               : "max-h-0 opacity-0"
                           }`}
                         >
-                          <div className="border-t border-slate-200 mt-4 pt-4 px-2 text-slate-700 leading-relaxed">
+                          <div className="border-t border-slate-200 mt-4 pt-4 px-2 text-slate-700 leading-relaxed max-w-[10vh">
                             <ToastViewer content={trans.content} />
                           </div>
                         </div>
