@@ -1,6 +1,5 @@
 package com.ssafy.docshund.global.exception;
 
-import static com.ssafy.docshund.global.mail.exception.MailExceptionCode.MAIL_NOT_SEND;
 import static org.springframework.http.HttpStatus.*;
 
 import java.util.List;
@@ -86,7 +85,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(MailException.class)
 	public ResponseEntity handleMailException(MailException e) {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-			new ExceptionResponse(MAIL_NOT_SEND)
+			new ExceptionResponse(e.getExceptionCode())
 		);
 	}
 

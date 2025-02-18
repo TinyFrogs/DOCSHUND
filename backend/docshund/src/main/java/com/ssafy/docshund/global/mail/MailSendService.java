@@ -1,7 +1,6 @@
 package com.ssafy.docshund.global.mail;
 
-import static com.ssafy.docshund.global.mail.exception.MailExceptionCode.IMAGE_NOT_DOWNLOAD;
-import static com.ssafy.docshund.global.mail.exception.MailExceptionCode.MAIL_NOT_SEND;
+import static com.ssafy.docshund.global.mail.exception.MailExceptionCode.*;
 import static org.springframework.http.HttpStatus.OK;
 
 import java.io.IOException;
@@ -41,7 +40,7 @@ public class MailSendService {
 		try {
 			log.info("Validating email: " + sendEmail);
 			if (!isEmailValidWithHunter(sendEmail)) {
-				throw new MailException(MAIL_NOT_SEND);
+				throw new MailException(MAIL_NOT_FOUND);
 			}
 
 			log.info("Sending email to " + sendEmail);
