@@ -46,7 +46,7 @@ public class SecurityConfig {
 			.addFilterBefore(new JwtFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class)
 			.oauth2Login(oauth2 -> oauth2
 				.authorizationEndpoint(endpoint -> endpoint
-					.baseUri("/oauth2/authorization")
+					.baseUri("/api/oauth2/authorization")
 					.authorizationRequestRepository(new HttpSessionOAuth2AuthorizationRequestRepository()) // 👈 추가
 				)
 				.userInfoEndpoint(userInfo -> userInfo.userService(userAuthServiceImpl))
