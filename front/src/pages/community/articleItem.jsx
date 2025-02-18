@@ -244,7 +244,7 @@ const ArticleItem = () => {
 
             {/* 게시글 본문 */}
             <div className="border-b border-[#E1E1DF] pb-4 mb-4">
-              <div className="min-h-[200px] w-full whitespace-pre-wrap mb-6 text-sm md:text-base">
+              <div className="min-h-[200px] w-full whitespace-pre-wrap mb-6 text-sm md:text-base break-all">
                 <ToastViewer content={articleItems.content} />
               </div>
               <div className="flex justify-center items-center gap-4">

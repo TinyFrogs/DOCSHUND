@@ -85,11 +85,15 @@ const WriteArticle = () => {
       !subCategory.trim() ||
       !content.trim()
     ) {
-      toast.info("모든 항목을 입력해주세요.");
+      toast.info("모든 항목을 입력해주세요.", {
+        toastId: "required",
+      });
       return;
     } else {
       if (content.length > 15000) {
-        toast.info("글 내용은 15000자 이하로 작성해주세요.");
+        toast.info("글 내용은 15000자 이하로 작성해주세요.", {
+          toastId: "contentLength",
+        });
         return;
       }
 

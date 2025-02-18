@@ -83,7 +83,7 @@ const ReplyRenderItem = ({
             </p>
           </div>
           {/*  콘텐츠 */}
-          <p className="text-gray-700 whitespace-pre-wrap break-words">
+          <p className="text-gray-700 whitespace-pre-wrap break-all">
             {item.content}
           </p>
 

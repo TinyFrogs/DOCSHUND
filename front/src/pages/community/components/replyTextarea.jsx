@@ -22,7 +22,9 @@ const ReplyTextarea = ({ reCommentFlag, commentId }) => {
   const debouncedSubmit = useCallback(
     debounce(async (content, isReComment, commentId) => {
       if (!content.trim()) {
-        toast.warn("댓글을 입력해주세요.");
+        toast.warn("댓글을 입력해주세요.", {
+          toastId: "emptyReply",
+        });
         return;
       }
 
