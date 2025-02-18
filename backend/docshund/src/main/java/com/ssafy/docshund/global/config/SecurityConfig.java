@@ -46,7 +46,7 @@ public class SecurityConfig {
 			.addFilterBefore(new JwtFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class)
 			.oauth2Login(oauth2 -> oauth2
 				.authorizationEndpoint(endpoint -> endpoint
-					.baseUri("/api/oauth2/authorization")
+					.baseUri("/oauth2/authorization")
 					.authorizationRequestRepository(new HttpSessionOAuth2AuthorizationRequestRepository()) // 👈 추가
 				)
 				.userInfoEndpoint(userInfo -> userInfo.userService(userAuthServiceImpl))
@@ -56,7 +56,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/login")
 				.denyAll()  // 🚫 기본 로그인 경로 차단
-				.requestMatchers("/api/oauth2/**", "/api/login/oauth2/**", "/ws-connect", "/ws-connect/**")
+				.requestMatchers("/oauth2/**", "/login/oauth2/**", "/ws-connect", "/ws-connect/**")
 				.permitAll() // ✅ OAuth2 로그인만 허용
 				.requestMatchers(
 					"/api/v1/docshund/docs",
