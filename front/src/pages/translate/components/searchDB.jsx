@@ -26,13 +26,17 @@ const SearchDB = ({ tableId }) => {
 
   // 검색 실행
   const handleSearch = async () => {
+    if (db && query.trim().length < 5) {
+      toast.warn("5글자 이상 입력해주세요.");
+      return;
+    }
     setLoading(true);
     if (db && query.trim() !== "") {
       setSearchResults([]);
       const result = await searchData(objectStoreName, searchField, query);
       if (result.length === 0) {
         setLoading(false);
-        console.log("검색 결과가 없습니다.");
+        // console.log("검색 결과가 없습니다.");
         setSearchResults([{ content: "검색 결과가 없습니다." }]);
       } else {
         setSearchResults(result);
@@ -48,7 +52,10 @@ const SearchDB = ({ tableId }) => {
   };
 
   return (
-    <div className="fixed flex flex-col items-center p-4 max-w-md mx-auto z-[1100] top-1 left-[60vw] sm:left-[50vw] translate-x-[-50%] w-[45vw]">
+    <div
+      id="searchBox"
+      className="fixed flex flex-col items-center p-4 max-w-md mx-auto z-[1100] top-1 left-[60vw] sm:left-[50vw] translate-x-[-50%] w-[45vw]"
+    >
       {loading && (
         <Button className="absolute top-4 right-3" color="warn">
           <Spinner
@@ -63,13 +70,13 @@ const SearchDB = ({ tableId }) => {
         type="text"
         placeholder="검색어 입력 후 Enter"
         value={query}
+        minLength={5}
         maxLength={500}
         onChange={(e) => {
           setQuery(e.target.value);
           checkMaxLength(e);
-          checkMaxLength(e);
           if (e.target.value === "") {
-            setResults([]);
+            setSearchResults([]);
           }
         }}
         onKeyDown={(e) => {

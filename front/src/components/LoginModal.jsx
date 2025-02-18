@@ -58,7 +58,7 @@ const LoginModal = () => {
               <img src={logo} alt="Logo" className="w-2/3 md:w-8/10" />
             </div>
             <div className="flex flex-col items-center mt-4 mb-4">
-              <div
+              <button
                 className="flex items-center justify-center w-full md:w-8/10 p-2 bg-[#BC5B39] rounded-[15px] border border-[#C96442] hover:bg-[#C96442] mb-4 cursor-pointer"
                 onClick={loginWithGoogle}
               >
@@ -66,8 +66,8 @@ const LoginModal = () => {
                 <button className="text-[#FAF9F5] text-sm">
                   Sign in with Google
                 </button>
-              </div>
-              <div
+              </button>
+              <button
                 className="flex items-center justify-center w-full md:w-8/10 p-2 bg-[#BC5B39] rounded-[15px] border border-[#C96442] hover:bg-[#C96442] cursor-pointer"
                 onClick={loginWithGithub}
               >
@@ -75,7 +75,7 @@ const LoginModal = () => {
                 <button className="text-[#FAF9F5] text-sm">
                   Sign in with GitHub
                 </button>
-              </div>
+              </button>
             </div>
           </motion.div>
         </motion.div>

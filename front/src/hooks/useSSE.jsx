@@ -128,7 +128,7 @@ const UseSSE = (userId) => {
     // Cleanup
     return () => {
       if (eventSource) {
-        console.log("SSE 연결 종료");
+        // console.log("SSE 연결 종료");
         eventSource.close();
         setIsConnected(false);
       }

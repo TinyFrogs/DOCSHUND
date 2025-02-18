@@ -17,7 +17,7 @@ const ArchivePage = () => {
         await likeTranslate(id, transId);
       }
     } catch (error) {
-      console.log("좋아요 실패", error);
+      // console.log("좋아요 실패", error);
     }
   }, 300);
 

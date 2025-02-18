@@ -12,6 +12,7 @@ import _ from "lodash";
 
 const ManageReport = () => {
   const reportListData = useRef([]);
+  const activeFilterRef = useRef("all");
   const [reportStates, setReportStates] = useState({});
   const [userList, setUserList] = useState([]);
   const [reportList, setReportList] = useState([]);
@@ -53,8 +54,8 @@ const ManageReport = () => {
       } else {
         toast.error("공개 처리 실패");
       }
-      const data = await fetchReportList();
-      setReportList(data);
+      reportListData.current = await fetchReportList();
+      handleFilter(activeFilterRef.current);
     }, 500),
     []
   );
@@ -77,22 +78,22 @@ const ManageReport = () => {
     }));
   };
 
-  const handleSearch = async (e) => {
-    const searchKeyword = e.target.value;
-    if (!searchKeyword) {
-      const data = await fetchReportList();
-      data.sort((a, b) => b.reportCount - a.reportCount);
-      setReportList(data);
-      return;
-    } else {
-      const filteredList = reportList.filter(
-        (item) =>
-          item.title.includes(searchKeyword.toLowerCase()) ||
-          item.nickname.includes(searchKeyword.toLowerCase())
-      );
-      setUserList(filteredList);
-    }
-  };
+  // const handleSearch = async (e) => {
+  //   const searchKeyword = e.target.value;
+  //   if (!searchKeyword) {
+  //     const data = await fetchReportList();
+  //     data.sort((a, b) => b.reportCount - a.reportCount);
+  //     setReportList(data);
+  //     return;
+  //   } else {
+  //     const filteredList = reportList.filter(
+  //       (item) =>
+  //         item.title.includes(searchKeyword.toLowerCase()) ||
+  //         item.nickname.includes(searchKeyword.toLowerCase())
+  //     );
+  //     setUserList(filteredList);
+  //   }
+  // };
 
   const handleUTC = (time) => {
     const date = new Date(time);
@@ -123,6 +124,10 @@ const ManageReport = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    activeFilterRef.current = activeFilter;
+  }, [activeFilter]);
+
   const filterButtons = [
     { label: "전체", value: "all" },
     { label: "번역본", value: "transId" },
@@ -146,6 +151,7 @@ const ManageReport = () => {
             onClick={() => {
               handleFilter(button.value);
               setActiveFilter(button.value);
+              console.log(activeFilter);
             }}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer duration-200 ${
               activeFilter === button.value
@@ -242,7 +248,7 @@ const ManageReport = () => {
                             : "max-h-0 opacity-0"
                         }`}
                       >
-                        <div className="border-t border-slate-200 p-4 text-slate-700 leading-relaxed">
+                        <div className="border-t border-slate-200 p-4 text-slate-700 leading-relaxed max-h-[45vh] overflow-y-scroll">
                           <div className="mb-4">
                             <div className="font-medium text-slate-900 mb-2">
                               원본 내용

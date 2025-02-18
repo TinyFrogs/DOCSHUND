@@ -111,7 +111,7 @@ const GodEditorContent = ({ initialTextContent, maxLength = 15000 }) => {
           marginTop: "10px",
           color: value?.length >= maxLength ? "red" : "black",
         }}
-        className="flex justify-end mx-5"
+        className="flex justify-end mx-5 pr-3"
       >
         {maxLength - value?.length} 글자 남음
       </div>

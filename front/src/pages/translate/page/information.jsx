@@ -22,7 +22,7 @@ const Information = () => {
 
   const handleJoyrideCallback = async (data) => {
     const { status } = data;
-    if (status === STATUS.FINISHED) {
+    if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
       handleAgree();
       // setRun(false); // Joyride 종료
     }
@@ -71,7 +71,20 @@ const Information = () => {
         },
       },
     },
-
+    {
+      target: "#searchBox",
+      content:
+        "원본 문서의 내용을 검색할 수 있습니다. 검색 결과는 원본 데이터를 렌더링한 형태로 표시됩니다.",
+      placement: "bottom",
+      styles: {
+        options: {
+          backgroundColor: "#E4DCD4",
+          textAlign: "center",
+          arrowColor: "#E4DCD4",
+          color: "#424242",
+        },
+      },
+    },
     {
       target: "#translateAllBtn",
       content: "번역 전체보기 버튼을 통해 전체 번역 내용을 볼 수 있습니다.",
@@ -135,6 +148,7 @@ const Information = () => {
             steps={steps}
             continuous={true}
             showProgress={false}
+            showSkipButton={true}
             allowClickThruHole={true}
             spotlightClicks={false} // 스포트라이트 영역 클릭 방지
             disableCloseOnEsc={true} // ESC 키로 종료 방지
@@ -155,7 +169,8 @@ const Information = () => {
               back: "이전",
               close: "닫기",
               last: "시작",
-              next: "다음", // 진행 상황을 포함한 텍스트
+              next: "다음",
+              skip: "건너뛰기",
             }}
           />
         </div>

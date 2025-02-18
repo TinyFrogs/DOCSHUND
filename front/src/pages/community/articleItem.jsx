@@ -72,7 +72,7 @@ const ArticleItem = () => {
     // 좋아요 api 날리기
     const response = await ArticleItemService.likeArticleItem(articleId);
     const status = response.status;
-    console.log(response);
+    // console.log(response);
 
     // status가 204이면 좋아요 성공
     if (status === 204) {

@@ -28,7 +28,7 @@ const InfiniteScroll = ({
       const data = dataList;
 
       if (!data || data.length === 0) {
-        console.log("오류 발생 : 데이터 없음");
+        // console.log("오류 발생 : 데이터 없음");
         setHasMore(false);
         return;
       }
@@ -46,7 +46,7 @@ const InfiniteScroll = ({
       setDataParts((prev) => [...prev, ...processedChunk]);
       setProcessedCount((prev) => prev + chunkSize);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     } finally {
       setLoading(false);
     }
