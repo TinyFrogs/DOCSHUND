@@ -34,6 +34,7 @@ const InquiryPage = () => {
         if (token) {
           const decodedToken = jwtDecode(token);
           const userId = decodedToken.userId;
+
           const data = await InquiryService.fetchInquiries(
             currentPage,
             itemsPerPage,

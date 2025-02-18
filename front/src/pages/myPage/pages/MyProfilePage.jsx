@@ -55,7 +55,9 @@ const MyProfilePage = () => {
   // 4. 에러 발생 시 토스트 표시
   useEffect(() => {
     if (error) {
-      toast.error(`Error: ${error}`);
+      toast.error(`Error: ${error}`, {
+        toastId: "profileError",
+      });
     }
   }, [error]);
 
@@ -80,11 +82,15 @@ const MyProfilePage = () => {
       );
       if (isAvailable) {
         if (showSuccessToast) {
-          toast.success("사용 가능한 닉네임입니다.");
+          toast.success("사용 가능한 닉네임입니다.", {
+            toastId: "availableNickname",
+          });
         }
         return true;
       } else {
-        toast.error("사용할 수 없는 닉네임입니다.");
+        toast.error("사용할 수 없는 닉네임입니다.", {
+          toastId: "unavailableNickname",
+        });
         return false;
       }
     } catch (error) {
@@ -102,7 +108,9 @@ const MyProfilePage = () => {
       !editedProfile.introduce ||
       !editedProfile.email
     ) {
-      toast.warn("모든 필드를 입력해주세요.");
+      toast.warn("모든 필드를 입력해주세요.", {
+        toastId: "emptyField",
+      });
       return;
     }
 
@@ -120,10 +128,14 @@ const MyProfilePage = () => {
 
     try {
       await updateProfile(userId, formData);
-      toast.success("프로필이 성공적으로 업데이트되었습니다.");
+      toast.success("프로필이 성공적으로 업데이트되었습니다.", {
+        toastId: "successUpdate",
+      });
       setIsEditing(false);
     } catch (error) {
-      toast.error("프로필 업데이트 중 오류가 발생했습니다.");
+      toast.error("프로필 업데이트 중 오류가 발생했습니다.", {
+        toastId: "failedUpdate",
+      });
       console.error("프로필 업데이트 실패", error);
     }
   }, 500);
@@ -136,13 +148,17 @@ const MyProfilePage = () => {
     if (!file) return;
 
     if (!validTypes.includes(file.type)) {
-      toast.warn("올바른 파일형식이 아닙니다.");
+      toast.warn("올바른 파일형식이 아닙니다.", {
+        toastId: "invalidFileType",
+      });
       e.target.value = "";
       return;
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      toast.warn("파일 크기는 1MB 이하만 가능합니다.");
+      toast.warn("파일 크기는 1MB 이하만 가능합니다.", {
+        toastId: "fileSizeExceed",
+      });
       e.target.value = "";
       return;
     }
@@ -167,15 +183,21 @@ const MyProfilePage = () => {
     try {
       const success = await deleteAccount(userId);
       if (success) {
-        toast.success("계정이 성공적으로 탈퇴되었습니다.");
+        toast.success("계정이 성공적으로 탈퇴되었습니다.", {
+          toastId: "successDelete",
+        });
         toggleAlert();
         logout();
       } else {
-        toast.error("계정 탈퇴 중 오류가 발생했습니다.");
+        toast.error("계정 탈퇴 중 오류가 발생했습니다.", {
+          toastId: "failedDelete",
+        });
         toggleAlert();
       }
     } catch (error) {
-      toast.error("계정 탈퇴 중 오류가 발생했습니다.");
+      toast.error("계정 탈퇴 중 오류가 발생했습니다.", {
+        toastId: "failedDelete",
+      });
       console.error("계정 탈퇴 실패", error);
       toggleAlert();
     }

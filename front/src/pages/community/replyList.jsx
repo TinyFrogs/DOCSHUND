@@ -45,7 +45,7 @@ const ReplyList = () => {
           className="mt-4 text-[#7d7c77] flex justify-self-end items-center underline text-sm cursor-pointer"
           onClick={handleRefreshClick}
         >
-          새로고침
+          게시글에 댓글 달기
         </button>
         {token && replyId == 0 && (
           <ReplyTextarea

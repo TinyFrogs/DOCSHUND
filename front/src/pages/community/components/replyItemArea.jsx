@@ -32,6 +32,8 @@ const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
   );
   const setReplyId = communityArticleStore((state) => state.setReplyId);
 
+  const isLoading = communityArticleStore((state) => state.isLoading);
+
   useEffect(() => {
     if (token && replyTextareaRef.current) {
       replyTextareaRef.current.scrollIntoView({
@@ -39,7 +41,7 @@ const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
         block: "center",
       });
     }
-  }, [reCommentFlag, replyId, token]);
+  }, [reCommentFlag, replyId, token, isLoading]);
 
   // 댓글 정렬 방식을 default인 등록순으로 변경
   useEffect(() => {
@@ -88,7 +90,7 @@ const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
       <ReplyRenderItem
         item={item}
         rootCommentId={item.commentId}
-        reCommentFlag={reCommentFlag}
+        reCommentFlag={false}
         setReCommentFlag={setReCommentFlag}
       />
 
@@ -121,7 +123,7 @@ const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
                   <ReplyRenderItem
                     item={reply}
                     rootCommentId={item.commentId}
-                    reCommentFlag={reCommentFlag}
+                    reCommentFlag={true}
                     setReCommentFlag={setReCommentFlag}
                   />
                 </div>
@@ -130,7 +132,6 @@ const ReplyItem = ({ reCommentFlag, setReCommentFlag }) => {
           </div>
         )}
 
-        {/* 대댓글 작성 영역 - 해당 댓글에 대한 댓글달기가 활성화된 경우에만 표시 */}
         {token && replyId === item.commentId && (
           <div className="ml-14 mt-2" ref={replyTextareaRef}>
             {/* ref 추가 */}

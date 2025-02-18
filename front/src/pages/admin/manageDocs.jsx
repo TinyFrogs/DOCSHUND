@@ -36,13 +36,17 @@ const ManageDocs = () => {
     if (selectedFile) {
       if (selectedFile.size > 10 * 1000 * 1000) {
         setLoading(false);
-        toast.warn("파일 크기는 최대 10MB까지 업로드 가능합니다.");
+        toast.warn("파일 크기는 최대 10MB까지 업로드 가능합니다.", {
+          toastId: "file-warning",
+        });
         return;
       }
 
       if (selectedFile.type !== "text/plain") {
         setLoading(false);
-        toast.warn("파일 형식은 .txt만 가능합니다.");
+        toast.warn("파일 형식은 .txt만 가능합니다.", {
+          toastId: "file-warning",
+        });
         return;
       }
 
@@ -56,17 +60,22 @@ const ManageDocs = () => {
 
         if (result === 200) {
           setLoading(false);
-          toast.success("파일이 성공적으로 업로드되었습니다.");
+          toast.success("파일이 성공적으로 업로드되었습니다.", {
+            toastId: "file-success",
+          });
           fetchAdminDocs();
         } else {
           setLoading(false);
-          toast.error("파일 업로드에 실패했습니다.");
+          toast.error("파일 업로드에 실패했습니다.", {
+            toastId: "file-error",
+          });
           fetchAdminDocs();
         }
       } catch (error) {
         setLoading(false);
-        console.error("파일 업로드 중 오류 발생:", error);
-        toast.error("파일 업로드에 실패했습니다.");
+        toast.error("파일 업로드에 실패했습니다.", {
+          toastId: "file-error",
+        });
       }
     }
   };

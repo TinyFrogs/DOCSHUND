@@ -75,7 +75,9 @@ const NotificationModal = () => {
   }, [notifications, setIsAllChecked]);
 
   if (!token) {
-    toast.warn("로그인이 필요한 서비스입니다.");
+    toast.warn("로그인이 필요한 서비스입니다.", {
+      toastId: "login-required",
+    });
     return null;
   }
 
@@ -91,7 +93,9 @@ const NotificationModal = () => {
         const response = await NotificationService.readNotification(alertId);
 
         if (response != 200) {
-          toast.warn("알림을 불러오는 중 오류가 발생했습니다.");
+          toast.warn("알림을 불러오는 중 오류가 발생했습니다.", {
+            toastId: "notification-error",
+          });
           return;
         }
       }
@@ -126,7 +130,9 @@ const NotificationModal = () => {
         navigate(`/myPage/inquiry`);
       }
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message, {
+        toastId: "notification-error
+      });
     }
   };
 
@@ -138,11 +144,15 @@ const NotificationModal = () => {
         const response = await NotificationService.readAllNotifications();
 
         if (response != 200) {
-          toast.warn("알림을 읽는 중 오류가 발생했습니다.");
+          toast.warn("알림을 읽는 중 오류가 발생했습니다.", {
+            toastId: "notification-error",
+          });
           return;
         }
 
-        toast.info("모든 알림을 읽음 처리했습니다.");
+        toast.info("모든 알림을 읽음 처리했습니다.", {
+          toastId: "notification-read-all",
+        });
 
         // 알림 읽음 처리 후, 알림 목록 갱신
         const data = await NotificationService.fetchNotifications();
@@ -153,7 +163,9 @@ const NotificationModal = () => {
         }
       }
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message, {
+        toastId: "notification-error",
+      });
     }
   };
 
@@ -167,11 +179,15 @@ const NotificationModal = () => {
         const response = await NotificationService.deleteNotification(alertId);
 
         if (response != 200) {
-          toast.warn("알림을 삭제하는 중 오류가 발생했습니다.");
+          toast.warn("알림을 삭제하는 중 오류가 발생했습니다.", {
+            toastId: "notification-delete-error",
+          });
           return;
         }
 
-        toast.info("알림이 삭제되었습니다.");
+        toast.info("알림이 삭제되었습니다.", {
+          toastId: "notification-delete",
+        });
 
         // 알림 삭제 후, 알림 목록 갱신
         const newNotifications = notifications.filter(
@@ -181,7 +197,9 @@ const NotificationModal = () => {
         setNotifications(newNotifications); // 알림 목록 갱신
       }
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message, {
+        toastId: "notification-error",
+      });
     }
   };
 
@@ -190,11 +208,15 @@ const NotificationModal = () => {
       const response = await NotificationService.deleteAllNotifications();
 
       if (response != 200) {
-        toast.warn("알림을 삭제하는 중 오류가 발생했습니다.");
+        toast.warn("알림을 삭제하는 중 오류가 발생했습니다.", {
+          toastId: "notification-delete-all-error",
+        });
         return;
       }
 
-      toast.info("모든 알림이 삭제되었습니다.");
+      toast.info("모든 알림이 삭제되었습니다.", {
+        toastId: "notification-delete-all",
+      });
 
       setNotifications([]); // 알림 목록 갱신
     }

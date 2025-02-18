@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { format, isSameDay } from "date-fns";
 import { ko } from "date-fns/locale";
 import { toast } from "react-toastify";
@@ -16,6 +16,7 @@ import view from "../../assets/icon/viewCnt.png";
 import comment from "../../assets/icon/commentCnt.png";
 
 const ArticleList = () => {
+  const navigate = useNavigate();
   const { convertToKoreanTime } = useKoreanTime();
   const articles = communityArticleStore((state) => state.articles);
   const totalPages = communityArticleStore((state) => state.totalPages);
@@ -83,15 +84,20 @@ const ArticleList = () => {
   };
 
   const renderItem = (item) => (
-    <div className="flex justify-between text-base md:text-lg px-5 py-3">
+    <div
+      className="flex justify-between text-base md:text-lg px-5 py-3 hover:bg-[#faf0ed] cursor-pointer"
+      onClick={() => {
+        navigate(`/community/article/${item.articleId}`);
+      }}
+    >
       <div className="flex-1 min-w-0 mr-3 flex flex-col justify-between">
-        <Link
+        <div
           to={`/community/article/${item.articleId}`}
-          className="font-semibold line-clamp-1 break-all break-words overflow-wrap text-[#7d7c77] hover:text-[#bc5b39] text-base md:text-lg"
+          className="font-semibold line-clamp-1 break-all break-words overflow-wrap text-[#7d7c77] text-base md:text-lg"
           style={{ overflowWrap: "anywhere" }}
         >
           {item.title}
-        </Link>
+        </div>
         <p
           className="line-clamp-1 break-all break-words overflow-wrap text-sm md:text-base"
           style={{ overflowWrap: "anywhere" }}

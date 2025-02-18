@@ -27,6 +27,7 @@ const ReplyRenderItem = ({
   const setReplyId = communityArticleStore((state) => state.setReplyId);
   const openReport = useReportStore((state) => state.openReport);
   const toggleReport = useReportStore((state) => state.toggleReport);
+  const setLoading = communityArticleStore((state) => state.setLoading);
 
   const { convertToKoreanTime } = useKoreanTime();
 
@@ -111,16 +112,17 @@ const ReplyRenderItem = ({
                   </button>
                 )
               : null}
-
-            <button
-              className="text-[#7d7c77] underline text-sm cursor-pointer"
-              onClick={() => {
-                setReCommentFlag(!reCommentFlag);
-                setReplyId(rootCommentId);
-              }}
-            >
-              댓글 달기
-            </button>
+            {!reCommentFlag && (
+              <button
+                className="text-[#7d7c77] underline text-sm cursor-pointer"
+                onClick={() => {
+                  setLoading((prev) => !prev);
+                  setReplyId(rootCommentId);
+                }}
+              >
+                댓글 달기
+              </button>
+            )}
           </div>
         </div>
         <ReportModal />

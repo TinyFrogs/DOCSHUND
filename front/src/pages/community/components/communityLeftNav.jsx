@@ -60,13 +60,10 @@ const CommunityLeftNav = () => {
   useEffect(() => {
     async function asyncFetchDocsList() {
       try {
-        // store에 docsList가 저장돼있지 않으면
-        if (docsList.length === 0) {
-          const response = await fetchDocsList(); // docsList 호출
-          // response가 있으면
-          if (response) {
-            setDocsList(response); // store에 저장
-          }
+        const response = await fetchDocsList(); // docsList 호출
+        // response가 있으면
+        if (response) {
+          setDocsList(response); // store에 저장
         }
       } catch (error) {
         console.log(error);

@@ -39,7 +39,9 @@ const ReportModal = () => {
   const debouncedHandleSubmit = _.debounce(async (e) => {
     e.preventDefault();
     if (!category || !content) {
-      toast.warn("신고 카테고리, 내용을 모두 입력해주세요.");
+      toast.warn("신고 카테고리, 내용을 모두 입력해주세요.", {
+        toastId: "report-warning",
+      });
       return;
     }
 
@@ -76,14 +78,18 @@ const ReportModal = () => {
 
     try {
       await ReportService.submitReport(formData);
-      toast.success("신고가 성공적으로 제출되었습니다.");
+      toast.success("신고가 성공적으로 제출되었습니다.", {
+        toastId: "report-success",
+      });
       setCategory("");
       setTitle("");
       setEmail("");
       setContent("");
       setFile(null);
     } catch (error) {
-      toast.error("신고 제출 중 오류가 발생했습니다.");
+      toast.error("신고 제출 중 오류가 발생했습니다.", {
+        toastId: "report-error",
+      });
       console.log("신고 등록 실패", error);
     }
 
@@ -102,13 +108,17 @@ const ReportModal = () => {
 
     const validTypes = ["image/jpeg", "image/png", "image/jpg"];
     if (!validTypes.includes(selectedFile.type)) {
-      toast.warn("올바른 파일형식이 아닙니다.");
+      toast.warn("올바른 파일형식이 아닙니다.", {
+        toastId: "file-warning",
+      });
       e.target.value = "";
       return;
     }
 
     if (selectedFile.size > MAX_FILE_SIZE) {
-      toast.warn("파일 크기는 최대 10MB까지 업로드 가능합니다.");
+      toast.warn("파일 크기는 최대 10MB까지 업로드 가능합니다.", {
+        toastId: "file-warning",
+      });
       return;
     }
     setFile(selectedFile);

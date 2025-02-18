@@ -97,10 +97,12 @@ const WriteArticle = () => {
         return;
       }
 
+      const formattedContent = content.replace(/\n/g, "\r\n"); // 개행 문자 정규화
+
       const response = await ArticleItemService.postArticleItem(
         title.trim(),
         subCategory.trim(),
-        content.trim()
+        formattedContent.trim()
       );
 
       const data = response.data;

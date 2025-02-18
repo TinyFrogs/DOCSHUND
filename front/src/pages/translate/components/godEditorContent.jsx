@@ -16,9 +16,7 @@ const GodEditorContent = ({ initialTextContent, maxLength = 15000 }) => {
 
   const handleChange = (newText) => {
     if (newText.length > 15000) {
-      toast.info("글 내용은 15000자 이하로 작성해주세요.", {
-        toastId: "maxLength",
-      });
+      toast.info("글 내용은 15000자 이하로 작성해주세요.");
       return;
     }
 

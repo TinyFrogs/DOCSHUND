@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import _ from "lodash";
@@ -110,37 +110,53 @@ const ModifyArticle = () => {
   };
 
   // 실제 제출 로직을 별도 함수로 분리
-  const submitArticle = _.debounce(async () => {
-    try {
-      // 제목, 대분류, 소분류, 내용, 파일이 모두 입력되었는지 확인
-      if (!title || !mainCategory || !subCategory || !content) {
-        toast.warn("모든 항목을 입력해주세요.");
-        return;
-      }
+  const submitArticle = useCallback(
+    _.debounce(async () => {
+      try {
+        // 제목, 대분류, 소분류, 내용, 파일이 모두 입력되었는지 확인
+        if (
+          !title.trim() ||
+          !mainCategory ||
+          !subCategory ||
+          !currentUserText.trim()
+        ) {
+          toast.warn("모든 항목을 입력해주세요.", {
+            toastId: "required",
+          });
+          return;
+        }
 
-      const response = await ArticleItemService.patchArticleItem(
-        articleId,
-        title,
-        subCategory,
-        currentUserText
-      );
+        const formattedContent = currentUserText.replace(/\n/g, "\r\n"); // 개행 문자 정규화
 
-      if (response.status === 204) {
-        setArticleItems({
-          ...articleItems,
-          title,
-          position: mainCategory,
-          documentName: subCategory,
-          currentUserText,
+        const response = await ArticleItemService.patchArticleItem(
+          articleId,
+          title.trim(),
+          subCategory,
+          formattedContent.trim()
+        );
+
+        if (response.status === 204) {
+          setArticleItems({
+            ...articleItems,
+            title,
+            position: mainCategory,
+            documentName: subCategory,
+            currentUserText,
+          });
+          toast.info("글 수정이 완료되었습니다.", {
+            toastId: "success",
+          });
+          navigate(`/community/article/${articleId}`);
+        }
+      } catch (error) {
+        console.error("Failed to modify article:", error);
+        toast.error("게시글 수정에 실패했습니다.", {
+          toastId: "error",
         });
-        toast.info("글 수정이 완료되었습니다.");
-        navigate(`/community/article/${articleId}`);
       }
-    } catch (error) {
-      console.error("Failed to modify article:", error);
-      toast.error("게시글 수정에 실패했습니다.");
-    }
-  }, 500);
+    }, 500),
+    [title, mainCategory, subCategory, currentUserText, articleId, articleItems]
+  );
 
   const handleSubmit = (e) => {
     e.preventDefault();
