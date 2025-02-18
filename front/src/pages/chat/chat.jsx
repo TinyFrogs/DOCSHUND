@@ -19,7 +19,7 @@ const Chat = () => {
   const navigate = useNavigate();
   const docsId = location.pathname.split("/")[4];
   const token = localStorage.getItem("token");
-  const { openReport, toggleReport } = useReportStore();
+  const { openReport, closeReport, toggleReport } = useReportStore();
   const { isComposing, keyComposingEvents } = useKeyComposing();
   const { convertToKoreanTime } = useKoreanTime();
 
@@ -204,6 +204,12 @@ const Chat = () => {
   };
 
   useEffect(() => {
+    if (!isChatVisible) {
+      closeReport();
+    }
+  }, [isChatVisible, closeReport]);
+
+  useEffect(() => {
     // docsId가 변경될 때마다 기존 연결을 해제하고 상태를 초기화합니다.
     disconnect();
     setMessages([]);
@@ -241,6 +247,7 @@ const Chat = () => {
                   <button
                     onClick={() => {
                       ChatStore.setState({ isChatVisible: false });
+                      closeReport();
                     }}
                     className="cursor-pointer"
                   >

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import MDEditor from "@uiw/react-md-editor";
 import { ArrowLeft } from "lucide-react"; // lucide 아이콘 임포트
 import useEditorStore from "../../../store/translateStore/editorStore";
+import { toast } from "react-toastify";
 
 const MAX_TITLE_LENGTH = 50;
 const MAX_CONTENT_LENGTH = 15000;
@@ -48,7 +49,26 @@ const MemoModal = ({
   const handleEditorChange = (value = "") => {
     if (value.length <= MAX_CONTENT_LENGTH) {
       setCurrentUserText(value);
+    } else {
+      toast.warn(`최대 ${MAX_CONTENT_LENGTH}자 까지만 입력가능합니다.`);
     }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pastedText = e.clipboardData.getData("text");
+    const currentText = currentUserText || "";
+    const remaining = MAX_CONTENT_LENGTH - currentText.length;
+    if (remaining <= 0) {
+      toast.warn(`최대 ${MAX_CONTENT_LENGTH}자 까지만 입력 가능합니다.`);
+      return;
+    }
+    let textToPaste = pastedText;
+    if (pastedText.length > remaining) {
+      textToPaste = pastedText.substring(0, remaining);
+      toast.warn(`최대글자수를 넘어 일부만 붙여넣어집니다.`);
+    }
+    setCurrentUserText(currentText + textToPaste);
   };
 
   const handleKeyDown = (e) => {
@@ -86,7 +106,6 @@ const MemoModal = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          onClick={closeModal}
         >
           <motion.div
             className="bg-white w-full max-w-lg mx-auto rounded-lg border border-[#E1E1DF] shadow-lg overflow-hidden flex flex-col max-h-[90vh]"
@@ -94,7 +113,6 @@ const MemoModal = ({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between p-4 border-b">
               <button onClick={closeModal} className="cursor-pointer">
@@ -134,6 +152,9 @@ const MemoModal = ({
                   height={300}
                   placeholder="내용을 입력하세요..."
                   maxLength={MAX_CONTENT_LENGTH}
+                  textareaProps={{
+                    onPaste: handlePaste,
+                  }}
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1 mr-2 text-right">

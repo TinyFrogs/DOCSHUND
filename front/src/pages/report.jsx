@@ -1,19 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
 import { toast } from "react-toastify";
-import Modal from "react-modal";
 import ReportStore from "../store/reportStore";
 import ReportService from "../services/reportService";
 import _ from "lodash";
-
 import { X } from "lucide-react";
 
 const ReportModal = () => {
   const navigate = useNavigate();
-
   const {
     originContent,
     reportedUser,
@@ -22,7 +19,6 @@ const ReportModal = () => {
     transId,
     chatId,
     isReportOpen,
-    isReportVisible,
     closeReport,
     toggleReport,
   } = ReportStore();
@@ -33,6 +29,7 @@ const ReportModal = () => {
   const [content, setContent] = useState("");
   const [file, setFile] = useState(null);
   const [isSelected, setIsSelected] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const MAX_CONTENT_LENGTH = 500;
 
@@ -42,6 +39,7 @@ const ReportModal = () => {
       toast.warn("신고 카테고리, 내용을 모두 입력해주세요.", {
         toastId: "report-warning",
       });
+      setIsSubmitting(false);
       return;
     }
 
@@ -91,6 +89,8 @@ const ReportModal = () => {
         toastId: "report-error",
       });
       console.log("신고 등록 실패", error);
+    } finally {
+      setIsSubmitting(false);
     }
 
     toggleReport();
@@ -99,13 +99,14 @@ const ReportModal = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (isSubmitting) return; // 이미 제출 중이면 무시
+    setIsSubmitting(true);
     debouncedHandleSubmit(e);
   };
 
   const MAX_FILE_SIZE = 10 * 1000 * 1000;
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-
     const validTypes = ["image/jpeg", "image/png", "image/jpg"];
     if (!validTypes.includes(selectedFile.type)) {
       toast.warn("올바른 파일형식이 아닙니다.", {
@@ -114,7 +115,6 @@ const ReportModal = () => {
       e.target.value = "";
       return;
     }
-
     if (selectedFile.size > MAX_FILE_SIZE) {
       toast.warn("파일 크기는 최대 10MB까지 업로드 가능합니다.", {
         toastId: "file-warning",
@@ -132,7 +132,7 @@ const ReportModal = () => {
     <AnimatePresence>
       {isReportOpen && (
         <motion.div
-          className="fixed inset-0 flex items-center justify-center z-[2200] backdrop-brightness-60 border-box w-full h-full"
+          className="fixed inset-0 flex items-center justify-center z-[2200] backdrop-brightness-60 w-full h-full"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -140,17 +140,18 @@ const ReportModal = () => {
         >
           <motion.div
             key="editor-modal"
-            className="fixed inset-0 flex items-center justify-center min-w-full min-h-full "
+            className="fixed inset-0 flex items-center justify-center min-w-full min-h-full"
           >
-            <div className="p-6 bg-white h-fit rounded-xl border-b border-l border-r border-[#E1E1DF] text-[#7D7C77] mb-5">
-              <div className="w-full h-fit flex justify-end items-center">
+            {/* 모달 컨테이너에 최소 너비 지정 (예: 400px 이상) */}
+            <div className="p-6 bg-white h-fit rounded-xl border border-[#E1E1DF] text-[#7D7C77] mb-5 min-w-[400px]">
+              <div className="w-full flex justify-end items-center">
                 <button
                   onClick={() => {
                     closeReport();
                   }}
                   className="cursor-pointer"
                 >
-                  <X className="text-red-800 " />
+                  <X className="text-red-800" />
                 </button>
               </div>
 
@@ -167,7 +168,6 @@ const ReportModal = () => {
                     {isSelected && (
                       <option value="">카테고리를 선택하세요</option>
                     )}
-
                     <option
                       onClick={() => setIsSelected(false)}
                       value="ABUSIVE_LANGUAGE_OR_VIOLENCE"
@@ -227,6 +227,7 @@ const ReportModal = () => {
                     {content.length} / {MAX_CONTENT_LENGTH}
                   </p>
                 </div>
+
                 <div className="mb-6">
                   <div className="flex items-center">
                     <div className="relative">
@@ -235,18 +236,19 @@ const ReportModal = () => {
                         onChange={handleFileChange}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
-                      <div className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm text-center cursor-pointer hover:bg-[#C96442] text-sm">
+                      <div className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm text-center cursor-pointer hover:bg-[#C96442] text-sm whitespace-nowrap">
                         사진 선택
                       </div>
                     </div>
+                    {/* 파일 선택 안내문 또는 선택된 파일명 영역에 고정 너비 처리 */}
                     {!file && (
-                      <p className="ml-4 text-sm text-gray-500">
+                      <p className="ml-4 flex-1 text-sm text-gray-500">
                         첨부할 사진을 선택하세요 (1개만 가능)
                       </p>
                     )}
                     {file && (
-                      <div className="ml-4 flex items-center">
-                        <p className="text-sm text-gray-500 mr-2 truncate max-w-md">
+                      <div className="ml-4 flex-1 flex items-center">
+                        <p className="text-sm text-gray-500 mr-2 truncate">
                           {file.name}
                         </p>
                         <button
@@ -260,10 +262,14 @@ const ReportModal = () => {
                     )}
                   </div>
                 </div>
+
                 <div className="text-center">
                   <button
                     type="submit"
-                    className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm hover:bg-[#C96442] cursor-pointer"
+                    disabled={isSubmitting}
+                    className={`py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm hover:bg-[#C96442] cursor-pointer ${
+                      isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                   >
                     신고하기
                   </button>
