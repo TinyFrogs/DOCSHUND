@@ -56,7 +56,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/login")
 				.denyAll()  // 🚫 기본 로그인 경로 차단
-				.requestMatchers("/oauth2/**", "/login/oauth2/**", "/ws-connect", "/ws-connect/**")
+				.requestMatchers("/api/oauth2/**", "/api/login/oauth2/**", "/ws-connect", "/ws-connect/**")
 				.permitAll() // ✅ OAuth2 로그인만 허용
 				.requestMatchers(
 					"/api/v1/docshund/docs",
