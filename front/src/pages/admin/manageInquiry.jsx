@@ -282,11 +282,11 @@ const ManageInquiry = () => {
                         }`}
                       >
                         <div className="border-t border-slate-200 p-4 text-slate-700 leading-relaxed max-h-[45vh] overflow-y-scroll">
-                          <div className="mb-4 overflow-y-scroll">
+                          <div className="mb-4 max-w-[55vw]">
                             <div className="font-medium text-slate-900 mb-2">
                               문의 내용
                             </div>
-                            <div className="bg-gray-50 rounded-lg p-3 overflow-y-scroll max-w-[60vw]">
+                            <div className="bg-gray-50 rounded-lg p-3 max-w-[60vw] overflow-hidden text-ellipsis">
                               <ToastViewer content={inquiry.inquiryContent} />
                             </div>
                           </div>
@@ -296,18 +296,21 @@ const ManageInquiry = () => {
                             </div>
                             <div className="bg-gray-50 rounded-lg p-3">
                               {inquiry.answerCreatedAt ? (
-                                <textarea
-                                  className="w-full p-2 h-[10vh] overflow-y-scroll outline-none caret-transparent"
-                                  resize="none"
-                                  onChange={(e) => setAnswer(e.target.value)}
-                                  value={inquiry.answerContent}
-                                  name=""
-                                  id=""
-                                ></textarea>
+                                // <textarea
+                                //   className="w-full p-2 h-[10vh] overflow-y-scroll outline-none caret-transparent"
+                                //   maxLength={1000}
+                                //   rows={5}
+                                //   onChange={(e) => setAnswer(e.target.value)}
+                                //   value={inquiry.answerContent}
+                                //   name=""
+                                //   id=""
+                                // ></textarea>
+                                <ToastViewer content={inquiry.answerContent} />
                               ) : (
                                 <textarea
                                   className="w-full p-2"
                                   onChange={(e) => setAnswer(e.target.value)}
+                                  maxLength={1000}
                                   placeholder="답변을 입력해주세요."
                                   name=""
                                   id=""

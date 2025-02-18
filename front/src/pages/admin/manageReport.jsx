@@ -249,7 +249,7 @@ const ManageReport = () => {
                         }`}
                       >
                         <div className="border-t border-slate-200 p-4 text-slate-700 leading-relaxed max-h-[45vh] overflow-y-scroll">
-                          <div className="mb-4">
+                          <div className="mb-4 max-w-[55vw]">
                             <div className="font-medium text-slate-900 mb-2">
                               원본 내용
                             </div>
