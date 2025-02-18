@@ -133,10 +133,19 @@ const MyProfilePage = () => {
       });
       setIsEditing(false);
     } catch (error) {
-      toast.error("프로필 업데이트 중 오류가 발생했습니다.", {
-        toastId: "failedUpdate",
-      });
-      console.error("프로필 업데이트 실패", error);
+      if (
+        error.response &&
+        error.response.status === 400 &&
+        error.response.data?.message === "이미지 형식이 아닙니다."
+      ) {
+        toast.warn("이미지 형식이 아닙니다.", {
+          toastId: "report-warning",
+        });
+      } else {
+        toast.error("프로필 업데이트 중 오류가 발생했습니다.", {
+          toastId: "failedUpdate",
+        });
+      }
     }
   }, 500);
 

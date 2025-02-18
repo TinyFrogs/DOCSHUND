@@ -42,13 +42,36 @@ const InquiryFormPage = () => {
         await InquiryService.submitInquiry(formData);
         setCategory("");
         setTitle("");
-        setEmail("");
+        if (profile && profile.email) {
+          setEmail(profile.email);
+        } else {
+          setEmail("");
+        }
         setContent("");
         setFile(null);
         toast.success("문의가 성공적으로 제출되었습니다.");
       } catch (error) {
-        toast.error("문의 제출 중 오류가 발생했습니다.");
-        console.error("문의 등록 실패", error);
+        if (
+          error.response &&
+          error.response.status === 400 &&
+          error.response.data?.message === "유효하지 않은 메일입니다."
+        ) {
+          toast.warn("유효하지 않은 메일입니다.", {
+            toastId: "report-warning",
+          });
+        } else if (
+          error.response &&
+          error.response.status === 400 &&
+          error.response.data?.message === "이미지 형식이 아닙니다."
+        ) {
+          toast.warn("이미지 형식이 아닙니다.", {
+            toastId: "report-warning",
+          });
+        } else {
+          toast.error("문의 제출 중 오류가 발생했습니다.", {
+            toastId: "report-error",
+          });
+        }
       } finally {
         setLoading(false);
       }

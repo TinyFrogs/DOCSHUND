@@ -41,11 +41,16 @@ const responseInterceptor = (error) => {
         window.location.href = "/"; // 홈 페이지로 강제 이동
       }
     } else {
-      // 401 이외의 에러: /error 페이지로 이동
-      if (window.location.pathname !== "/error") {
-        window.location.href = `/error?status=${status}&message=${encodeURIComponent(
-          message
-        )}`;
+      if (
+        !(status === 400 && message === "이미 신고한 상태입니다.") &&
+        !(status === 400 && message === "유효하지 않은 메일입니다.") &&
+        !(status === 400 && message === "이미지 형식이 아닙니다.")
+      ) {
+        if (window.location.pathname !== "/error") {
+          window.location.href = `/error?status=${status}&message=${encodeURIComponent(
+            message
+          )}`;
+        }
       }
     }
   }

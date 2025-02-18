@@ -40,16 +40,11 @@ const userProfileService = {
 
   // 프로필 업데이트
   async updateProfile(userId, formData) {
-    try {
-      const response = await axiosMultipartInstance.patch(
-        `/users/profile/${userId}`,
-        formData
-      );
-      return response.data;
-    } catch (error) {
-      console.error("프로필 데이터를 업데이트하는 중 오류 발생:", error);
-      return null;
-    }
+    const response = await axiosMultipartInstance.patch(
+      `/users/profile/${userId}`,
+      formData
+    );
+    return response.data;
   },
 
   // 계정 탈퇴

@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
@@ -10,7 +9,6 @@ import _ from "lodash";
 import { X } from "lucide-react";
 
 const ReportModal = () => {
-  const navigate = useNavigate();
   const {
     originContent,
     reportedUser,
@@ -24,17 +22,29 @@ const ReportModal = () => {
   } = ReportStore();
 
   const [category, setCategory] = useState("");
-  const [title, setTitle] = useState("");
-  const [email, setEmail] = useState("");
   const [content, setContent] = useState("");
   const [file, setFile] = useState(null);
   const [isSelected, setIsSelected] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const MAX_CONTENT_LENGTH = 500;
+  const MAX_FILE_SIZE = 10 * 1000 * 1000; // 10MB
+
+  // 모달이 열릴 때 상태 초기화
+  useEffect(() => {
+    if (isReportOpen) {
+      setCategory("");
+      setContent("");
+      setFile(null);
+      setIsSelected(true);
+      setIsSubmitting(false);
+    }
+  }, [isReportOpen]);
 
   const debouncedHandleSubmit = _.debounce(async (e) => {
     e.preventDefault();
+
+    // 필수 필드 확인
     if (!category || !content) {
       toast.warn("신고 카테고리, 내용을 모두 입력해주세요.", {
         toastId: "report-warning",
@@ -43,6 +53,7 @@ const ReportModal = () => {
       return;
     }
 
+    // 토큰에서 userId 추출
     let userId = null;
     const token = localStorage.getItem("token");
     if (token) {
@@ -50,6 +61,7 @@ const ReportModal = () => {
       userId = decodedToken.userId;
     }
 
+    // 신고 객체 구성
     const report = {
       category,
       originContent,
@@ -65,6 +77,7 @@ const ReportModal = () => {
       report.userId = userId;
     }
 
+    // FormData 구성
     const formData = new FormData();
     formData.append(
       "report",
@@ -79,22 +92,38 @@ const ReportModal = () => {
       toast.success("신고가 성공적으로 제출되었습니다.", {
         toastId: "report-success",
       });
+      // 신고 성공 시 상태 초기화 (이미 useEffect로 처리되지만, 여기서도 해도 무방)
       setCategory("");
-      setTitle("");
-      setEmail("");
       setContent("");
       setFile(null);
+      // 모달 닫기
+      toggleReport();
+      closeReport();
     } catch (error) {
-      toast.error("신고 제출 중 오류가 발생했습니다.", {
-        toastId: "report-error",
-      });
-      console.log("신고 등록 실패", error);
+      if (
+        error.response &&
+        error.response.status === 400 &&
+        error.response.data?.message === "이미 신고한 상태입니다."
+      ) {
+        toast.warn("이미 신고한 상태입니다.", {
+          toastId: "report-warning",
+        });
+      } else if (
+        error.response &&
+        error.response.status === 400 &&
+        error.response.data?.message === "이미지 형식이 아닙니다."
+      ) {
+        toast.warn("이미지 형식이 아닙니다.", {
+          toastId: "report-warning",
+        });
+      } else {
+        toast.error("신고 제출 중 오류가 발생했습니다.", {
+          toastId: "report-error",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
-
-    toggleReport();
-    closeReport();
   }, 1000);
 
   const handleSubmit = (e) => {
@@ -104,10 +133,10 @@ const ReportModal = () => {
     debouncedHandleSubmit(e);
   };
 
-  const MAX_FILE_SIZE = 10 * 1000 * 1000;
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     const validTypes = ["image/jpeg", "image/png", "image/jpg"];
+    if (!selectedFile) return;
     if (!validTypes.includes(selectedFile.type)) {
       toast.warn("올바른 파일형식이 아닙니다.", {
         toastId: "file-warning",
@@ -132,7 +161,7 @@ const ReportModal = () => {
     <AnimatePresence>
       {isReportOpen && (
         <motion.div
-          className="fixed inset-0 flex items-center justify-center z-[2200] backdrop-brightness-60 w-full h-full"
+          className="fixed inset-0 flex items-center justify-center z-[2200] w-full h-full backdrop-brightness-60"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -142,7 +171,6 @@ const ReportModal = () => {
             key="editor-modal"
             className="fixed inset-0 flex items-center justify-center min-w-full min-h-full"
           >
-            {/* 모달 컨테이너에 최소 너비 지정 (예: 400px 이상) */}
             <div className="p-6 bg-white h-fit rounded-xl border border-[#E1E1DF] text-[#7D7C77] mb-5 min-w-[400px]">
               <div className="w-full flex justify-end items-center">
                 <button
@@ -202,6 +230,7 @@ const ReportModal = () => {
                       onClick={() => setIsSelected(false)}
                       value="PERSONAL_INFORMATION_EXPOSURE"
                     >
+                      {" "}
                       개인정보 노출
                     </option>
                     <option value="COPYRIGHT_INFRINGEMENT">저작권 침해</option>
@@ -240,21 +269,20 @@ const ReportModal = () => {
                         사진 선택
                       </div>
                     </div>
-                    {/* 파일 선택 안내문 또는 선택된 파일명 영역에 고정 너비 처리 */}
                     {!file && (
-                      <p className="ml-4 flex-1 text-sm text-gray-500">
-                        첨부할 사진을 선택하세요 (1개만 가능)
+                      <p className="ml-4 flex-1 text-sm text-gray-500 w-[8vw]">
+                        첨부할 사진을 선택하세요
                       </p>
                     )}
                     {file && (
-                      <div className="ml-4 flex-1 flex items-center">
-                        <p className="text-sm text-gray-500 mr-2 truncate">
+                      <div className="ml-4 flex-1 flex items-center w-[8vw]">
+                        <p className="text-sm line-clamp-1 text-gray-500 mr-2">
                           {file.name}
                         </p>
                         <button
                           type="button"
                           onClick={handleFileCancel}
-                          className="py-1 px-2 hover:text-red-600 text-sm underline"
+                          className="py-1 px-2 hover:text-red-600 shrink-0 text-sm underline"
                         >
                           삭제
                         </button>
