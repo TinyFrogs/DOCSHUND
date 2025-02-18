@@ -94,7 +94,7 @@ const NotificationModal = () => {
 
         if (response != 200) {
           toast.warn("알림을 불러오는 중 오류가 발생했습니다.", {
-            toastId: "notification-error"
+            toastId: "notification-error",
           });
           return;
         }
@@ -131,7 +131,7 @@ const NotificationModal = () => {
       }
     } catch (err) {
       toast.error(err.message, {
-        toastId: "notification-error
+        toastId: "notification-error",
       });
     }
   };
