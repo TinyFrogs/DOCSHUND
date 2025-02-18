@@ -18,7 +18,7 @@ const subMenuItems = {
     { name: "관심 문서", path: "likeDocs" },
   ],
   activity: [
-    { name: "나의 번역", path: "myTrans" },
+    { name: "나의 번역본", path: "myTrans" },
     { name: "나의 게시글", path: "myArticle" },
     { name: "나의 댓글", path: "myComment" },
   ],

@@ -137,6 +137,10 @@ const ProfileCard = ({
         )}
       </div>
       <div className="flex mb-4 items-start">
+        <h3 className="w-17 font-bold text-sm md:text-base">이메일 |</h3>
+        <p className="text-sm md:text-base">{profile.email}</p>
+      </div>
+      <div className="flex mb-4 items-start">
         <h3 className="w-20 font-bold text-sm md:text-base">관심분야 |</h3>
         {isEditing ? (
           <select

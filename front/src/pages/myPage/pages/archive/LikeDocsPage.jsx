@@ -89,15 +89,21 @@ const LikeDocsPage = () => {
   );
 
   return (
-    <div className="p-4 sm:p-6 lg:p-10 bg-white rounded-bl-xl rounded-br-xl border border-[#E1E1DF] text-[#7D7C77]">
-      <ListRender
-        data={currentData}
-        renderItem={renderDocs}
-        totalPages={docs.length > 0 ? totalPages : 0}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        itemCategory="docs"
-      />
+    <div>
+      <div className="flex justify-between mt-5 mb-5">
+        <h1 className="font-bold text-2xl">관심 문서</h1>
+      </div>
+      <div className="bg-white rounded-tl-xl rounded-tr-xl border-t border-l border-r border-[#E1E1DF] pt-4 pl-6"></div>
+      <div className="p-4 sm:p-6 lg:p-10 bg-white rounded-bl-xl rounded-br-xl border-b border-l border-r border-[#E1E1DF] text-[#7D7C77]">
+        <ListRender
+          data={currentData}
+          renderItem={renderDocs}
+          totalPages={docs.length > 0 ? totalPages : 0}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          itemCategory="docs"
+        />
+      </div>
     </div>
   );
 };
