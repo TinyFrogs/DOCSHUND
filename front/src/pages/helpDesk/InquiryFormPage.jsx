@@ -50,7 +50,7 @@ const InquiryFormPage = () => {
       emailParts.length > 1 &&
       emailParts[1].toLowerCase().includes("github")
     ) {
-      toast.info("유효하지 않은 이메일 도메인입니다.");
+      toast.info("유효하지 않은 이메일입니다.");
       setLoading(false);
       return;
     }
@@ -82,39 +82,20 @@ const InquiryFormPage = () => {
       formData.append("file", file);
     }
 
-    try {
-      await InquiryService.submitInquiry(formData);
-      setCategory("");
-      setTitle("");
-      if (profile && profile.email) {
-        setEmail(profile.email);
-      } else {
-        setEmail("");
-      }
-      setContent("");
-      setFile(null);
-      toast.success("문의가 성공적으로 제출되었습니다.");
-    } catch (error) {
-      if (
-        error.response &&
-        error.response.status === 400 &&
-        error.response.data?.message === "유효하지 않은 메일입니다."
-      ) {
-        toast.warn("유효하지 않은 메일입니다.", { toastId: "report-warning" });
-      } else if (
-        error.response &&
-        error.response.status === 400 &&
-        error.response.data?.message === "이미지 형식이 아닙니다."
-      ) {
-        toast.warn("이미지 형식이 아닙니다.", { toastId: "report-warning" });
-      } else {
-        toast.error("문의 제출 중 오류가 발생했습니다.", {
-          toastId: "report-error",
-        });
-      }
-    } finally {
-      setLoading(false);
+    const response = await InquiryService.submitInquiry(formData);
+    setCategory("");
+    setTitle("");
+    if (profile && profile.email) {
+      setEmail(profile.email);
+    } else {
+      setEmail("");
     }
+    setContent("");
+    setFile(null);
+    if (response) {
+      toast.success("문의가 성공적으로 제출되었습니다.");
+    }
+    setLoading(false);
   };
 
   // 파일 용량 제한 및 형식 체크
@@ -226,6 +207,7 @@ const InquiryFormPage = () => {
             <div className="relative">
               <input
                 type="file"
+                accept="image/png, image/jpeg, image/jpg"
                 onChange={handleFileChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />

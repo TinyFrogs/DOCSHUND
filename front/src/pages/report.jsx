@@ -87,8 +87,8 @@ const ReportModal = () => {
       formData.append("file", file);
     }
 
-    try {
-      await ReportService.submitReport(formData);
+    const response = await ReportService.submitReport(formData);
+    if (response) {
       toast.success("신고가 성공적으로 제출되었습니다.", {
         toastId: "report-success",
       });
@@ -99,31 +99,8 @@ const ReportModal = () => {
       // 모달 닫기
       toggleReport();
       closeReport();
-    } catch (error) {
-      if (
-        error.response &&
-        error.response.status === 400 &&
-        error.response.data?.message === "이미 신고한 상태입니다."
-      ) {
-        toast.warn("이미 신고한 상태입니다.", {
-          toastId: "report-warning",
-        });
-      } else if (
-        error.response &&
-        error.response.status === 400 &&
-        error.response.data?.message === "이미지 형식이 아닙니다."
-      ) {
-        toast.warn("이미지 형식이 아닙니다.", {
-          toastId: "report-warning",
-        });
-      } else {
-        toast.error("신고 제출 중 오류가 발생했습니다.", {
-          toastId: "report-error",
-        });
-      }
-    } finally {
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
 
   const handleFileChange = (e) => {
@@ -254,6 +231,7 @@ const ReportModal = () => {
                     <div className="relative">
                       <input
                         type="file"
+                        accept="image/png, image/jpeg, image/jpg"
                         onChange={handleFileChange}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />

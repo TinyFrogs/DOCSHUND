@@ -2,6 +2,7 @@ import {
   axiosJsonInstance,
   axiosMultipartInstance,
 } from "../../../utils/axiosInstance";
+import { toast } from "react-toastify";
 
 const userProfileService = {
   // 프로필 데이터 가져오기
@@ -47,8 +48,20 @@ const userProfileService = {
       );
       return response.data;
     } catch (error) {
-      console.error("프로필 업데이트 중 오류 발생:", error);
-      throw error;
+      if (
+        error.response &&
+        error.response.status === 400 &&
+        error.response.data?.message === "이미지 형식이 아닙니다."
+      ) {
+        toast.warn("이미지 형식이 아닙니다.", {
+          toastId: "report-warning",
+        });
+      } else {
+        toast.error("프로필 업데이트 중 오류가 발생했습니다.", {
+          toastId: "failedUpdate",
+        });
+      }
+      return false;
     }
   },
 

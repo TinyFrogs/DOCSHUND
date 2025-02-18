@@ -98,7 +98,7 @@ const MyProfilePage = () => {
     }
   };
 
-  // 편집 모드 저장 (debounce 제거)
+  // 편집 모드 저장
   const handleSaveClick = async (e) => {
     e.preventDefault();
     if (
@@ -125,27 +125,13 @@ const MyProfilePage = () => {
       formData.append("file", profileImageFile);
     }
 
-    try {
-      await updateProfile(userId, formData);
+    const response = await updateProfile(userId, formData);
+    if (response) {
       toast.success("프로필이 성공적으로 업데이트되었습니다.", {
         toastId: "successUpdate",
       });
-      setIsEditing(false);
-    } catch (error) {
-      if (
-        error.response &&
-        error.response.status === 400 &&
-        error.response.data?.message === "이미지 형식이 아닙니다."
-      ) {
-        toast.warn("이미지 형식이 아닙니다.", {
-          toastId: "report-warning",
-        });
-      } else {
-        toast.error("프로필 업데이트 중 오류가 발생했습니다.", {
-          toastId: "failedUpdate",
-        });
-      }
     }
+    setIsEditing(false);
   };
 
   // 이미지 변경 처리 (최대 1MB)
