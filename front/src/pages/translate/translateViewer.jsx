@@ -202,7 +202,7 @@ const TranslateViewer = () => {
     closeEditor();
     closeArchive();
     handleClose();
-  }, [location]);
+  }, [location.pathname, docsId]);
 
   useEffect(() => {
     //현재 문서 이름 설정
@@ -277,7 +277,7 @@ const TranslateViewer = () => {
     return () => {
       isMounted = false;
     };
-  }, [docsId, location]);
+  }, [location.pathname, docsId]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(

@@ -30,6 +30,7 @@ import ConfirmModal from "../../components/alertModal/confirmModal";
 
 import Logo from "../../assets/logo.png";
 import { Bell, ScrollText, StickyNote, Plus, X } from "lucide-react";
+import { closeAllConnections } from "../../pages/translate/services/indexedDbService.jsx";
 
 const LeftNav = () => {
   // flowbite 라이트모드 강제 설정
@@ -194,9 +195,11 @@ const LeftNav = () => {
                         <div className="px-2">
                           {docsList.map((doc, index) => (
                             <div
-                              onClick={async () =>
-                                navigate(`/translate/main/viewer/${doc.docsId}`)
-                              }
+                              onClick={async () => {
+                                window.location.replace(
+                                  `/translate/main/viewer/${doc.docsId}`
+                                );
+                              }}
                               key={index}
                               className="cursor-pointer py-2.5 flex justify-between items-center border-b border-[#E0DED9] hover:bg-[#F5F4F0] transition-colors duration-200"
                             >
