@@ -258,16 +258,18 @@ const ManageInquiry = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <button className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150 cursor-pointer">
-                        <a
-                          onClick={(e) => e.stopPropagation()}
-                          href={inquiry.inquiryImageUrl}
-                          download="문의 이미지"
-                          target="_blank"
-                        >
-                          <Download />
-                        </a>
-                      </button>
+                      {inquiry.inquiryImageUrl && (
+                        <button className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150 cursor-pointer">
+                          <a
+                            onClick={(e) => e.stopPropagation()}
+                            href={inquiry.inquiryImageUrl}
+                            download="문의 이미지"
+                            target="_blank"
+                          >
+                            <Download />
+                          </a>
+                        </button>
+                      )}
                     </td>
                   </tr>
                   <tr>
@@ -284,7 +286,7 @@ const ManageInquiry = () => {
                             <div className="font-medium text-slate-900 mb-2">
                               문의 내용
                             </div>
-                            <div className="bg-gray-50 rounded-lg p-3 overflow-y-scroll w-[300px]">
+                            <div className="bg-gray-50 rounded-lg p-3 overflow-y-scroll max-w-[60vw]">
                               <ToastViewer content={inquiry.inquiryContent} />
                             </div>
                           </div>
@@ -295,7 +297,8 @@ const ManageInquiry = () => {
                             <div className="bg-gray-50 rounded-lg p-3">
                               {inquiry.answerCreatedAt ? (
                                 <textarea
-                                  className="w-full p-2"
+                                  className="w-full p-2 h-[10vh] overflow-y-scroll outline-none caret-transparent"
+                                  resize="none"
                                   onChange={(e) => setAnswer(e.target.value)}
                                   value={inquiry.answerContent}
                                   name=""

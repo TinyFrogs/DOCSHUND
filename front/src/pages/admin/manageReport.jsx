@@ -193,14 +193,14 @@ const ManageReport = () => {
                     }}
                     className="hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 overflow-hidden text-ellipsis max-w-[300px]">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-[200px] overflow-hidden text-ellipsis">
                       {report.category}
                     </td>
-                    <td className="flex gap-1 px-6 py-4 whitespace-nowrap text-sm text-gray-900 overflow-hidden text-ellipsis max-w-[300px]">
+                    <td className="flex gap-1 px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-[300px] overflow-hidden text-ellipsis">
                       {currentUserList[report.userId]} <MoveRight />{" "}
                       {currentUserList[report.reportedUser]}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 overflow-hidden text-ellipsis max-w-[300px]">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {handleUTC(report.createdAt).toLocaleString()}
                     </td>
                     <td className="px-3 py-4 whitespace-nowrap w-28 flex items-center gap-2">
@@ -219,16 +219,18 @@ const ManageReport = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <button className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150 cursor-pointer">
-                        <a
-                          onClick={(e) => e.stopPropagation()}
-                          href={report.reportFile}
-                          download="신고이미지"
-                          target="_blank"
-                        >
-                          <Download />
-                        </a>
-                      </button>
+                      {report.reportFile && (
+                        <button className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150 cursor-pointer">
+                          <a
+                            onClick={(e) => e.stopPropagation()}
+                            href={report.reportFile}
+                            download="신고이미지"
+                            target="_blank"
+                          >
+                            <Download />
+                          </a>
+                        </button>
+                      )}
                     </td>
                   </tr>
                   <tr>
@@ -245,12 +247,12 @@ const ManageReport = () => {
                             <div className="font-medium text-slate-900 mb-2">
                               원본 내용
                             </div>
-                            <div className="bg-gray-50 rounded-lg p-3">
+                            <div className="bg-gray-50 rounded-lg p-3 max-w-[60vw] overflow-hidden text-ellipsis">
                               <ToastViewer content={report.originContent} />
                             </div>
                           </div>
                           <div>
-                            <div className="font-medium text-slate-900 mb-2">
+                            <div className="font-medium text-slate-900 mb-2 max-w-[60vw] overflow-hidden text-ellipsis">
                               신고 내용
                             </div>
                             <div className="bg-gray-50 rounded-lg p-3">

@@ -31,6 +31,7 @@ import {
   Separator,
   Submenu,
   useContextMenu,
+  contextMenu,
 } from "react-contexify";
 
 // 상태 import
@@ -361,6 +362,7 @@ const TranslateViewer = () => {
             <div
               onClick={async (e) => {
                 e.stopPropagation();
+                contextMenu.hideAll();
                 clearSearchResults();
                 const tmpTransList = await fetchBestTranslate(
                   part.docsId,

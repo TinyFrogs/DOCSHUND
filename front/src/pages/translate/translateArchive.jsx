@@ -16,6 +16,7 @@ import useEditorStore from "../../store/translateStore/editorStore.jsx";
 import useArchiveStore from "../../store/translateStore/archiveStore.jsx";
 import useReportStore from "../../store/reportStore.jsx";
 import useModalStore from "../../store/translateStore/translateModalStore.jsx";
+import useChatStore from "../../store/chatStore.jsx";
 import _ from "lodash";
 
 const TranslateArchive = () => {
@@ -52,7 +53,8 @@ const TranslateArchive = () => {
     setOrderByLike,
     setOrderByUpdatedAt,
   } = useArchiveStore();
-  const { openReport, toggleReport } = useReportStore();
+  const { openReport, toggleReport, closeReport } = useReportStore();
+  const { toggleChat, isChatVisible } = useChatStore();
 
   //모달 관련 상태
   const { isArchiveOpen, closeArchive } = useModalStore();
@@ -109,6 +111,8 @@ const TranslateArchive = () => {
   };
 
   useEffect(() => {
+    closeReport();
+    useChatStore.setState({ isChatVisible: false });
     const fetchData = async () => {
       if (isArchiveOpen) {
         const tmpTransList = await fetchBestTranslate(docsId, "");
