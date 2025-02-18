@@ -49,7 +49,7 @@ public class S3FileUploadService {
 		String s3FolderPath = folder + "/" + saveFileName;
 
 		if (!ext.equalsIgnoreCase(".jpg") && !ext.equalsIgnoreCase(".jpeg") && !ext.equalsIgnoreCase(".png")) {
-			throw new S3Exception(IMAGE_TRNAS_BAD_REQUEST);
+			throw new S3Exception(IS_NOT_IMAGE);
 		}
 
 		File file = new File(System.getProperty("user.dir") + saveFileName);
