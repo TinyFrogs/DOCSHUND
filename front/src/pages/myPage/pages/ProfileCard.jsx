@@ -108,7 +108,7 @@ const ProfileCard = ({
         </div>
       </div>
       <div className="flex mb-4 items-start">
-        <h3 className="w-20 font-bold text-sm md:text-base">닉네임 |</h3>
+        <h3 className="w-17 font-bold text-sm md:text-base">닉네임 |</h3>
         {isEditing ? (
           <div className="flex flex-col">
             <div className="flex items-center">
@@ -155,26 +155,29 @@ const ProfileCard = ({
           <p className="text-sm md:text-base">{profile.hobby}</p>
         )}
       </div>
-      <div>
-        <h3 className="w-20 font-bold mb-2 text-sm md:text-base">자기소개 |</h3>
-        {isEditing ? (
-          <>
-            <textarea
-              name="introduce"
-              value={profile.introduce || ""}
-              onChange={handleIntroduceInputChange}
-              placeholder="자기소개 입력"
-              className="border p-1 rounded w-full focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] text-sm md:text-base"
-              style={{ height: "60px", resize: "none" }}
-            />
-            <p className="text-xs text-gray-500 mt-1 text-right">
-              {profile.introduce?.length || 0} / {MAX_INTRODUCE_LENGTH}
-            </p>
-          </>
-        ) : (
-          <p className="text-sm md:text-base break-all">{profile.introduce}</p>
-        )}
-      </div>
+      <h3 className="w-20 font-bold mb-2 text-sm md:text-base">자기소개 |</h3>
+      {isEditing ? (
+        <>
+          <textarea
+            name="introduce"
+            value={profile.introduce || ""}
+            onChange={handleIntroduceInputChange}
+            placeholder="자기소개 입력"
+            className="border p-1 rounded w-full overflow-wrap: anywhere focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] text-sm md:text-base"
+            style={{ height: "60px", resize: "none" }}
+          />
+          <p className="text-xs text-gray-500 mt-1 text-right">
+            {profile.introduce?.length || 0} / {MAX_INTRODUCE_LENGTH}
+          </p>
+        </>
+      ) : (
+        <div
+          className="text-sm md:text-base break-all break-words"
+          style={{ overflowWrap: "anywhere" }}
+        >
+          {profile.introduce}
+        </div>
+      )}
     </div>
   );
 };

@@ -55,10 +55,11 @@ const MyCommentPage = () => {
 
   const renderComment = (item) => (
     <div className="flex justify-between text-sm sm:text-base md:text-lg px-3">
-      <div className="flex-1 min-w-0 mr-3 font-semibold line-clamp-1 break-all text-xs sm:text-sm md:text-base">
+      <div className="flex-1 min-w-0 mr-3 font-semibold line-clamp-1 break-all break-words overflow-wrap text-xs sm:text-sm md:text-base">
         <Link
           to={`/community/article/${item.articleId}`}
-          className="text-[#7d7c77] hover:text-[#bc5b39] break-all"
+          className="text-[#7d7c77] hover:text-[#bc5b39] break-all break-words overflow-wrap"
+          style={{ overflowWrap: "anywhere" }}
         >
           {item.content}
         </Link>

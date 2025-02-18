@@ -49,7 +49,7 @@ const FAQPage = () => {
         className="flex justify-between items-center text-sm sm:text-lg px-2 sm:px-3 py-1 cursor-pointer"
         onClick={() => setOpenId(openId === index ? null : index)}
       >
-        <div className="flex-1 min-w-0 mr-3 font-semibold line-clamp-1 break-all text-[#7d7c77]">
+        <div className="flex-1 min-w-0 mr-3 font-semibold line-clamp-1 break-all break-words overflow-wrap text-[#7d7c77]">
           {item.q}
         </div>
         <span className="whitespace-nowrap text-[#7d7c77]">

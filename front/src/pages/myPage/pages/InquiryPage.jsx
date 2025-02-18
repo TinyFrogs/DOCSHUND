@@ -70,7 +70,7 @@ const InquiryPage = () => {
       <div key={item.inquiryId} className="flex flex-col">
         <div className="flex flex-col sm:flex-row justify-between px-3">
           <div
-            className={`flex-1 min-w-0 break-all mr-3 ${
+            className={`flex-1 min-w-0 break-all break-words overflow-wrap mr-3 ${
               openId === item.inquiryId ? "" : "line-clamp-1"
             }`}
           >
@@ -79,6 +79,7 @@ const InquiryPage = () => {
                 setOpenId(item.inquiryId === openId ? null : item.inquiryId);
               }}
               className="line-clamp-1 text-sm sm:text-base md:text-lg font-semibold text-[#7d7c77] hover:text-[#bc5b39] cursor-pointer"
+              style={{ overflowWrap: "anywhere" }}
             >
               {item.inquiryTitle}
             </h3>

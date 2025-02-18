@@ -62,11 +62,15 @@ const LikeArticlePage = () => {
       <div className="flex-1 min-w-0 mr-3 flex flex-col justify-between">
         <Link
           to={`/community/article/${item.articleId}`}
-          className="font-semibold line-clamp-1 break-all text-[#7d7c77] hover:text-[#bc5b39] text-sm sm:text-base md:text-lg"
+          className="font-semibold line-clamp-1 break-all break-words overflow-wrap text-[#7d7c77] hover:text-[#bc5b39] text-sm sm:text-base md:text-lg"
+          style={{ overflowWrap: "anywhere" }}
         >
           {item.title}
         </Link>
-        <p className="text-xs sm:text-sm md:text-base line-clamp-1 break-all">
+        <p
+          className="text-xs sm:text-sm md:text-base line-clamp-1 break-all break-words overflow-wrap"
+          style={{ overflowWrap: "anywhere" }}
+        >
           {item.content}
         </p>
       </div>

@@ -6,10 +6,10 @@ const MemoCard = ({ memo, onEditMemo }) => {
 
   return (
     <div className="bg-white rounded-xl p-4 border border-[#E1E1DF]">
-      <h2 className="text-lg line-clamp-1 break-all font-bold mb-2">
+      <h2 className="text-lg line-clamp-1 break-all break-words overflow-wrap font-bold mb-2">
         {memo.title}
       </h2>
-      <p className="text-sm h-20 line-clamp-4 text-gray-600 mb-4 break-all overflow-hidden text-ellipsis">
+      <p className="text-sm h-20 line-clamp-4 text-gray-600 mb-4 break-all break-words overflow-wrap overflow-hidden text-ellipsis">
         {memo.content}
       </p>
       <div className="flex text-sm justify-between items-center text-gray-400">
@@ -18,7 +18,7 @@ const MemoCard = ({ memo, onEditMemo }) => {
         </span>
         <button
           onClick={() => onEditMemo(memo.memoId, memo)}
-          className="bg-[#bc5b39] rounded-xl px-4 h-10 text-white hover:bg-[#C96442] transition cursor-pointer"
+          className="bg-[#bc5b39] rounded-xl px-4 md:px-2 h-10 text-white text-sm hover:bg-[#C96442] transition cursor-pointer"
         >
           메모 보기
         </button>

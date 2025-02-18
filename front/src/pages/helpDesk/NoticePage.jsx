@@ -37,7 +37,7 @@ const NoticePage = () => {
 
   const renderNotice = (item) => (
     <div className="flex justify-between items-center text-sm sm:text-lg px-2 sm:px-3 py-1">
-      <div className="flex-1 min-w-0 mr-3 font-semibold line-clamp-1 break-all">
+      <div className="flex-1 min-w-0 mr-3 font-semibold line-clamp-1 break-all break-words overflow-wrap">
         <Link
           to={`/helpDesk/notices/${item.noticeId}`}
           className="text-[#7d7c77] hover:text-[#bc5b39]"

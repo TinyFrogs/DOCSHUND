@@ -65,7 +65,7 @@ const LikeDocsPage = () => {
 
   const renderDocs = (item) => (
     <div className="flex justify-between items-center text-sm sm:text-base md:text-lg px-3">
-      <div className="flex-1 min-w-0 mr-3 font-semibold line-clamp-1 break-all text-sm sm:text-base md:text-lg">
+      <div className="flex-1 min-w-0 mr-3 font-semibold line-clamp-1 break-all break-words overflow-wrap text-sm sm:text-base md:text-lg">
         <Link
           to={`/translate/main/viewer/${item.docsId}`}
           className="text-[#7d7c77] hover:text-[#bc5b39]"

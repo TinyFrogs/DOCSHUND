@@ -42,7 +42,7 @@ const TranslationModal = ({ isOpen, closeModal, item, docsPart }) => {
               <div className="w-1/2">
                 <h4 className="text-[#7D7C77] mb-2">[원문]</h4>
                 <div
-                  className="mb-2 p-4 bg-white rounded-xl border border-[#E1E1DF] break-all"
+                  className="mb-2 p-4 bg-white rounded-xl border border-[#E1E1DF] break-all break-words overflow-wrap"
                   style={{ height: "400px", overflowY: "auto" }}
                 >
                   <MDEditor.Markdown
@@ -54,7 +54,7 @@ const TranslationModal = ({ isOpen, closeModal, item, docsPart }) => {
               <div className="w-1/2">
                 <h4 className="text-[#7D7C77] mb-2">[나의 번역]</h4>
                 <div
-                  className="mb-2 p-4 bg-white rounded-xl border border-[#E1E1DF] break-all"
+                  className="mb-2 p-4 bg-white rounded-xl border border-[#E1E1DF] break-all break-words overflow-wrap"
                   style={{ height: "400px", overflowY: "auto" }}
                 >
                   <MDEditor.Markdown

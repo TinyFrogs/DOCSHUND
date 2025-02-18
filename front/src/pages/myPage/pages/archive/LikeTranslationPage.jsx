@@ -86,7 +86,7 @@ const LikeTranslationPage = () => {
     <div key={item.transId} className="flex-col">
       <div className="flex justify-between px-3">
         <div
-          className={`flex-1 min-w-0 break-all mr-3 ${
+          className={`flex-1 min-w-0 break-all break-words overflow-wrap mr-3 ${
             openId === item.transId ? "" : "line-clamp-1"
           } text-xs sm:text-sm md:text-base lg:text-lg`}
         >
