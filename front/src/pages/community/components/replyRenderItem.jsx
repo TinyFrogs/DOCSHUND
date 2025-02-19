@@ -55,11 +55,15 @@ const ReplyRenderItem = ({
     );
 
     if (response.status === 204) {
-      toast.info("댓글이 삭제되었습니다.");
+      toast.info("댓글이 삭제되었습니다.", {
+        toastId: "deleteReply",
+      });
 
       //  삭제 후 댓글 리스트 리렌더링
       const resData = await ArticleItemService.fetchArticleItem(item.articleId);
-      setCommentCount(resData.commentCount);
+      if (resData) {
+        setCommentCount(resData.commentCount);
+      }
       setIsReplied((prev) => !prev);
     }
   }, 100);
@@ -113,7 +117,7 @@ const ReplyRenderItem = ({
                   </button>
                 )
               : null}
-            {!reCommentFlag && (
+            {!reCommentFlag && item.userId && (
               <button
                 className="text-[#7d7c77] underline text-sm cursor-pointer"
                 onClick={() => {

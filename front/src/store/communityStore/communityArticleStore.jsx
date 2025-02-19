@@ -79,6 +79,7 @@ const communityArticleStore = create(
       category: "", // 문서(소분류) 제목
       content: "",
       fileUrl: "", // 파일 URL
+      isPossibleInsertImage: true,
 
       // 글 작성에 필요한 메소드 설정
       setTitle: (title) => set({ title }),
@@ -86,6 +87,8 @@ const communityArticleStore = create(
       setCategory: (category) => set({ category }), // 문서(소분류) 제목 수정
       setContent: (content) => set({ content }),
       setFileUrl: (fileUrl) => set({ fileUrl }),
+      setIsPossibleInsertImage: (isPossibleInsertImage) =>
+        set({ isPossibleInsertImage }),
 
       // reply list의 초기값 설정
       replies: [], // 댓글 리스트

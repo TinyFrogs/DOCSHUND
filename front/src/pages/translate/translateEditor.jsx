@@ -51,10 +51,14 @@ const TranslateEditor = () => {
       debounce(async (docsId, originId, currentUserText) => {
         const status = await registTranslate(docsId, originId, currentUserText);
         if (status !== 200) {
-          toast.error("제출 실패");
+          toast.error("제출 실패", {
+            toastId: "submitFail",
+          });
         } else {
-          toast.success("제출 완료");
-          setLoading(true);
+          toast.success("제출 완료", {
+            toastId: "submitSuccess",
+          });
+          setLoading(false);
           const tmpTransList = await fetchBestTranslate(docsId, "");
           tmpTransList.sort((a, b) => b.likeCount - a.likeCount);
           setTransList(tmpTransList);
@@ -122,7 +126,9 @@ const TranslateEditor = () => {
                           currentUserText.trim() === "" ||
                           currentUserText.trim() === undefined
                         ) {
-                          toast.error("내용을 입력해주세요.");
+                          toast.error("내용을 입력해주세요.", {
+                            toastId: "emptyContent",
+                          });
                           return;
                         }
 
@@ -136,6 +142,7 @@ const TranslateEditor = () => {
                       text="제출하기"
                     />
                   )}
+
                   <RectBtn
                     onClick={async () => {
                       closeEditor();

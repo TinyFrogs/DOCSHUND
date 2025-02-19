@@ -63,7 +63,9 @@ const ArticleItemService = {
     } catch (error) {
       console.error("파일 업로드 실패");
       // 사용자 피드백 (UI)
-      toast.warn("이미지 형식이 아닙니다.");
+      toast.warn("이미지 형식이 아닙니다.", {
+        toastId: "uploadFail",
+      });
       return Promise.reject({ message: "Upload failed" }); // 상세정보 제거
     }
   },

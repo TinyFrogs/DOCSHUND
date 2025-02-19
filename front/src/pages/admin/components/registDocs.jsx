@@ -36,10 +36,14 @@ const RegistDocs = ({ open, onClose }) => {
     };
     const status = await registDocument(documentData);
     if (status === 200) {
-      toast.success("문서 등록 성공");
+      toast.success("문서 등록 성공", {
+        toastId: "registDocs",
+      });
       onClose();
     } else {
-      toast.error("문서 등록 실패");
+      toast.error("문서 등록 실패", {
+        toastId: "registDocs",
+      });
     }
   };
 

@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import _ from "lodash";
+import _, { set } from "lodash";
 
 // store
 import communityArticleStore from "../../store/communityStore/communityArticleStore";
@@ -28,10 +28,13 @@ const WriteArticle = () => {
   const [tmpFile, setTmpFile] = useState(null); // 임시 파일 상태
   const [file, setFile] = useState(null); // 첨부 파일 상태
   const [imageUrl, setImageUrl] = useState(""); // 이미지 URL 상태
+  const [isLoading, setLoading] = useState(false); // 로딩 상태
 
+  const isPossibleInsertImage = communityArticleStore(
+    (state) => state.isPossibleInsertImage
+  );
   const documentNames = docsCategoryStore((state) => state.documentNames);
   const currentUserText = useEditorStore((state) => state.currentUserText);
-
   const setFileUrl = communityArticleStore((state) => state.setFileUrl);
 
   // 제목 입력 핸들러 (debounce)
@@ -58,7 +61,9 @@ const WriteArticle = () => {
     const isValid = await validateImageFile(selectedFile);
 
     if (!isValid) {
-      toast.warn("이미지 파일만 업로드 가능합니다.");
+      toast.warn("이미지 파일만 업로드 가능합니다.", {
+        toastId: "imageOnly",
+      });
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -68,7 +73,9 @@ const WriteArticle = () => {
     if (selectedFile) {
       if (selectedFile.size > 10 * 1000 * 1000) {
         // 10MB 제한
-        toast.info("사진 크기는 최대 10MB까지 업로드 가능합니다.");
+        toast.info("사진 크기는 최대 10MB까지 업로드 가능합니다.", {
+          toastId: "fileSize",
+        });
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
@@ -103,6 +110,7 @@ const WriteArticle = () => {
   };
 
   const debouncedSubmit = _.debounce(async () => {
+    setLoading(true);
     const content = currentUserText; // 에디터 내용
 
     // 제목, 대분류, 소분류, 내용이 모두 입력되었는지 확인
@@ -115,6 +123,7 @@ const WriteArticle = () => {
       toast.info("모든 항목을 입력해주세요.", {
         toastId: "required",
       });
+      setLoading(false);
       return;
     } else {
       const formattedContent = convertWhiteSpace(content);
@@ -123,6 +132,7 @@ const WriteArticle = () => {
         toast.info("글 내용은 15000자 이하로 작성해주세요.", {
           toastId: "contentLength",
         });
+        setLoading(false);
         return;
       }
 
@@ -135,9 +145,13 @@ const WriteArticle = () => {
       const data = response.data;
 
       if (response.status === 200) {
-        toast.success("글 작성이 완료되었습니다.");
+        toast.success("글 작성이 완료되었습니다.", {
+          toastId: "writeSuccess",
+        });
         navigate(`/community/article/${data.articleId}`);
       }
+
+      setLoading(false);
     }
   }, 500);
 
@@ -227,6 +241,7 @@ const WriteArticle = () => {
                 </div>
 
                 {/* 파일 첨부 */}
+
                 <div className="mb-6">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center mb-2">
                     <label className="block text-lg font-medium text-black">
@@ -287,7 +302,8 @@ const WriteArticle = () => {
               <div className="flex justify-center">
                 <button
                   type="submit"
-                  className="py-2 px-8 bg-[#bc5b39] text-white rounded-md shadow-sm hover:bg-[#C96442] cursor-pointer text-sm"
+                  disabled={isLoading}
+                  className=" py-2 px-8 bg-[#bc5b39] text-white rounded-md shadow-sm hover:bg-[#C96442] cursor-pointer text-sm"
                 >
                   작성완료
                 </button>

@@ -71,7 +71,9 @@ const MyProfilePage = () => {
   // 닉네임 중복 체크
   const checkNickname = async (showSuccessToast = true) => {
     if (!editedProfile.nickname) {
-      toast.warn("닉네임을 입력해주세요.");
+      toast.warn("닉네임을 입력해주세요.", {
+        toastId: "emptyNickname",
+      });
       return false;
     }
     try {

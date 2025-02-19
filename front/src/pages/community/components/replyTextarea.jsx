@@ -6,11 +6,13 @@ import { debounce } from "lodash";
 import communityArticleStore from "../../../store/communityStore/communityArticleStore";
 import ReplyItemService from "../services/replyItemService";
 import RectBtn from "../../../components/button/rectBtn";
+import ArticleItemService from "../services/articleItemService";
 
 const ReplyTextarea = ({ reCommentFlag, commentId }) => {
   const { articleId } = useParams();
   const [replyContent, setReplyContent] = useState("");
   const [contentLength, setContentLength] = useState(0);
+  const [isLoading, setLoading] = useState(false);
 
   const commentCount = communityArticleStore((state) => state.commentCount);
   const setCommentCount = communityArticleStore(
@@ -18,18 +20,24 @@ const ReplyTextarea = ({ reCommentFlag, commentId }) => {
   );
   const setIsReplied = communityArticleStore((state) => state.setIsReplied);
 
+  const convertWhiteSpace = (content) => {
+    return content.replace(/\n/g, "\r\n"); // 개행 문자 정규화
+  };
+
   // Debounced submit handler
   const debouncedSubmit = useCallback(
     debounce(async (content, isReComment, commentId) => {
+      setLoading(true);
       if (!content.trim()) {
         toast.warn("댓글을 입력해주세요.", {
           toastId: "emptyReply",
         });
+        setLoading(false);
         return;
       }
 
       try {
-        const formattedContent = content.replace(/\n/g, "\r\n"); // 개행 문자 정규화
+        const formattedContent = convertWhiteSpace(content); // 개행 문자 정규화
 
         if (isReComment) {
           await ReplyItemService.postReReplyItem(
@@ -44,15 +52,20 @@ const ReplyTextarea = ({ reCommentFlag, commentId }) => {
           );
         }
 
-        const newCommentCount = commentCount + 1;
-        setCommentCount(newCommentCount);
+        const resData = await ArticleItemService.fetchArticleItem(articleId);
+        if (resData) {
+          setCommentCount(resData.commentCount);
+        }
+
         setReplyContent("");
         setContentLength(0);
         setIsReplied((prev) => !prev);
+        setLoading(false);
       } catch (error) {
         toast.error("댓글 작성에 실패했습니다.", {
           toastId: "failedReply",
         });
+        setLoading(false);
         return error;
       }
     }, 300),
@@ -61,14 +74,14 @@ const ReplyTextarea = ({ reCommentFlag, commentId }) => {
 
   // 즉시 상태를 업데이트하는 함수
   const updateContent = (value) => {
-    if (value.length > 500) {
+    if (convertWhiteSpace(value).length > 500) {
       toast.warn("댓글은 500자 이내로 작성해주세요.", {
         toastId: "exceedReply",
       });
       return;
     }
     setReplyContent(value);
-    setContentLength(value.length);
+    setContentLength(convertWhiteSpace(value).length);
   };
 
   // Cleanup function
@@ -103,11 +116,13 @@ const ReplyTextarea = ({ reCommentFlag, commentId }) => {
           >
             {contentLength} / 500자
           </span>
-          <RectBtn
-            onClick={handleSubmit}
-            text="댓글 작성"
-            className="w-28 h-10 text-sm"
-          />
+          <button disabled={isLoading}>
+            <RectBtn
+              onClick={handleSubmit}
+              text="댓글 작성"
+              className="w-28 h-10 text-sm"
+            />
+          </button>
         </div>
       </div>
     </div>

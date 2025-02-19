@@ -75,6 +75,7 @@ const UseSSE = (userId) => {
 
               // 토스트 알림 표시
               toast.info(notification.content, {
+                toastId: notification.id,
                 position: "top-right",
                 autoClose: 2000,
                 hideProgressBar: true,

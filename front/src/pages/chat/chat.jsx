@@ -68,11 +68,15 @@ const Chat = () => {
       const socket = new WebSocket("wss://i12a703.p.ssafy.io/ws-connect");
       socket.onerror = (event) => {
         // console.error("WebSocket Error:", event);
-        toast.error("웹소켓 연결 오류가 발생했습니다.");
+        toast.error("웹소켓 연결 오류가 발생했습니다.", {
+          toastId: "websocket-error",
+        });
       };
       socket.onclose = (event) => {
         console.warn("WebSocket Closed:", event);
-        toast.error("웹소켓 연결이 종료되었습니다.");
+        toast.error("웹소켓 연결이 종료되었습니다.", {
+          toastId: "websocket-closed",
+        });
       };
       return socket;
     };
@@ -104,7 +108,9 @@ const Chat = () => {
         stompClient.current.subscribe("/user/queue/errors", (message) => {
           const errorData = JSON.parse(message.body);
           // console.error("STOMP 구독 에러:", errorData);
-          toast.error(`${errorData.errorType}: ${errorData.message}`);
+          toast.error(`${errorData.errorType}: ${errorData.message}`, {
+            toastId: "stomp-error",
+          });
         });
       },
       (error) => {
@@ -112,7 +118,9 @@ const Chat = () => {
         const errorMessage =
           (error && error.headers && error.headers.message) ||
           "알 수 없는 STOMP 오류가 발생했습니다.";
-        toast.error(errorMessage);
+        toast.error(errorMessage, {
+          toastId: "stomp-error",
+        });
       }
     );
   };

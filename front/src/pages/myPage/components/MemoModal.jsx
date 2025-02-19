@@ -50,7 +50,9 @@ const MemoModal = ({
     if (value.length <= MAX_CONTENT_LENGTH) {
       setCurrentUserText(value);
     } else {
-      toast.warn(`최대 ${MAX_CONTENT_LENGTH}자 까지만 입력가능합니다.`);
+      toast.warn(`최대 ${MAX_CONTENT_LENGTH}자 까지만 입력가능합니다.`, {
+        toastId: "contentLength",
+      });
     }
   };
 
@@ -60,13 +62,17 @@ const MemoModal = ({
     const currentText = currentUserText || "";
     const remaining = MAX_CONTENT_LENGTH - currentText.length;
     if (remaining <= 0) {
-      toast.warn(`최대 ${MAX_CONTENT_LENGTH}자 까지만 입력 가능합니다.`);
+      toast.warn(`최대 ${MAX_CONTENT_LENGTH}자 까지만 입력 가능합니다.`, {
+        toastId: "contentLength",
+      });
       return;
     }
     let textToPaste = pastedText;
     if (pastedText.length > remaining) {
       textToPaste = pastedText.substring(0, remaining);
-      toast.warn(`최대글자수를 넘어 일부만 붙여넣어집니다.`);
+      toast.warn(`최대글자수를 넘어 일부만 붙여넣어집니다.`, {
+        toastId: "contentLength",
+      });
     }
     setCurrentUserText(currentText + textToPaste);
   };

@@ -50,9 +50,13 @@ const ManageReport = () => {
     _.debounce(async (reportId) => {
       const response = await withdrawReport(reportId);
       if (response === 200) {
-        toast.success("신고 철회 완료");
+        toast.success("신고 철회 완료", {
+          toastId: "withdrawSuccess",
+        });
       } else {
-        toast.error("공개 처리 실패");
+        toast.error("공개 처리 실패", {
+          toastId: "withdrawFail",
+        });
       }
       reportListData.current = await fetchReportList();
       handleFilter(activeFilterRef.current);

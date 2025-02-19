@@ -48,6 +48,7 @@ function App() {
       toast.success("로그인에 성공했습니다!", {
         autoClose: 1000,
         hideProgressBar: true,
+        toastId: "loginSuccess",
       });
       setToken(location.search.split("=")[1]);
     }

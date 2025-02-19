@@ -48,7 +48,9 @@ const InquiryFormPage = () => {
     e.preventDefault();
     setLoading(true);
     if (!category || !title.trim() || !email || !content.trim()) {
-      toast.info("문의 카테고리, 제목, 이메일, 내용을 모두 입력해주세요.");
+      toast.info("문의 카테고리, 제목, 이메일, 내용을 모두 입력해주세요.", {
+        toastId: "required",
+      });
       setLoading(false);
       return;
     }
@@ -59,7 +61,9 @@ const InquiryFormPage = () => {
       emailParts.length > 1 &&
       emailParts[1].toLowerCase().includes("github")
     ) {
-      toast.info("유효하지 않은 이메일입니다.");
+      toast.info("유효하지 않은 이메일입니다.", {
+        toastId: "invalidEmail",
+      });
       setLoading(false);
       return;
     }
@@ -77,6 +81,7 @@ const InquiryFormPage = () => {
       toast.info(`글 내용은 ${MAX_CONTENT_LENGTH}자 이하로 작성해주세요.`, {
         toastId: "contentLength",
       });
+      setLoading(false);
       return;
     }
 
@@ -111,7 +116,9 @@ const InquiryFormPage = () => {
     setContent("");
     setFile(null);
     if (response) {
-      toast.success("문의가 성공적으로 제출되었습니다.");
+      toast.success("문의가 성공적으로 제출되었습니다.", {
+        toastId: "submitSuccess",
+      });
     }
     setLoading(false);
   };
@@ -124,7 +131,9 @@ const InquiryFormPage = () => {
     const isValid = await validateImageFile(selectedFile);
 
     if (!isValid) {
-      toast.warn("이미지 파일만 업로드 가능합니다.");
+      toast.warn("이미지 파일만 업로드 가능합니다.", {
+        toastId: "invalidFileType",
+      });
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -133,7 +142,9 @@ const InquiryFormPage = () => {
 
     if (selectedFile) {
       if (selectedFile.size > MAX_FILE_SIZE) {
-        toast.warn("파일 크기는 최대 10MB까지 업로드 가능합니다.");
+        toast.warn("파일 크기는 최대 10MB까지 업로드 가능합니다.", {
+          toastId: "fileSizeLimit",
+        });
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }

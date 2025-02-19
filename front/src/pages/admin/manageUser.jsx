@@ -41,23 +41,35 @@ const ManageUser = () => {
       if (currentStatus === "ACTIVE") {
         const response = await changeUserStatus(userId, "WITHDRAWN");
         if (response === 200) {
-          toast.success("상태 변경 완료");
+          toast.success("상태 변경 완료", {
+            toastId: "changeStatus",
+          });
         } else {
-          toast.error("상태 변경 실패");
+          toast.error("상태 변경 실패", {
+            toastId: "changeStatus",
+          });
         }
       } else if (currentStatus === "WITHDRAWN") {
         const response = await changeUserStatus(userId, "BANNED");
         if (response === 200) {
-          toast.success("상태 변경 완료");
+          toast.success("상태 변경 완료", {
+            toastId: "changeStatus",
+          });
         } else {
-          toast.error("상태 변경 실패");
+          toast.error("상태 변경 실패", {
+            toastId: "changeStatus",
+          });
         }
       } else if (currentStatus === "BANNED") {
         const response = await changeUserStatus(userId, "ACTIVE");
         if (response === 200) {
-          toast.success("상태 변경 완료");
+          toast.success("상태 변경 완료", {
+            toastId: "changeStatus",
+          });
         } else {
-          toast.error("상태 변경 실패");
+          toast.error("상태 변경 실패", {
+            toastId: "changeStatus",
+          });
         }
       }
 

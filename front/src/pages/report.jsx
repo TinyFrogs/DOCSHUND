@@ -129,7 +129,9 @@ const ReportModal = () => {
     const isValid = await validateImageFile(selectedFile);
 
     if (!isValid) {
-      toast.warn("이미지 파일만 업로드 가능합니다.");
+      toast.warn("이미지 파일만 업로드 가능합니다.", {
+        toastId: "file-warning",
+      });
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }

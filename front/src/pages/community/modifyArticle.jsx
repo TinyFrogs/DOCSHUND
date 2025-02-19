@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import _ from "lodash";
+import _, { set } from "lodash";
 
 // store
 import communityArticleStore from "../../store/communityStore/communityArticleStore";
@@ -33,6 +33,7 @@ const ModifyArticle = () => {
   const [file, setFile] = useState(null); // 첨부 파일 상태
   const [imageUrl, setImageUrl] = useState(""); // 이미지 URL 상태
   const [content, setContent] = useState(articleItems.content); // 내용 상태
+  const [isLoading, setLoading] = useState(false); // 로딩 상태
 
   const documentNames = docsCategoryStore((state) => state.documentNames);
   const setFileUrl = communityArticleStore((state) => state.setFileUrl);
@@ -72,7 +73,9 @@ const ModifyArticle = () => {
         }
       } catch (error) {
         // console.error("Failed to load article:", error);
-        toast.error("게시글을 불러오는데 실패했습니다.");
+        toast.error("게시글을 불러오는데 실패했습니다.", {
+          toastId: "error",
+        });
       }
     };
 
@@ -102,7 +105,9 @@ const ModifyArticle = () => {
     const isValid = await validateImageFile(selectedFile);
 
     if (!isValid) {
-      toast.warn("이미지 파일만 업로드 가능합니다.");
+      toast.warn("이미지 파일만 업로드 가능합니다.", {
+        toastId: "invalid",
+      });
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -111,7 +116,9 @@ const ModifyArticle = () => {
 
     if (selectedFile) {
       if (selectedFile.size > 10 * 1000 * 1000) {
-        toast.info("사진 크기는 최대 10MB까지 업로드 가능합니다.");
+        toast.info("사진 크기는 최대 10MB까지 업로드 가능합니다.", {
+          toastId: "size",
+        });
         return;
       }
       setFile(selectedFile);
@@ -129,6 +136,7 @@ const ModifyArticle = () => {
   const submitArticle = useCallback(
     _.debounce(async () => {
       try {
+        setLoading(true);
         // 제목, 대분류, 소분류, 내용, 파일이 모두 입력되었는지 확인
         if (
           !title.trim() ||
@@ -139,6 +147,7 @@ const ModifyArticle = () => {
           toast.warn("모든 항목을 입력해주세요.", {
             toastId: "required",
           });
+          setLoading(false);
           return;
         } else {
           const formattedContent = content.replace(/\n/g, "\r\n"); // 개행 문자 정규화
@@ -147,6 +156,7 @@ const ModifyArticle = () => {
             toast.info("글 내용은 15000자 이하로 작성해주세요.", {
               toastId: "contentLength",
             });
+            setLoading(false);
             return;
           }
 
@@ -170,12 +180,15 @@ const ModifyArticle = () => {
             });
             navigate(`/community/article/${articleId}`);
           }
+
+          setLoading(false);
         }
       } catch (error) {
         // console.error("Failed to modify article:", error);
         toast.error("게시글 수정에 실패했습니다.", {
           toastId: "error",
         });
+        setLoading(false);
       }
     }, 500),
     [title, mainCategory, subCategory, currentUserText, articleId, articleItems]
@@ -319,6 +332,7 @@ const ModifyArticle = () => {
               <div className="flex justify-center">
                 <button
                   type="submit"
+                  disabled={isLoading}
                   className="py-2 px-8 bg-[#bc5b39] text-white rounded-md shadow-sm hover:bg-[#C96442] cursor-pointer text-sm"
                 >
                   수정완료

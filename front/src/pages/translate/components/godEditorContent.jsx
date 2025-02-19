@@ -13,6 +13,12 @@ const GodEditorContent = ({ initialTextContent, maxLength = 15000 }) => {
   const [value, setValue] = useState(initialTextContent);
   const fileUrl = communityArticleStore((state) => state.fileUrl);
   const setFileUrl = communityArticleStore((state) => state.setFileUrl);
+  const isPossibleInsertImage = communityArticleStore(
+    (state) => state.isPossibleInsertImage
+  );
+  const setIsPossibleInsertImage = communityArticleStore(
+    (state) => state.setIsPossibleInsertImage
+  );
 
   const convertWhiteSpace = (content) => {
     return content.replace(/\n/g, "\r\n"); // 개행 문자 정규화
@@ -20,7 +26,9 @@ const GodEditorContent = ({ initialTextContent, maxLength = 15000 }) => {
 
   const handleChange = (newText) => {
     if (convertWhiteSpace(newText).length > 15000) {
-      toast.info("글 내용은 15000자 이하로 작성해주세요.");
+      toast.info("글 내용은 15000자 이하로 작성해주세요.", {
+        toastId: "contentLength",
+      });
       return;
     }
 
@@ -62,7 +70,10 @@ const GodEditorContent = ({ initialTextContent, maxLength = 15000 }) => {
                 convertWhiteSpace(value).length >
               maxLength
             ) {
-              toast.info("글 내용은 15000자 이하로 작성해주세요.");
+              setIsPossibleInsertImage(false);
+              toast.info("글 내용은 15000자 이하로 작성해주세요.", {
+                toastId: "imageUpload",
+              });
               return;
             }
 
@@ -77,18 +88,24 @@ const GodEditorContent = ({ initialTextContent, maxLength = 15000 }) => {
 
   const handleInsertImage = _.debounce(() => {
     if (fileUrl) {
-      const imageMarkdown = `![image](${fileUrl})`;
+      const imageMarkdown = `\r\n![image](${fileUrl})\r\n`;
 
       if (
         convertWhiteSpace(imageMarkdown).length +
           convertWhiteSpace(value).length >
         maxLength
       ) {
-        toast.info("글 내용은 15000자 이하로 작성해주세요.");
+        setIsPossibleInsertImage(false);
+        toast.info("글 내용은 15000자 이하로 작성해주세요.", {
+          toastId: "imageUpload",
+        });
+        setFileUrl("");
         return;
       }
 
+      setIsPossibleInsertImage(true);
       setValue(value + imageMarkdown);
+      setCurrentUserText(value + imageMarkdown);
       setFileUrl("");
     }
   }, 300);

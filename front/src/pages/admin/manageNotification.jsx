@@ -44,10 +44,14 @@ const ManageNotification = () => {
   const handleSaveNotification = async (title, content) => {
     const response = await registNotification(title, content);
     if (response === 200) {
-      toast.success("공지 등록 성공");
+      toast.success("공지 등록 성공", {
+        toastId: "addNotification",
+      });
       fetchNoticeData();
     } else {
-      toast.error("공지 등록 실패");
+      toast.error("공지 등록 실패", {
+        toastId: "addNotification",
+      });
     }
     setIsEditorOpen(false);
     setNewNotification({
@@ -68,10 +72,14 @@ const ManageNotification = () => {
   const handleEditNotification = async (noticeId, title, content) => {
     const response = await modifyNotice(noticeId, title, content);
     if (response === 200) {
-      toast.success("공지 수정 성공");
+      toast.success("공지 수정 성공", {
+        toastId: "editNotification",
+      });
       fetchNoticeData();
     } else {
-      toast.error("공지 수정 실패");
+      toast.error("공지 수정 실패", {
+        toastId: "editNotification",
+      });
     }
     setIsEditorOpen(false);
     setNewNotification({
@@ -92,10 +100,14 @@ const ManageNotification = () => {
   const handleDeleteNotification = async (noticeId) => {
     const response = await deleteNotification(noticeId);
     if (response === 200) {
-      toast.success("삭제 성공");
+      toast.success("삭제 성공", {
+        toastId: "deleteNotification",
+      });
       fetchNoticeData();
     } else {
-      toast.error("공지 삭제 실패");
+      toast.error("공지 삭제 실패", {
+        toastId: "deleteNotification",
+      });
     }
   };
 

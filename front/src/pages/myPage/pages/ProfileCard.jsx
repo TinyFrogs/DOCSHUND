@@ -50,12 +50,16 @@ const ProfileCard = ({
     const MAX_FILE_SIZE = 1 * 1000 * 1000;
     if (file) {
       if (!validTypes.includes(file.type)) {
-        toast.warn("올바른 파일형식이 아닙니다.");
+        toast.warn("올바른 파일형식이 아닙니다.", {
+          toastId: "invalidFileType",
+        });
         e.target.value = "";
         return;
       }
       if (file.size > MAX_FILE_SIZE) {
-        toast.warn("파일 크기는 1MB 이하만 가능합니다.");
+        toast.warn("파일 크기는 1MB 이하만 가능합니다.", {
+          toastId: "fileSizeExceed",
+        });
         e.target.value = "";
         return;
       }

@@ -76,7 +76,9 @@ const ManageInquiry = () => {
 
     if (data === 200) {
       setLoading(false);
-      toast.success("작성 완료");
+      toast.success("작성 완료", {
+        toastId: "respond",
+      });
       const data = await fetchInquiryList();
       const processedData = await data.sort(
         (a, b) => new Date(b.inquiryCreatedAt) - new Date(a.inquiryCreatedAt)
@@ -85,7 +87,9 @@ const ManageInquiry = () => {
       await handleFilter(activeFilter);
     } else {
       setLoading(false);
-      toast.error("작성 실패");
+      toast.error("작성 실패", {
+        toastId: "respond",
+      });
     }
   }, 500); // 500ms delay
 
