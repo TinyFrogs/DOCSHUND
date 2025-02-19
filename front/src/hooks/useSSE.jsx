@@ -86,13 +86,13 @@ const UseSSE = (userId) => {
               });
             });
           } catch (err) {
-            console.error("알림 데이터 파싱 오류:", err);
+            // console.error("알림 데이터 파싱 오류:", err);
           }
         });
 
         // INFO: 에러 핸들링
         eventSource.onerror = (error) => {
-          console.error("SSE 연결 오류:", error);
+          // console.error("SSE 연결 오류:", error);
           setIsConnected(false);
 
           // NOTE: 현재 재연결 로직은 비활성화 <- 필요 시 주석 해제
@@ -122,7 +122,7 @@ const UseSSE = (userId) => {
           // }
         };
       } catch (err) {
-        console.error("EventSource 초기화 오류:", err);
+        // console.error("EventSource 초기화 오류:", err);
         setIsConnected(false);
         setError("알림 서버 연결에 실패했습니다.");
       }

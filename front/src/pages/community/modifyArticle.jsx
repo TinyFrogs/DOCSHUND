@@ -63,7 +63,7 @@ const ModifyArticle = () => {
           setContent(articleItems.content);
         }
       } catch (error) {
-        console.error("Failed to load article:", error);
+        // console.error("Failed to load article:", error);
         toast.error("게시글을 불러오는데 실패했습니다.");
       }
     };
@@ -149,7 +149,7 @@ const ModifyArticle = () => {
           navigate(`/community/article/${articleId}`);
         }
       } catch (error) {
-        console.error("Failed to modify article:", error);
+        // console.error("Failed to modify article:", error);
         toast.error("게시글 수정에 실패했습니다.", {
           toastId: "error",
         });

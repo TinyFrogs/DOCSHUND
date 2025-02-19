@@ -119,7 +119,7 @@ const WriteArticle = () => {
       const data = response.data;
 
       if (response.status === 200) {
-        toast("글 작성이 완료되었습니다.");
+        toast.success("글 작성이 완료되었습니다.");
         navigate(`/community/article/${data.articleId}`);
       }
     }

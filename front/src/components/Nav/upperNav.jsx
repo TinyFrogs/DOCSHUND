@@ -46,7 +46,7 @@ const UpperNav = () => {
         const userId = decoded.userId;
         fetchProfile(userId);
       } catch (error) {
-        console.error("토큰 디코딩 실패", error);
+        // console.error("토큰 디코딩 실패", error);
       }
     }
   }, [isAuthenticated, token, fetchProfile]);

@@ -60,7 +60,7 @@ export const addData = (data, objectStoreName) => {
         };
 
         request.onerror = (event) => {
-          console.error("Error adding item:", item, event.target.error);
+          // console.error("Error adding item:", item, event.target.error);
           reject("데이터 추가 실패: " + event.target.error);
         };
       });

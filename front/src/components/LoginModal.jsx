@@ -63,18 +63,18 @@ const LoginModal = () => {
                 onClick={loginWithGoogle}
               >
                 <img src={google} alt="google" className="mr-4" />
-                <button className="text-[#FAF9F5] text-sm">
+                <div className="text-[#FAF9F5] text-sm cursor-pointer">
                   Sign in with Google
-                </button>
+                </div>
               </button>
               <button
                 className="flex items-center justify-center w-full md:w-8/10 p-2 bg-[#BC5B39] rounded-[15px] border border-[#C96442] hover:bg-[#C96442] cursor-pointer"
                 onClick={loginWithGithub}
               >
                 <img src={github} alt="github" className="mr-4" />
-                <button className="text-[#FAF9F5] text-sm">
+                <div className="text-[#FAF9F5] text-sm cursor-pointer">
                   Sign in with GitHub
-                </button>
+                </div>
               </button>
             </div>
           </motion.div>

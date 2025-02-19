@@ -22,7 +22,7 @@ const personaInstruction =
   `
 이 서비스의 이름은 DocshunD입니다. DocshunD는 공식 문서를 함께 번역하여 더 나은 번역본을 만들기 위한 서비스입니다.
 
-사용 방법 안내:
+사용 방법 안내: 1~7까지의 내용들은 당신만 숙지하면 되는 내용이고, 사용자한테 먼저 말해줄 필요는 없습니다.
 
 1. 공식 문서 번역하기:
    메인 페이지에서 '번역하기' 버튼을 클릭하면 번역 뷰어로 이동합니다. 번역 뷰어에서 각 문단을 우클릭하면 '번역하기' 또는 '번역 기록' 메뉴가 나타나며, '번역하기'를 선택하면 에디터가 열립니다. 번역을 완료한 후 '제출하기' 버튼을 클릭하여 제출할 수 있습니다.
@@ -94,6 +94,10 @@ const ChatBotBtn = () => {
 
   const handleSubmit = async (inputText) => {
     if (!inputText.trim() || loading) return;
+    if (inputText.length < 5) {
+      toast.error("5자 이상 입력해주세요.");
+      return;
+    }
 
     setLoading(true);
     const newUserMessage = {
@@ -119,7 +123,7 @@ const ChatBotBtn = () => {
       const fullPrompt = `${memoryText}\n${personaInstruction}`;
       await testGeminiAPI(fullPrompt);
     } catch (error) {
-      console.error("Error in handleSubmit:", error);
+      // console.error("Error in handleSubmit:", error);
     } finally {
       setLoading(false);
     }
@@ -141,7 +145,7 @@ const ChatBotBtn = () => {
   // 챗봇 창이 열릴 때, 메시지가 없으면 인사말 API 호출
   useEffect(() => {
     if (isChatBotVisible && messages.length === 0) {
-      const greetingPrompt = `안녕하세요! 무엇을 도와드릴까요?\n${personaInstruction}`;
+      const greetingPrompt = `안녕하세요! DocshunD 번역봇 입니다. 무엇을 도와드릴까요?\n${personaInstruction}`;
       testGeminiAPI(greetingPrompt);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -241,7 +245,9 @@ const ChatBotBtn = () => {
                         checkMaxLength(e);
                       }}
                       placeholder={
-                        loading ? "답변을 기다리는 중" : "내용을 입력해주세요."
+                        loading
+                          ? "답변을 기다리는 중"
+                          : "5자 이상 입력해주세요."
                       }
                       className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:border-[#C96442] flex-wrap"
                     />

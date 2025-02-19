@@ -36,7 +36,7 @@ const MemoPage = () => {
         }
       } catch (error) {
         setError(error.message);
-        console.error("Error fetching memos:", error);
+        // console.error("Error fetching memos:", error);
       } finally {
         setHasFetched(true);
       }
@@ -76,7 +76,7 @@ const MemoPage = () => {
         }
         closeModal();
       } catch (error) {
-        console.error("Error creating memo:", error);
+        // console.error("Error creating memo:", error);
       }
     }
   }, 300);
@@ -93,7 +93,7 @@ const MemoPage = () => {
         }
         closeModal();
       } catch (error) {
-        console.error("Error updating memo:", error);
+        // console.error("Error updating memo:", error);
       }
     }
   }, 300);
@@ -109,7 +109,7 @@ const MemoPage = () => {
         await memoService.deleteMemo(userId, memoToDelete);
         deleteMemo(memoToDelete);
       } catch (error) {
-        console.error("Error deleting memo:", error);
+        // console.error("Error deleting memo:", error);
       } finally {
         setMemoToDelete(null);
         closeModal();
@@ -126,7 +126,7 @@ const MemoPage = () => {
           updateMemo(memoId, detailedMemo);
         }
       } catch (error) {
-        console.error("Error fetching detailed memo:", error);
+        // console.error("Error fetching detailed memo:", error);
       }
     }
     setOpenId(memoId);

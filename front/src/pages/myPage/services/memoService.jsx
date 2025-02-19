@@ -12,7 +12,7 @@ const memoService = {
       );
       return response.data;
     } catch (error) {
-      console.error("메모 목록을 가져오는 중 오류 발생:", error);
+      // console.error("메모 목록을 가져오는 중 오류 발생:", error);
       return null;
     }
   },
@@ -25,7 +25,7 @@ const memoService = {
       );
       return response.data;
     } catch (error) {
-      console.error("메모를 가져오는 중 오류 발생:", error);
+      // console.error("메모를 가져오는 중 오류 발생:", error);
       return null;
     }
   },
@@ -39,7 +39,7 @@ const memoService = {
       );
       return response.data;
     } catch (error) {
-      console.error("메모를 생성하는 중 오류 발생:", error);
+      // console.error("메모를 생성하는 중 오류 발생:", error);
       return null;
     }
   },
@@ -53,7 +53,7 @@ const memoService = {
       );
       return response.data;
     } catch (error) {
-      console.error("메모를 업데이트하는 중 오류 발생:", error);
+      // console.error("메모를 업데이트하는 중 오류 발생:", error);
       return null;
     }
   },
@@ -63,7 +63,7 @@ const memoService = {
     try {
       await axiosJsonInstance.delete(`users/${userId}/memo/${memoId}`);
     } catch (error) {
-      console.error("메모를 삭제하는 중 오류 발생:", error);
+      // console.error("메모를 삭제하는 중 오류 발생:", error);
     }
   },
 };

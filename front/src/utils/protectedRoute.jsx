@@ -26,7 +26,7 @@ const ProtectedRoute = ({ isAdminRoute }) => {
     return isAuthenticated() ? <Outlet /> : <Navigate to="/" replace />;
   } catch (error) {
     // 토큰 디코딩 실패 처리 (토큰 만료 또는 손상)
-    console.error("토큰 디코딩 오류:", error);
+    // console.error("토큰 디코딩 오류:", error);
     localStorage.removeItem("token"); // 유효하지 않은 토큰 삭제
     return <Navigate to="/" replace />; // 로그인 페이지로 리다이렉트
   }

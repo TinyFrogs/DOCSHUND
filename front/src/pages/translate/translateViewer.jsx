@@ -243,7 +243,7 @@ const TranslateViewer = () => {
               throw new Error("Invalid data format received from server");
             }
           } catch (error) {
-            console.error("Failed to fetch data from server:", error);
+            // console.error("Failed to fetch data from server:", error);
           }
         } else {
           toast.success("원문 데이터가 준비되었습니다.");
@@ -322,14 +322,16 @@ const TranslateViewer = () => {
 
   return (
     <div
-      onClick={() => clearSearchResults()}
+      onClick={(e) => {
+        e.stopPropagation();
+        clearSearchResults();
+      }}
       key={docsId}
-      id="mainContent"
       className="h-screen w-[90vw] md:w-[60vw] bg-white fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] mx-auto shadow-xl"
     >
       {createPortal(<SearchDB tableId={docsId} />, document.body)}
 
-      <div className="flex flex-col gap-2 w-full">
+      <div id="mainContent" className="flex flex-col gap-2 w-full">
         <div className="h-[8vh]"></div>
         {docParts.map((part, index) => (
           <div

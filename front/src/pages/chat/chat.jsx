@@ -67,7 +67,7 @@ const Chat = () => {
     const socketFactory = () => {
       const socket = new WebSocket("wss://i12a703.p.ssafy.io/ws-connect");
       socket.onerror = (event) => {
-        console.error("WebSocket Error:", event);
+        // console.error("WebSocket Error:", event);
         toast.error("웹소켓 연결 오류가 발생했습니다.");
       };
       socket.onclose = (event) => {
@@ -103,12 +103,12 @@ const Chat = () => {
         });
         stompClient.current.subscribe("/user/queue/errors", (message) => {
           const errorData = JSON.parse(message.body);
-          console.error("STOMP 구독 에러:", errorData);
+          // console.error("STOMP 구독 에러:", errorData);
           toast.error(`${errorData.errorType}: ${errorData.message}`);
         });
       },
       (error) => {
-        console.error("STOMP Error:", error);
+        // console.error("STOMP Error:", error);
         const errorMessage =
           (error && error.headers && error.headers.message) ||
           "알 수 없는 STOMP 오류가 발생했습니다.";
@@ -135,7 +135,7 @@ const Chat = () => {
       setCurrentPage(0);
       setHasMore(!last && initialMessages.length > 0);
     } catch (error) {
-      console.error("Error loading initial messages:", error);
+      // console.error("Error loading initial messages:", error);
     }
     setLoadingInitialMessages(false);
   };
@@ -161,7 +161,7 @@ const Chat = () => {
           prevScrollTop + (newScrollHeight - prevScrollHeight);
       }, 0);
     } catch (error) {
-      console.error("Error loading previous messages:", error);
+      // console.error("Error loading previous messages:", error);
     }
   };
 

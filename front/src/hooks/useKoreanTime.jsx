@@ -19,7 +19,7 @@ const useKoreanTime = () => {
         locale: ko,
       });
     } catch (error) {
-      console.error("Date conversion error:", error);
+      // console.error("Date conversion error:", error);
       return "";
     }
   };

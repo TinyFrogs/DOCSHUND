@@ -192,7 +192,7 @@ const ArticleItem = () => {
         </div>
       );
     } catch (error) {
-      console.error("권한 확인 중 에러:", error);
+      // console.error("권한 확인 중 에러:", error);
       return null;
     }
   };

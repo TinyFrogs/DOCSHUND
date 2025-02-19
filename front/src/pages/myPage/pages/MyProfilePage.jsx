@@ -93,7 +93,7 @@ const MyProfilePage = () => {
         return false;
       }
     } catch (error) {
-      console.error("닉네임 중복 체크 중 오류 발생:", error);
+      // console.error("닉네임 중복 체크 중 오류 발생:", error);
       return false;
     }
   };
@@ -194,7 +194,7 @@ const MyProfilePage = () => {
       toast.error("계정 탈퇴 중 오류가 발생했습니다.", {
         toastId: "failedDelete",
       });
-      console.error("계정 탈퇴 실패", error);
+      // console.error("계정 탈퇴 실패", error);
       toggleAlert();
     }
   };

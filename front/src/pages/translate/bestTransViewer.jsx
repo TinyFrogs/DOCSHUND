@@ -181,7 +181,7 @@ const BestTransViewer = () => {
               throw new Error("Invalid data format received from server");
             }
           } catch (error) {
-            console.error("Failed to fetch data from server:", error);
+            // console.error("Failed to fetch data from server:", error);
           }
         } else {
           // console.log("Using cached data from IndexedDB"); // 디버깅용

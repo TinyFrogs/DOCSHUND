@@ -66,7 +66,7 @@ function App() {
           setIsAllChecked(false);
         }
       } catch (error) {
-        console.error(error);
+        // console.error(error);
       }
     };
 
@@ -83,7 +83,7 @@ function App() {
         const userId = decoded.userId;
         fetchProfile(userId);
       } catch (error) {
-        console.error("토큰 디코딩 실패", error);
+        // console.error("토큰 디코딩 실패", error);
       }
     }
   }, [token, fetchProfile]);

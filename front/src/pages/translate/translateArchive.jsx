@@ -121,7 +121,6 @@ const TranslateArchive = () => {
       }
     };
     fetchData();
-    console.log(transUserList);
   }, [isArchiveOpen]);
 
   return (

@@ -119,7 +119,7 @@ const ManageInquiry = () => {
         setUserList(data);
         processUserList(data);
       } catch (error) {
-        console.error("Error fetching users:", error);
+        // console.error("Error fetching users:", error);
       }
     };
 
@@ -134,7 +134,7 @@ const ManageInquiry = () => {
         setInquiryList(processedData);
         inquiryListData.current = processedData;
       } catch (error) {
-        console.error("Error fetching inquiry:", error);
+        // console.error("Error fetching inquiry:", error);
       }
     };
 

@@ -11,7 +11,7 @@ const AuthService = () => {
     try {
       loginWithGoogle();
     } catch (error) {
-      console.error("Google 로그인 실패:", error);
+      // console.error("Google 로그인 실패:", error);
       toast.error("Google 로그인에 실패했습니다.");
     }
   };
@@ -20,7 +20,7 @@ const AuthService = () => {
     try {
       loginWithGithub();
     } catch (error) {
-      console.error("GitHub 로그인 실패:", error);
+      // console.error("GitHub 로그인 실패:", error);
       toast.error("GitHub 로그인에 실패했습니다.");
     }
   };

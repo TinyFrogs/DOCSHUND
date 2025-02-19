@@ -11,7 +11,7 @@ const userProfileService = {
       const response = await axiosJsonInstance.get(`users/profile/${userId}`);
       return response.data;
     } catch (error) {
-      console.error("프로필 데이터를 가져오는 중 오류 발생:", error);
+      // console.error("프로필 데이터를 가져오는 중 오류 발생:", error);
       return null;
     }
   },
@@ -34,7 +34,7 @@ const userProfileService = {
         return false;
       }
     } catch (error) {
-      console.error("닉네임 중복 체크 중 오류 발생:", error);
+      // console.error("닉네임 중복 체크 중 오류 발생:", error);
       return false;
     }
   },
@@ -71,7 +71,7 @@ const userProfileService = {
       const response = await axiosJsonInstance.get(`/users/leaving`);
       return response.status === 200;
     } catch (error) {
-      console.error("계정 탈퇴 중 오류 발생:", error);
+      // console.error("계정 탈퇴 중 오류 발생:", error);
       return false;
     }
   },

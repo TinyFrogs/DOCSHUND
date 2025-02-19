@@ -85,7 +85,7 @@ const LeftNav = () => {
       const data = await memoService.fetchMemos(userId);
       setMemos(data ? data.reverse() : []);
     } catch (error) {
-      console.error("Error fetching memos:", error);
+      // console.error("Error fetching memos:", error);
     }
   };
 
@@ -97,7 +97,7 @@ const LeftNav = () => {
         setMemos(data ? data.reverse() : []);
         closeModal();
       } catch (error) {
-        console.error("Error creating memo:", error);
+        // console.error("Error creating memo:", error);
       }
     }
   };
@@ -110,7 +110,7 @@ const LeftNav = () => {
         setMemos(data ? data.reverse() : []);
         closeModal();
       } catch (error) {
-        console.error("Error updating memo:", error);
+        // console.error("Error updating memo:", error);
       }
     }
   };
@@ -126,7 +126,7 @@ const LeftNav = () => {
         await memoService.deleteMemo(userId, memoToDelete);
         deleteMemo(memoToDelete);
       } catch (error) {
-        console.error("Error deleting memo:", error);
+        // console.error("Error deleting memo:", error);
       } finally {
         setMemoToDelete(null);
         closeModal();

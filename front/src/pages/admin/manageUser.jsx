@@ -74,7 +74,7 @@ const ManageUser = () => {
         setUserList(data);
         processUserList(data);
       } catch (error) {
-        console.error("Error fetching users:", error);
+        // console.error("Error fetching users:", error);
       }
     };
     fetchUsers();
