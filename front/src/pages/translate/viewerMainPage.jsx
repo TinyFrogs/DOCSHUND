@@ -74,7 +74,7 @@ const ViewerMainPage = () => {
       id="mainPage"
     >
       <Information />
-      <div className="hidden md:block fixed top-20 left-5 text-4xl font-bold mb-4 text-[#424242] w-[15vw]">
+      <div className="hidden md:block fixed top-20 left-5 text-4xl font-bold mb-4 text-[#424242] w-[15vw] break-words break-all">
         {documentName}
       </div>
 

@@ -149,6 +149,7 @@ const Information = () => {
             continuous={true}
             showProgress={false}
             showSkipButton={true}
+            hideCloseButton={true}
             allowClickThruHole={true}
             spotlightClicks={false} // 스포트라이트 영역 클릭 방지
             disableCloseOnEsc={true} // ESC 키로 종료 방지

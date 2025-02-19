@@ -27,7 +27,7 @@ const ManageDocs = () => {
 
   useEffect(() => {
     fetchAdminDocs();
-  }, [adminDocsList]);
+  }, []);
 
   const handleFileChange = async (e, docsId) => {
     const selectedFile = e.target.files[0];

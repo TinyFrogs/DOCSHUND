@@ -19,20 +19,24 @@ import useArchiveStore from "../../store/translateStore/archiveStore";
 
 const TranslateEditor = () => {
   const [loading, setLoading] = useState(false);
-  const { docsPart, bestTrans, docsId, originId, porder, currentUserText } =
-    useEditorStore();
-  const [isVisible, setIsVisible] = useState(false);
-
-  //모달 관련 상태
-  const { isEditorOpen, closeEditor, openArchive } = useModalStore();
-
   const {
+    docsPart,
+    bestTrans,
+    docsId,
+    originId,
+    porder,
+    currentUserText,
     clearDocsPart,
     clearBestTrans,
+    setBestTrans,
     submitData,
     clearTempSave,
     clearSubmitData,
   } = useEditorStore();
+  const [isVisible, setIsVisible] = useState(false);
+
+  //모달 관련 상태
+  const { isEditorOpen, closeEditor, openArchive } = useModalStore();
 
   const { setTransList, transList, transUserList } = useArchiveStore();
 
@@ -51,6 +55,7 @@ const TranslateEditor = () => {
       debounce(async (docsId, originId, currentUserText) => {
         const status = await registTranslate(docsId, originId, currentUserText);
         if (status !== 200) {
+          setLoading(false);
           toast.error("제출 실패", {
             toastId: "submitFail",
           });
@@ -58,14 +63,14 @@ const TranslateEditor = () => {
           toast.success("제출 완료", {
             toastId: "submitSuccess",
           });
-          setLoading(false);
           const tmpTransList = await fetchBestTranslate(docsId, "");
           tmpTransList.sort((a, b) => b.likeCount - a.likeCount);
           setTransList(tmpTransList);
           generateUserList(tmpTransList);
+          setBestTrans("");
           setTimeout(() => {
-            closeEditor();
             setLoading(false);
+            closeEditor();
           }, 75);
           setTimeout(() => openArchive(), 75);
         }
@@ -120,6 +125,7 @@ const TranslateEditor = () => {
                   {!loading && (
                     <RectBtn
                       onClick={async () => {
+                        setLoading(true);
                         if (
                           currentUserText === "" ||
                           currentUserText === null ||

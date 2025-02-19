@@ -149,7 +149,7 @@ const ManageNotification = () => {
         <h1 className="text-2xl font-bold text-gray-800">공지사항 관리</h1>
         <button
           onClick={debouncedHandleAddNotification}
-          className="bg-[#bc5b39] text-white px-4 py-2 rounded-lg hover:bg-[#a34b2b] transition-colors duration-200"
+          className="bg-[#bc5b39] text-white px-4 py-2 rounded-lg hover:bg-[#a34b2b] transition-colors duration-200 cursor-pointer"
         >
           + 공지사항 등록
         </button>
@@ -200,7 +200,7 @@ const ManageNotification = () => {
             <div className="flex justify-end space-x-2">
               <button
                 onClick={() => setIsEditorOpen(false)}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors duration-200"
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors duration-200 cursor-pointer"
               >
                 취소
               </button>
@@ -226,7 +226,7 @@ const ManageNotification = () => {
                         newNotification.content
                       )
                     }
-                    className="bg-[#bc5b39] text-white px-4 py-2 rounded-lg hover:bg-[#a34b2b] transition-colors duration-200"
+                    className="bg-[#bc5b39] text-white px-4 py-2 rounded-lg hover:bg-[#a34b2b] transition-colors duration-200 cursor-pointer"
                   >
                     작성
                   </button>
@@ -267,13 +267,13 @@ const ManageNotification = () => {
                   key={notification.id}
                   className="hover:bg-gray-50 transition-colors duration-150"
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-ellipsis overflow-hidden max-w-[20vw]">
                     {notification.title}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-ellipsis">
                     {handleUTC(notification.createdAt).toLocaleString()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-ellipsis">
                     {handleUTC(notification.updatedAt).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
@@ -287,7 +287,7 @@ const ManageNotification = () => {
                           content: notification.content,
                         });
                       }}
-                      className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150"
+                      className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150 cursor-pointer"
                     >
                       수정
                     </button>
@@ -295,7 +295,7 @@ const ManageNotification = () => {
                       onClick={() =>
                         debouncedHandleDeleteNotification(notification.noticeId)
                       }
-                      className="text-red-600 hover:text-red-700 transition-colors duration-150"
+                      className="text-red-600 hover:text-red-700 transition-colors duration-150 cursor-pointer"
                     >
                       삭제
                     </button>
