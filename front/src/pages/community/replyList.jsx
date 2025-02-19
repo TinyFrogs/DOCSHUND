@@ -6,6 +6,7 @@ import ReplyHeader from "./components/replyHeader";
 import ReplyItemArea from "./components/replyItemArea";
 import ReplyTextarea from "./components/replyTextarea";
 import { div } from "motion/react-client";
+import { set } from "lodash";
 
 /* INFO: 
   1. 대댓글 여부를 확인해 api 호출 시 다르게 처리
@@ -23,6 +24,7 @@ const ReplyList = () => {
 
   const handleRefreshClick = () => {
     setReplyId(0);
+    setReCommentFlag(false);
     setIsReplied((prev) => !prev);
   };
 
