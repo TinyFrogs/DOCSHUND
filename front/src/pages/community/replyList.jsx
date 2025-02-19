@@ -43,13 +43,13 @@ const ReplyList = () => {
       {/* 댓글 쓰기 창 */}
       {/* 로그인 한 회원만 보여주기 */}
       <div>
-        <button
+        {/* <button
           className="mt-4 text-[#7d7c77] flex justify-self-end items-center underline text-sm cursor-pointer"
           onClick={handleRefreshClick}
         >
           게시글에 댓글 달기
-        </button>
-        {token && replyId == 0 && (
+        </button> */}
+        {token && (
           <ReplyTextarea
             reCommentFlag={reCommentFlag}
             commentId={0} // 대댓글 작성 시 대댓글을 작성하는 원댓글의 id. 원댓글 작성 시 사용X
