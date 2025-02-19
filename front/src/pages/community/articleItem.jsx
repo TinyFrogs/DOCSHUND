@@ -85,9 +85,16 @@ const ArticleItem = () => {
         setIsLikedArticleIds([...isLikedArticleIds, articleId]); // 좋아요한 게시글 기록
       }
 
-      setLikeCount(
-        isLikedArticleIds.includes(articleId) ? likeCount - 1 : likeCount + 1
-      );
+      // setLikeCount(
+      //   isLikedArticleIds.includes(articleId) ? likeCount - 1 : likeCount + 1
+      // );
+
+      const resData = await ArticleItemService.fetchArticleItem(articleId);
+
+      if (resData) {
+        setLikeCount(resData.likeCount);
+        toast.success("좋아요를 눌렀습니다.");
+      }
     } else {
       toast.alert("좋아요에 실패했습니다.");
     }
@@ -236,7 +243,7 @@ const ArticleItem = () => {
                   </div>
                   <div className="flex items-center gap-1">
                     <span>좋아요</span>
-                    <span>{articleItems.likeCount}</span>
+                    <span>{likeCount}</span>
                   </div>
                 </div>
               </div>

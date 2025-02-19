@@ -2,7 +2,6 @@ import { axiosJsonInstance } from "../../../utils/axiosInstance";
 import propTypes from "prop-types";
 
 const ArticleListService = {
-  // fetchArticles 함수는 filter, keyword, page, size를 인자로 받아서 데이터를 가져오는 함수
   async fetchArticles(
     sortType,
     filter,
@@ -12,19 +11,21 @@ const ArticleListService = {
     itemsPerPage
   ) {
     try {
-      // TODO: 데이터 axios로 변경 필요
+      const params = new URLSearchParams({
+        sort: sortType,
+        filter: filter,
+        keyword: keyword,
+        searchType: searchType,
+        page: page.toString(), // URLSearchParams는 문자열 값을 받으므로 숫자를 문자열로 변환
+        size: itemsPerPage.toString(),
+      });
+
       const response = await axiosJsonInstance.get(
-        // postman forked mock server endpoint
-        `forums?sort=${sortType}&filter=${filter}&keyword=${keyword}&searchType=${searchType}&page=${page}&size=${itemsPerPage}`
+        `forums?${params.toString()}`
       );
 
-      const data = response.data;
-
-      // TODO: 게시글이 itempsPerPage 초과일 경우에 대한 예외처리 필요
-
-      return data;
+      return response.data;
     } catch (error) {
-      //TODO: error handling -> 에러 페이지 제작후 연결까지 구현
       console.error(error);
       return null;
     }

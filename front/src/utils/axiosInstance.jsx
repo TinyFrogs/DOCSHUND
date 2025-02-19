@@ -60,12 +60,12 @@ const responseInterceptor = (error) => {
 };
 
 // 인터셉터 적용
-axiosJsonInstance.interceptors.request.use(requestInterceptor, (error) =>
-  Promise.reject(error)
-);
-axiosMultipartInstance.interceptors.request.use(requestInterceptor, (error) =>
-  Promise.reject(error)
-);
+axiosJsonInstance.interceptors.request.use(requestInterceptor, (error) => {
+  Promise.reject(error);
+});
+axiosMultipartInstance.interceptors.request.use(requestInterceptor, (error) => {
+  Promise.reject(error);
+});
 
 axiosJsonInstance.interceptors.response.use(
   (response) => response,

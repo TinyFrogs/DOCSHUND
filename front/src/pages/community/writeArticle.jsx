@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import _ from "lodash";
@@ -15,12 +15,14 @@ import ArticleItemService from "./services/articleItemService";
 
 const WriteArticle = () => {
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
   const MAX_TITLE_LENGTH = 50;
 
   const [title, setTitle] = useState(""); // 제목 상태
   const [mainCategory, setMainCategory] = useState(""); // 대분류 선택 상태
   const [subCategory, setSubCategory] = useState(""); // 소분류 선택 상태
+  const [tmpFile, setTmpFile] = useState(null); // 임시 파일 상태
   const [file, setFile] = useState(null); // 첨부 파일 상태
   const [imageUrl, setImageUrl] = useState(""); // 이미지 URL 상태
 
@@ -61,6 +63,12 @@ const WriteArticle = () => {
         return;
       }
 
+      if (selectedFile === tmpFile) {
+        setFile(selectedFile);
+        return;
+      }
+
+      setTmpFile(selectedFile);
       setFile(selectedFile);
 
       // S3에 파일 업로드 후 url 받아오기
@@ -73,6 +81,9 @@ const WriteArticle = () => {
   // 파일 첨부 취소 핸들링 함수
   const handleFileCancel = () => {
     setFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const debouncedSubmit = _.debounce(async () => {
@@ -215,6 +226,7 @@ const WriteArticle = () => {
                     <div className="relative">
                       <input
                         type="file"
+                        ref={fileInputRef}
                         accept="image/png, image/jpeg, image/jpg"
                         onChange={handleFileChange}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"

@@ -68,15 +68,19 @@ const UseSSE = (userId) => {
           try {
             const notification = JSON.parse(event.data);
 
-            // INFO: 알림 추가, requestAnimationFrame으로 비동기 처리
+            // 모든 UI 업데이트를 requestAnimationFrame 내부로 이동
             requestAnimationFrame(() => {
+              // 알림 상태 업데이트
               addNotification(notification);
 
-              // NOTE: 알림왔다고 알려주기
+              // 토스트 알림 표시
               toast.info(notification.content, {
                 position: "top-right",
                 autoClose: 2000,
                 hideProgressBar: true,
+                toastId: `${notification.id}-${Date.now()}`, // 고유성 보장을 위해 타임스탬프 추가
+                pauseOnFocusLoss: false, // 포커스 손실시에도 타이머 계속 실행
+                pauseOnHover: true, // 호버시 일시 정지
               });
             });
           } catch (err) {
