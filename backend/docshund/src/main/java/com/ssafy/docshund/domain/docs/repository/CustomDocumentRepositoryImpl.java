@@ -1,17 +1,16 @@
 package com.ssafy.docshund.domain.docs.repository;
 
-import static com.ssafy.docshund.domain.docs.entity.QDocument.*;
-import static com.ssafy.docshund.domain.docs.entity.QDocumentLike.*;
-import static com.ssafy.docshund.domain.docs.entity.QOriginDocument.*;
-import static com.ssafy.docshund.domain.docs.entity.QTranslatedDocument.*;
-import static com.ssafy.docshund.domain.docs.entity.QTranslatedDocumentLike.*;
+import static com.ssafy.docshund.domain.docs.entity.QDocument.document;
+import static com.ssafy.docshund.domain.docs.entity.QDocumentLike.documentLike;
+import static com.ssafy.docshund.domain.docs.entity.QOriginDocument.originDocument;
+import static com.ssafy.docshund.domain.docs.entity.QTranslatedDocument.translatedDocument;
+import static com.ssafy.docshund.domain.docs.entity.QTranslatedDocumentLike.translatedDocumentLike;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.ssafy.docshund.domain.docs.entity.Status;
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.types.OrderSpecifier;
@@ -19,6 +18,7 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.docshund.domain.docs.dto.TranslatedDocumentDto;
 import com.ssafy.docshund.domain.docs.entity.Document;
+import com.ssafy.docshund.domain.docs.entity.Status;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -58,7 +58,8 @@ public class CustomDocumentRepositoryImpl implements CustomDocumentRepository {
 			.join(translatedDocument.originDocument, originDocument)
 			.where(originDocument.document.docsId.eq(docsId).and(translatedDocument.status.eq(Status.VISIBLE)))
 			.groupBy(originDocument.originId, translatedDocument.transId)
-			.orderBy(originDocument.originId.asc(), translatedDocumentLike.translatedDocument.transId.count().desc())
+			.orderBy(originDocument.originId.asc(), translatedDocumentLike.translatedDocument.transId.count().desc(),
+				translatedDocument.createdAt.desc())
 			.fetch()
 			.stream()
 			.filter(tuple -> tuple.get(translatedDocument.transId) != null)
