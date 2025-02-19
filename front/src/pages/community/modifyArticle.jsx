@@ -34,6 +34,9 @@ const ModifyArticle = () => {
   const documentNames = docsCategoryStore((state) => state.documentNames);
   const setFileUrl = communityArticleStore((state) => state.setFileUrl);
   const currentUserText = useEditorStore((state) => state.currentUserText);
+  const setCurrentUserText = useEditorStore(
+    (state) => state.setCurrentUserText
+  );
 
   // 게시글 데이터를 불러와서 로컬 상태 업데이트
   useEffect(() => {
@@ -54,6 +57,7 @@ const ModifyArticle = () => {
             setMainCategory(data.position);
             setSubCategory(data.documentName);
             setContent(data.content);
+            setCurrentUserText(data.content);
           }
         } else {
           // store에 있는 데이터 사용
@@ -61,6 +65,7 @@ const ModifyArticle = () => {
           setMainCategory(articleItems.position);
           setSubCategory(articleItems.documentName);
           setContent(articleItems.content);
+          setCurrentUserText(articleItems.content);
         }
       } catch (error) {
         // console.error("Failed to load article:", error);
@@ -120,6 +125,10 @@ const ModifyArticle = () => {
           !subCategory ||
           !currentUserText.trim()
         ) {
+          console.log("title", title);
+          console.log("mainCategory", mainCategory);
+          console.log("subCategory", subCategory);
+          console.log("currentUserText", currentUserText);
           toast.warn("모든 항목을 입력해주세요.", {
             toastId: "required",
           });
