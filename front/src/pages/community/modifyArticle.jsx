@@ -31,6 +31,7 @@ const ModifyArticle = () => {
   const [mainCategory, setMainCategory] = useState(articleItems.position); // 대분류 선택 상태
   const [subCategory, setSubCategory] = useState(articleItems.documentName); // 소분류 선택 상태
   const [file, setFile] = useState(null); // 첨부 파일 상태
+  const [tmpFile, setTmpFile] = useState(null); // 임시 파일 상태
   const [imageUrl, setImageUrl] = useState(""); // 이미지 URL 상태
   const [content, setContent] = useState(articleItems.content); // 내용 상태
   const [isLoading, setLoading] = useState(false); // 로딩 상태
@@ -124,16 +125,44 @@ const ModifyArticle = () => {
         toast.info("사진 크기는 최대 10MB까지 업로드 가능합니다.", {
           toastId: "size",
         });
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
         return;
       }
-      setFile(selectedFile);
+
       const response = await ArticleItemService.uploadImageFile(selectedFile);
+
+      if (
+        convertWhiteSpace(response.data.imageUrl).length +
+          convertWhiteSpace(currentUserText).length >
+        15000
+      ) {
+        toast.info("글 내용은 15000자 이하로 작성해주세요.", {
+          toastId: "contentLength",
+        });
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        return;
+      }
+
+      if (selectedFile === tmpFile) {
+        setFile(selectedFile);
+        return;
+      }
+
+      setFile(selectedFile);
+      setTmpFile(selectedFile);
       setImageUrl(response.data.imageUrl);
     }
   }, 300);
 
   // 파일 첨부 취소
   const handleFileCancel = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
     setFile(null);
   };
 
