@@ -150,7 +150,7 @@ const ModifyArticle = () => {
           setLoading(false);
           return;
         } else {
-          const formattedContent = content.replace(/\n/g, "\r\n"); // 개행 문자 정규화
+          const formattedContent = currentUserText.replace(/\n/g, "\r\n"); // 개행 문자 정규화
 
           if (formattedContent.length > 15000) {
             toast.info("글 내용은 15000자 이하로 작성해주세요.", {
