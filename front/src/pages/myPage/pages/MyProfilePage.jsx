@@ -46,7 +46,7 @@ const MyProfilePage = () => {
 
   // 3. 프로필 변경 시 편집 중이 아닐 때만 로컬 상태 업데이트
   useEffect(() => {
-    if (profile && !isEditing && !editedProfile.nickname) {
+    if (profile && !isEditing) {
       setEditedProfile({ ...profile });
     }
   }, [profile, isEditing]);
@@ -126,11 +126,7 @@ const MyProfilePage = () => {
     }
 
     const response = await updateProfile(userId, formData);
-    if (response) {
-      toast.success("프로필이 성공적으로 업데이트되었습니다.", {
-        toastId: "successUpdate",
-      });
-    } else {
+    if (!response) {
       setEditedProfile((prev) => ({
         ...prev,
         profileImage: profile.profileImage,
