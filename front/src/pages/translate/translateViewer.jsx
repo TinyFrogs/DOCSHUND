@@ -298,6 +298,14 @@ const TranslateViewer = () => {
   // 메뉴 항목: 번역하기
   const handleTranslate = async ({ props }) => {
     const { part } = props;
+    const data = await fetchBestTranslate(part.docsId, "best");
+    const bestTransList = [...data].filter(
+      (item) => item.originId === part.originId
+    );
+
+    if (bestTransList.length !== 0) {
+      setBestTrans(bestTransList[0].content);
+    }
     useEditorStore.setState({
       docsPart: part.content,
       porder: part.pOrder,

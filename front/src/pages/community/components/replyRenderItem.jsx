@@ -37,7 +37,7 @@ const ReplyRenderItem = ({
       originContent: data.content,
       reportedUser: data.userId,
       commentId: data.commentId,
-      articleId: data.articleId,
+      articleId: null,
       transId: null,
       chatId: null,
     });

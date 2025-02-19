@@ -74,7 +74,6 @@ const TranslateArchive = () => {
   const handleLike = async (docsId, transId) => {
     const status = await likeTranslate(docsId, transId);
     const tmpTransList = await fetchBestTranslate(docsId, "");
-
     setTransList(tmpTransList);
     return status;
   };
