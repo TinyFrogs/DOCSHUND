@@ -82,6 +82,23 @@ const WriteArticle = () => {
         return;
       }
 
+      // S3에 파일 업로드 후 url 받아오기
+      const response = await ArticleItemService.uploadImageFile(selectedFile);
+
+      if (
+        convertWhiteSpace(response.data.imageUrl).length +
+          convertWhiteSpace(currentUserText).length >
+        15000
+      ) {
+        toast.info("글 내용은 15000자 이하로 작성해주세요.", {
+          toastId: "contentLength",
+        });
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        return;
+      }
+
       if (selectedFile === tmpFile) {
         setFile(selectedFile);
         return;
@@ -89,9 +106,6 @@ const WriteArticle = () => {
 
       setTmpFile(selectedFile);
       setFile(selectedFile);
-
-      // S3에 파일 업로드 후 url 받아오기
-      const response = await ArticleItemService.uploadImageFile(selectedFile);
 
       setImageUrl(response.data.imageUrl); // 이미지 URL 상태 업데이트
     }

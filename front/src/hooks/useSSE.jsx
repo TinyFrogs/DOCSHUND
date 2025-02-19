@@ -75,11 +75,10 @@ const UseSSE = (userId) => {
 
               // 토스트 알림 표시
               toast.info(notification.content, {
-                toastId: notification.id,
                 position: "top-right",
                 autoClose: 2000,
                 hideProgressBar: true,
-                toastId: `${notification.id}-${Date.now()}`, // 고유성 보장을 위해 타임스탬프 추가
+                toastId: notification.alertId, // 고유성 보장을 위해 타임스탬프 추가
                 pauseOnFocusLoss: false, // 포커스 손실시에도 타이머 계속 실행
                 pauseOnHover: true, // 호버시 일시 정지
               });
