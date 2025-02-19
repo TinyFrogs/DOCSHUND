@@ -81,6 +81,11 @@ const ModifyArticle = () => {
 
     loadArticleData();
   }, [articleId]);
+
+  const convertWhiteSpace = (content) => {
+    return content.replace(/\n/g, "\r\n"); // 개행 문자 정규화
+  };
+
   // 제목 입력 핸들러
   const handleTitleChange = (e) => {
     setTitle(e.target.value);
@@ -136,21 +141,17 @@ const ModifyArticle = () => {
   const submitArticle = useCallback(
     _.debounce(async () => {
       try {
+        const content = currentUserText;
         setLoading(true);
         // 제목, 대분류, 소분류, 내용, 파일이 모두 입력되었는지 확인
-        if (
-          !title.trim() ||
-          !mainCategory ||
-          !subCategory ||
-          !currentUserText.trim()
-        ) {
+        if (!title.trim() || !mainCategory || !subCategory || !content.trim()) {
           toast.warn("모든 항목을 입력해주세요.", {
             toastId: "required",
           });
           setLoading(false);
           return;
         } else {
-          const formattedContent = currentUserText.replace(/\n/g, "\r\n"); // 개행 문자 정규화
+          const formattedContent = convertWhiteSpace(content); // 개행 문자 정규화
 
           if (formattedContent.length > 15000) {
             toast.info("글 내용은 15000자 이하로 작성해주세요.", {
