@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { jwtDecode } from "jwt-decode";
 import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 import ReportStore from "../store/reportStore";
 import ReportService from "../services/reportService";
 import { X } from "lucide-react";
+import UseFileTypeCheck from "../hooks/useFileTypeCheck";
+import _ from "lodash";
 
 const ReportModal = () => {
   const {
@@ -23,8 +25,11 @@ const ReportModal = () => {
   const [category, setCategory] = useState("");
   const [content, setContent] = useState("");
   const [file, setFile] = useState(null);
+  const [tmpFile, setTmpFile] = useState(null); // 임시 파일 상태
   const [isSelected, setIsSelected] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef(null);
+  const { validateImageFile, isValidating, error } = UseFileTypeCheck();
 
   const MAX_CONTENT_LENGTH = 500;
   const MAX_FILE_SIZE = 10 * 1000 * 1000; // 10MB
@@ -40,12 +45,18 @@ const ReportModal = () => {
     }
   }, [isReportOpen]);
 
+  const convertWhiteSpace = (content) => {
+    return content.replace(/\n/g, "\r\n"); // 개행 문자 정규화
+  };
+
   // 신고 제출 처리 (debounce 제거)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    console.log(category, content);
+
     // 필수 필드 확인
-    if (!category || !content) {
+    if (!category || !content.trim()) {
       toast.warn("신고 카테고리, 내용을 모두 입력해주세요.", {
         toastId: "report-warning",
       });
@@ -62,10 +73,19 @@ const ReportModal = () => {
     }
 
     // 신고 객체 구성
+    const formattedContent = convertWhiteSpace(content);
+
+    if (formattedContent.length > MAX_CONTENT_LENGTH) {
+      toast.info(`글 내용은 ${MAX_CONTENT_LENGTH}자 이하로 작성해주세요.`, {
+        toastId: "contentLength",
+      });
+      return;
+    }
+
     const report = {
       category,
+      content: formattedContent,
       originContent,
-      content,
       reportedUser,
       commentId,
       articleId,
@@ -103,28 +123,43 @@ const ReportModal = () => {
     setIsSubmitting(false);
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = _.debounce(async (e) => {
     const selectedFile = e.target.files[0];
-    const validTypes = ["image/jpeg", "image/png", "image/jpg"];
-    if (!selectedFile) return;
-    if (!validTypes.includes(selectedFile.type)) {
-      toast.warn("올바른 파일형식이 아닙니다.", {
-        toastId: "file-warning",
-      });
-      e.target.value = "";
+
+    const isValid = await validateImageFile(selectedFile);
+
+    if (!isValid) {
+      toast.warn("이미지 파일만 업로드 가능합니다.");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
       return;
     }
+
     if (selectedFile.size > MAX_FILE_SIZE) {
       toast.warn("파일 크기는 최대 10MB까지 업로드 가능합니다.", {
         toastId: "file-warning",
       });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
       return;
     }
+
+    if (selectedFile === tmpFile) {
+      setFile(selectedFile);
+      return;
+    }
+
+    setTmpFile(selectedFile);
     setFile(selectedFile);
-  };
+  }, 300);
 
   const handleFileCancel = () => {
     setFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   return (
@@ -214,15 +249,15 @@ const ReportModal = () => {
                   <textarea
                     value={content}
                     onChange={(e) =>
-                      e.target.value.length <= MAX_CONTENT_LENGTH &&
-                      setContent(e.target.value)
+                      convertWhiteSpace(e.target.value).length <=
+                        MAX_CONTENT_LENGTH && setContent(e.target.value)
                     }
                     className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
                     placeholder="내용을 입력하세요"
                     style={{ height: "250px", resize: "none" }}
                   ></textarea>
                   <p className="text-xs text-gray-500 mt-1 mr-2 text-right">
-                    {content.length} / {MAX_CONTENT_LENGTH}
+                    {convertWhiteSpace(content).length} / {MAX_CONTENT_LENGTH}
                   </p>
                 </div>
 

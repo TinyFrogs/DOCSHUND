@@ -13,11 +13,14 @@ import CommunityHeader from "./components/communityHeader";
 import EditorContent from "../translate/components/godEditorContent";
 import ArticleItemService from "./services/articleItemService";
 
+import UseFileTypeCheck from "../../hooks/useFileTypeCheck";
+
 const WriteArticle = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
   const MAX_TITLE_LENGTH = 50;
+  const { validateImageFile, isValidating, error } = UseFileTypeCheck();
 
   const [title, setTitle] = useState(""); // 제목 상태
   const [mainCategory, setMainCategory] = useState(""); // 대분류 선택 상태
@@ -52,14 +55,23 @@ const WriteArticle = () => {
   const handleFileChange = _.debounce(async (e) => {
     const selectedFile = e.target.files[0];
 
-    // 이미지 파일만 가능
-    if (!selectedFile.type.includes("image"))
-      return toast.info("이미지 파일만 업로드 가능합니다.");
+    const isValid = await validateImageFile(selectedFile);
+
+    if (!isValid) {
+      toast.warn("이미지 파일만 업로드 가능합니다.");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      return;
+    }
 
     if (selectedFile) {
       if (selectedFile.size > 10 * 1000 * 1000) {
         // 10MB 제한
         toast.info("사진 크기는 최대 10MB까지 업로드 가능합니다.");
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
         return;
       }
 
@@ -86,6 +98,10 @@ const WriteArticle = () => {
     }
   };
 
+  const convertWhiteSpace = (content) => {
+    return content.replace(/\n/g, "\r\n"); // 개행 문자 정규화
+  };
+
   const debouncedSubmit = _.debounce(async () => {
     const content = currentUserText; // 에디터 내용
 
@@ -101,14 +117,14 @@ const WriteArticle = () => {
       });
       return;
     } else {
-      if (content.length > 15000) {
+      const formattedContent = convertWhiteSpace(content);
+
+      if (formattedContent.length > 15000) {
         toast.info("글 내용은 15000자 이하로 작성해주세요.", {
           toastId: "contentLength",
         });
         return;
       }
-
-      const formattedContent = content.replace(/\n/g, "\r\n"); // 개행 문자 정규화
 
       const response = await ArticleItemService.postArticleItem(
         title.trim(),
@@ -156,13 +172,13 @@ const WriteArticle = () => {
                       className="flex-1 py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] text-sm"
                       placeholder="제목을 입력하세요"
                       onChange={(e) =>
-                        e.target.value.length <= MAX_TITLE_LENGTH &&
-                        setTitle(e.target.value)
+                        convertWhiteSpace(e.target.value).length <=
+                          MAX_TITLE_LENGTH && setTitle(e.target.value)
                       }
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-1 text-right">
-                    {title.length} / {MAX_TITLE_LENGTH}
+                    {convertWhiteSpace(title).length} / {MAX_TITLE_LENGTH}
                   </p>
                 </div>
                 <div className="flex flex-col md:flex-row items-start md:items-center">

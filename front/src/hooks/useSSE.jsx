@@ -58,7 +58,6 @@ const UseSSE = (userId) => {
 
         // INFO: 이벤트 소스 연결 성공 시
         eventSource.onopen = () => {
-          console.log("SSE 연결 성공");
           setIsConnected(true);
           setError(null);
           // setRetryCount(0);
@@ -67,7 +66,6 @@ const UseSSE = (userId) => {
         // INFO: Backend에서 설정한 'alert' 이벤트 리스닝
         eventSource.addEventListener("alert", (event) => {
           try {
-            console.log("알림 수신:");
             const notification = JSON.parse(event.data);
 
             // 모든 UI 업데이트를 requestAnimationFrame 내부로 이동

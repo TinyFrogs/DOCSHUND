@@ -61,8 +61,8 @@ const ReplyTextarea = ({ reCommentFlag, commentId }) => {
 
   // 즉시 상태를 업데이트하는 함수
   const updateContent = (value) => {
-    if (value.length > 5000) {
-      toast.warn("댓글은 5,000자 이내로 작성해주세요.", {
+    if (value.length > 500) {
+      toast.warn("댓글은 500자 이내로 작성해주세요.", {
         toastId: "exceedReply",
       });
       return;
@@ -98,10 +98,10 @@ const ReplyTextarea = ({ reCommentFlag, commentId }) => {
         <div className="flex justify-between items-center">
           <span
             className={`text-sm ${
-              contentLength > 5000 ? "text-red-500" : "text-gray-500"
+              contentLength > 500 ? "text-red-500" : "text-gray-500"
             }`}
           >
-            {contentLength} / 5,000자
+            {contentLength} / 500자
           </span>
           <RectBtn
             onClick={handleSubmit}

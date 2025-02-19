@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +6,8 @@ import useUserProfileStore from "../../store/myPageStore/userProfileStore";
 import useAuthStore from "../../store/authStore";
 import InquiryService from "../../services/helpDeskServices/inquiryService";
 import LodingImage from "../../assets/loading.gif";
+import UseFileTypeCheck from "../../hooks/useFileTypeCheck";
+import _ from "lodash";
 
 const InquiryFormPage = () => {
   const [category, setCategory] = useState("");
@@ -13,11 +15,14 @@ const InquiryFormPage = () => {
   const [email, setEmail] = useState("");
   const [content, setContent] = useState("");
   const [file, setFile] = useState(null);
+  const [tmpFile, setTmpFile] = useState(null); // 임시 파일 상태
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const { profile } = useUserProfileStore();
   const { token } = useAuthStore();
+  const fileInputRef = useRef(null);
+  const { validateImageFile, isValidating, error } = UseFileTypeCheck();
 
   useEffect(() => {
     if (profile && profile.email) {
@@ -31,6 +36,10 @@ const InquiryFormPage = () => {
     }
   }, [token]);
 
+  const convertWhiteSpace = (content) => {
+    return content.replace(/\n/g, "\r\n"); // 개행 문자 정규화
+  };
+
   const MAX_TITLE_LENGTH = 50;
   const MAX_CONTENT_LENGTH = 2000;
 
@@ -38,7 +47,7 @@ const InquiryFormPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    if (!category || !title || !email || !content) {
+    if (!category || !title.trim() || !email || !content.trim()) {
       toast.info("문의 카테고리, 제목, 이메일, 내용을 모두 입력해주세요.");
       setLoading(false);
       return;
@@ -62,10 +71,19 @@ const InquiryFormPage = () => {
       userId = decodedToken.userId;
     }
 
+    const formattedContent = convertWhiteSpace(content);
+
+    if (formattedContent.length > MAX_CONTENT_LENGTH) {
+      toast.info(`글 내용은 ${MAX_CONTENT_LENGTH}자 이하로 작성해주세요.`, {
+        toastId: "contentLength",
+      });
+      return;
+    }
+
     const inquiry = {
-      title,
+      title: title.trim(),
       category,
-      content,
+      content: formattedContent.trim(),
       email,
     };
 
@@ -100,25 +118,43 @@ const InquiryFormPage = () => {
 
   // 파일 용량 제한 및 형식 체크
   const MAX_FILE_SIZE = 10 * 1000 * 1000;
-  const handleFileChange = (e) => {
+  const handleFileChange = _.debounce(async (e) => {
     const selectedFile = e.target.files[0];
-    const validTypes = ["image/jpeg", "image/png", "image/jpg"];
-    if (selectedFile && !validTypes.includes(selectedFile.type)) {
-      toast.warn("올바른 파일형식이 아닙니다.");
-      e.target.value = "";
+
+    const isValid = await validateImageFile(selectedFile);
+
+    if (!isValid) {
+      toast.warn("이미지 파일만 업로드 가능합니다.");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
       return;
     }
+
     if (selectedFile) {
       if (selectedFile.size > MAX_FILE_SIZE) {
         toast.warn("파일 크기는 최대 10MB까지 업로드 가능합니다.");
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
         return;
       }
+
+      if (selectedFile === tmpFile) {
+        setFile(selectedFile);
+        return;
+      }
+
+      setTmpFile(selectedFile);
       setFile(selectedFile);
     }
-  };
+  }, 300);
 
   const handleFileCancel = () => {
     setFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   return (
@@ -187,7 +223,7 @@ const InquiryFormPage = () => {
           <textarea
             value={content}
             onChange={(e) =>
-              e.target.value.length <= MAX_CONTENT_LENGTH &&
+              convertWhiteSpace(e.target.value).length <= MAX_CONTENT_LENGTH &&
               setContent(e.target.value)
             }
             className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] text-xs md:text-sm"
@@ -195,7 +231,7 @@ const InquiryFormPage = () => {
             style={{ height: "200px", resize: "none" }}
           ></textarea>
           <p className="text-xs text-gray-500 mt-1 mr-2 text-right">
-            {content.length} / {MAX_CONTENT_LENGTH}
+            {convertWhiteSpace(content).length} / {MAX_CONTENT_LENGTH}
           </p>
         </div>
         {/* 사진 첨부 */}

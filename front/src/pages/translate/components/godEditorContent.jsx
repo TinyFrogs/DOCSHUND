@@ -14,8 +14,12 @@ const GodEditorContent = ({ initialTextContent, maxLength = 15000 }) => {
   const fileUrl = communityArticleStore((state) => state.fileUrl);
   const setFileUrl = communityArticleStore((state) => state.setFileUrl);
 
+  const convertWhiteSpace = (content) => {
+    return content.replace(/\n/g, "\r\n"); // 개행 문자 정규화
+  };
+
   const handleChange = (newText) => {
-    if (newText.length > 15000) {
+    if (convertWhiteSpace(newText).length > 15000) {
       toast.info("글 내용은 15000자 이하로 작성해주세요.");
       return;
     }
@@ -53,7 +57,11 @@ const GodEditorContent = ({ initialTextContent, maxLength = 15000 }) => {
           const imageUrl = response.data.imageUrl;
           if (imageUrl) {
             const imageMarkdown = `![${file.name}](${imageUrl})`;
-            if (imageMarkdown.length + value.length > maxLength) {
+            if (
+              convertWhiteSpace(imageMarkdown).length +
+                convertWhiteSpace(value).length >
+              maxLength
+            ) {
               toast.info("글 내용은 15000자 이하로 작성해주세요.");
               return;
             }
@@ -71,7 +79,11 @@ const GodEditorContent = ({ initialTextContent, maxLength = 15000 }) => {
     if (fileUrl) {
       const imageMarkdown = `![image](${fileUrl})`;
 
-      if (imageMarkdown.length + value.length > maxLength) {
+      if (
+        convertWhiteSpace(imageMarkdown).length +
+          convertWhiteSpace(value).length >
+        maxLength
+      ) {
         toast.info("글 내용은 15000자 이하로 작성해주세요.");
         return;
       }
@@ -109,11 +121,12 @@ const GodEditorContent = ({ initialTextContent, maxLength = 15000 }) => {
       <div
         style={{
           marginTop: "10px",
-          color: value?.length >= maxLength ? "red" : "black",
+          color:
+            convertWhiteSpace(value)?.length >= maxLength ? "red" : "black",
         }}
         className="flex justify-end mx-5 pr-3"
       >
-        {maxLength - value?.length} 글자 남음
+        {maxLength - convertWhiteSpace(value)?.length} 글자 남음
       </div>
     </div>
   );
