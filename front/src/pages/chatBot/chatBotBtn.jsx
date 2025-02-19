@@ -94,10 +94,6 @@ const ChatBotBtn = () => {
 
   const handleSubmit = async (inputText) => {
     if (!inputText.trim() || loading) return;
-    if (inputText.length < 5) {
-      toast.error("5자 이상 입력해주세요.");
-      return;
-    }
 
     setLoading(true);
     const newUserMessage = {
@@ -245,9 +241,7 @@ const ChatBotBtn = () => {
                         checkMaxLength(e);
                       }}
                       placeholder={
-                        loading
-                          ? "답변을 기다리는 중"
-                          : "5자 이상 입력해주세요."
+                        loading ? "답변을 기다리는 중" : "내용을 입력해주세요."
                       }
                       className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:border-[#C96442] flex-wrap"
                     />

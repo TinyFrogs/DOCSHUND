@@ -121,16 +121,16 @@ const TranslateViewer = () => {
     });
   };
 
-  const toggleDocpart = (partId) => {
+  const toggleDocpart = (partId, type) => {
     const partKey = String(partId);
     setDocpartStates((prev) => ({
       ...Object.keys(prev).reduce((acc, key) => {
-        if (key !== partKey) {
+        if (key !== partKey && type === "leftClick") {
           acc[key] = false;
         }
         return acc;
       }, {}),
-      [partKey]: !prev[partKey],
+      [partKey]: type === "leftClick" ? !prev[partKey] : prev[partKey],
     }));
   };
 
@@ -337,6 +337,7 @@ const TranslateViewer = () => {
           <div
             key={index}
             onContextMenu={async (e) => {
+              toggleDocpart(part.id, "rightClick");
               if (!localStorage.getItem("token")) {
                 e.preventDefault();
                 return;
@@ -346,18 +347,6 @@ const TranslateViewer = () => {
               const tmpTransList = await fetchBestTranslate(part.docsId, "");
               setTransList(tmpTransList);
               await generateUserList(tmpTransList);
-              if (tmpTransList !== undefined) {
-                const filteredTranslations = tmpTransList.filter(
-                  (item) => item.originId === part.originId
-                );
-                if (filteredTranslations.length > 0) {
-                  setBestTrans(filteredTranslations[0].content);
-                } else {
-                  setBestTrans("");
-                }
-              } else {
-                setBestTrans("");
-              }
             }}
             className="paragraph flex flex-row gap-4 w-ful"
           >
@@ -379,7 +368,7 @@ const TranslateViewer = () => {
                   if (filteredTranslations.length > 0) {
                     setBestTrans(filteredTranslations[0].content);
 
-                    toggleDocpart(part.id);
+                    toggleDocpart(part.id, "leftClick");
                   } else {
                     setBestTrans("");
                     toast.info("아직 등록된 변역이 없습니다.");
@@ -404,9 +393,7 @@ const TranslateViewer = () => {
                     {bestTrans === "" ? (
                       <ToastViewer content={part.content} />
                     ) : (
-                      <ToastViewer
-                        content={`<span style="background-color: #fbebd2">${bestTrans}</span>`}
-                      />
+                      <ToastViewer content={bestTrans} />
                     )}
                   </div>
                 )}

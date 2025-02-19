@@ -13,13 +13,15 @@ const ManageUser = () => {
 
   const handleSearch = async (e) => {
     const searchKeyword = e.target.value;
+    console.log(searchKeyword);
     if (!searchKeyword) {
       const data = await fetchUserList();
       data.sort((a, b) => b.reportCount - a.reportCount);
       setUserList(data);
       return;
-    } else {
-      const filteredList = userList.filter(
+    } else if (searchKeyword !== "") {
+      const data = await fetchUserList();
+      const filteredList = data.filter(
         (item) =>
           item.email.includes(searchKeyword.toLowerCase()) ||
           item.nickname.includes(searchKeyword.toLowerCase())

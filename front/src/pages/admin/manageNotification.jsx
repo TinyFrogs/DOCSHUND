@@ -114,6 +114,18 @@ const ManageNotification = () => {
     return date;
   };
 
+  const checkContentMaxLength = (e) => {
+    if (e.target.value.length === 15000) {
+      toast.warn("공지내용 15,000자를 초과할 수 없습니다.");
+    }
+  };
+
+  const checkTitleMaxLength = (e) => {
+    if (e.target.value.length === 50) {
+      toast.warn("공지제목은 50자를 초과할 수 없습니다");
+    }
+  };
+
   useEffect(() => {
     fetchNoticeData();
   }, []);
@@ -144,12 +156,14 @@ const ManageNotification = () => {
               <input
                 type="text"
                 value={newNotification.title}
-                onChange={(e) =>
+                maxLength={50}
+                onChange={(e) => {
                   setNewNotification({
                     ...newNotification,
                     title: e.target.value,
-                  })
-                }
+                  });
+                  checkTitleMaxLength(e);
+                }}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
               />
             </div>
@@ -159,13 +173,15 @@ const ManageNotification = () => {
               </label>
               <textarea
                 value={newNotification.content}
-                onChange={(e) =>
+                maxLength={15000}
+                onChange={(e) => {
                   setNewNotification({
                     ...newNotification,
                     content: e.target.value,
-                  })
-                }
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
+                  });
+                  checkContentMaxLength(e);
+                }}
+                className="resize-none mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
                 style={{ height: "250px" }}
               ></textarea>
             </div>

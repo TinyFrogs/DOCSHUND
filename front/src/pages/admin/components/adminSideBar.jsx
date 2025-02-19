@@ -43,7 +43,11 @@ const AdminSideBar = () => {
             </button>
           ))}
         </nav>
-        <div className="flex justify-center align-center">
+        <div className="flex flex-col mt-[2vh] gap-3 justify-center align-center">
+          <RoundCornerBtn
+            onClick={() => navigate("/myPage")}
+            text="마이페이지"
+          />
           <RoundCornerBtn onClick={() => logout()} text="로그아웃" />
         </div>
       </div>

@@ -54,12 +54,15 @@ const TranslateEditor = () => {
           toast.error("제출 실패");
         } else {
           toast.success("제출 완료");
-          setLoading(false);
+          setLoading(true);
           const tmpTransList = await fetchBestTranslate(docsId, "");
           tmpTransList.sort((a, b) => b.likeCount - a.likeCount);
           setTransList(tmpTransList);
           generateUserList(tmpTransList);
-          setTimeout(() => closeEditor(), 75);
+          setTimeout(() => {
+            closeEditor();
+            setLoading(false);
+          }, 75);
           setTimeout(() => openArchive(), 75);
         }
       }, 500),
@@ -110,33 +113,34 @@ const TranslateEditor = () => {
                   <span className="text-sm text-slate-600">번역 중</span>
                 </div>
                 <div className="flex space-x-6 ">
-                  <RectBtn
-                    onClick={async () => {
-                      setLoading(true);
+                  {!loading && (
+                    <RectBtn
+                      onClick={async () => {
+                        if (
+                          currentUserText === "" ||
+                          currentUserText === null ||
+                          currentUserText.trim() === "" ||
+                          currentUserText.trim() === undefined
+                        ) {
+                          toast.error("내용을 입력해주세요.");
+                          return;
+                        }
 
-                      if (
-                        currentUserText === "" ||
-                        currentUserText === null ||
-                        currentUserText.trim() === "" ||
-                        currentUserText.trim() === undefined
-                      ) {
-                        toast.error("내용을 입력해주세요.");
-                        return;
-                      }
-
-                      setSubmitData(currentUserText);
-                      const status = await debouncedHandleSubmit(
-                        docsId,
-                        originId,
-                        currentUserText
-                      );
-                    }}
-                    text="제출하기"
-                  />
+                        setSubmitData(currentUserText);
+                        const status = await debouncedHandleSubmit(
+                          docsId,
+                          originId,
+                          currentUserText
+                        );
+                      }}
+                      text="제출하기"
+                    />
+                  )}
                   <RectBtn
                     onClick={async () => {
                       closeEditor();
                       handleClose();
+                      setLoading(false);
                     }}
                     text="나가기"
                   />

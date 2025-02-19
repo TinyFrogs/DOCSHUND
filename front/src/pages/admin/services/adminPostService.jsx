@@ -2,6 +2,7 @@ import {
   axiosJsonInstance,
   axiosMultipartInstance,
 } from "../../../utils/axiosInstance";
+import { toast } from "react-toastify";
 
 // 좋아요한 문서 조회
 export const withdrawReport = async (reportId) => {
@@ -38,6 +39,7 @@ export const registDocumentContent = async (docsId, originDocumentData) => {
     return data;
   } catch (error) {
     // console.log("문서 원본 업로드 실패", error);
+    toast.error(error.response.data.message);
   }
 };
 

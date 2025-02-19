@@ -45,7 +45,9 @@ const responseInterceptor = (error) => {
       status === 400 &&
       (message === "이미 신고한 상태입니다." ||
         message === "유효하지 않은 메일입니다." ||
-        message === "이미지 형식이 아닙니다.")
+        message === "이미지 형식이 아닙니다." ||
+        message === "문서에 이미 연결된 원본이 존재합니다." ||
+        message === "필수 요소는 비워둘 수 없습니다.")
     ) {
       return Promise.reject(error);
     } else {

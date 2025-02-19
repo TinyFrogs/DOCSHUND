@@ -27,18 +27,22 @@ const ManageDocs = () => {
 
   useEffect(() => {
     fetchAdminDocs();
-  }, []);
+  }, [adminDocsList]);
 
   const handleFileChange = async (e, docsId) => {
-    setLoading(true);
     const selectedFile = e.target.files[0];
 
     if (selectedFile) {
+      setLoading(true);
       if (selectedFile.size > 10 * 1000 * 1000) {
         setLoading(false);
         toast.warn("파일 크기는 최대 10MB까지 업로드 가능합니다.", {
           toastId: "file-warning",
         });
+        return;
+      } else if (selectedFile.size === 0) {
+        toast.warn("파일이 비어있습니다.");
+        setLoading(false);
         return;
       }
 
@@ -63,19 +67,20 @@ const ManageDocs = () => {
           toast.success("파일이 성공적으로 업로드되었습니다.", {
             toastId: "file-success",
           });
-          fetchAdminDocs();
+          await fetchAdminDocs();
         } else {
           setLoading(false);
-          toast.error("파일 업로드에 실패했습니다.", {
-            toastId: "file-error",
-          });
-          fetchAdminDocs();
+          // toast.error("파일 업로드에 실패했습니다.", {
+          //   toastId: "file-error",
+          // });
+          await fetchAdminDocs();
         }
       } catch (error) {
         setLoading(false);
-        toast.error("파일 업로드에 실패했습니다.", {
-          toastId: "file-error",
-        });
+        // toast.error("파일 업로드에 실패했습니다.", {
+        //   toastId: "file-error",
+        // });
+        await fetchAdminDocs();
       }
     }
   };

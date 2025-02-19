@@ -95,7 +95,8 @@ const ManageInquiry = () => {
       setInquiryList(data);
       return;
     } else {
-      const filteredList = inquiryList.filter(
+      const data = await fetchInquiryList();
+      const filteredList = data.filter(
         (item) =>
           item.inquiryTitle.includes(text.toLowerCase()) ||
           item.email.includes(text.toLowerCase())
@@ -141,6 +142,12 @@ const ManageInquiry = () => {
     fetchUsers();
     fetchInquiryData();
   }, []);
+
+  const checkMaxLength = (e) => {
+    if (e.target.value.length === 2000) {
+      toast.warn("답변 글자 수 2000자를 초과했습니다.");
+    }
+  };
 
   const filterButtons = [
     { label: "전체", value: "ALL" },
@@ -296,25 +303,20 @@ const ManageInquiry = () => {
                             </div>
                             <div className="bg-gray-50 rounded-lg p-3">
                               {inquiry.answerCreatedAt ? (
-                                // <textarea
-                                //   className="w-full p-2 h-[10vh] overflow-y-scroll outline-none caret-transparent"
-                                //   maxLength={1000}
-                                //   rows={5}
-                                //   onChange={(e) => setAnswer(e.target.value)}
-                                //   value={inquiry.answerContent}
-                                //   name=""
-                                //   id=""
-                                // ></textarea>
                                 <ToastViewer content={inquiry.answerContent} />
                               ) : (
                                 <textarea
-                                  className="w-full p-2"
-                                  onChange={(e) => setAnswer(e.target.value)}
-                                  maxLength={1000}
+                                  className="w-full p-2 text-ellipsis break-words break-all resize-none whitespace-pre-wrap"
+                                  rows={5}
+                                  onChange={(e) => {
+                                    setAnswer(e.target.value);
+                                    checkMaxLength(e);
+                                  }}
+                                  maxLength={2000}
                                   placeholder="답변을 입력해주세요."
                                   name=""
                                   id=""
-                                ></textarea>
+                                />
                               )}
                             </div>
 
