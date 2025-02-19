@@ -130,6 +130,11 @@ const MyProfilePage = () => {
       toast.success("프로필이 성공적으로 업데이트되었습니다.", {
         toastId: "successUpdate",
       });
+    } else {
+      setEditedProfile((prev) => ({
+        ...prev,
+        profileImage: profile.profileImage,
+      }));
     }
     setIsEditing(false);
   };
