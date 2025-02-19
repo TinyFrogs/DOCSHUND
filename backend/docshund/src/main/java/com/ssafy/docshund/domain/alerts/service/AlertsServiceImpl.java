@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
@@ -92,8 +91,6 @@ public class AlertsServiceImpl implements AlertsService {
 			throw new AlertsException(AlertsExceptionCode.USER_NOT_AUTHORIZED);
 		}
 
-		log.info("emitter connect userId : {}", userId);
-
 		SseEmitter emitter = new SseEmitter(10 * 60 * 1000L); // 10분
 		SseEmitter oldEmitter = emitters.put(userId, emitter);
 		if (oldEmitter != null) {
@@ -101,18 +98,6 @@ public class AlertsServiceImpl implements AlertsService {
 		}
 		emitter.onCompletion(() -> emitters.remove(userId));
 		emitter.onTimeout(() -> emitters.remove(userId));
-
-		// 🔥 하나의 스레드 풀에서 모든 Emitter에 ping 전송
-		scheduler.scheduleAtFixedRate(() -> {
-			try {
-				if (!emitters.containsKey(userId))
-					return;
-				emitter.send(SseEmitter.event().name("heartbeat").data("ping"));
-			} catch (IOException e) {
-				emitter.complete();
-			}
-		}, 0, 15, TimeUnit.SECONDS);
-
 		return emitter;
 	}
 
