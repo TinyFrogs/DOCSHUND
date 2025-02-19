@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -40,6 +41,7 @@ public class AlertsServiceImpl implements AlertsService {
 
 	private final AlertRepository alertRepository;
 
+	private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
 	private final UserUtil userUtil;
 
@@ -90,6 +92,8 @@ public class AlertsServiceImpl implements AlertsService {
 			throw new AlertsException(AlertsExceptionCode.USER_NOT_AUTHORIZED);
 		}
 
+		log.info("emitter connect userId : {}", userId);
+
 		SseEmitter emitter = new SseEmitter(10 * 60 * 1000L); // 10분
 		SseEmitter oldEmitter = emitters.put(userId, emitter);
 		if (oldEmitter != null) {
@@ -98,14 +102,16 @@ public class AlertsServiceImpl implements AlertsService {
 		emitter.onCompletion(() -> emitters.remove(userId));
 		emitter.onTimeout(() -> emitters.remove(userId));
 
-		// 🔥 일정 간격으로 heartbeat 메시지 전송 (연결 유지)
-		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+		// 🔥 하나의 스레드 풀에서 모든 Emitter에 ping 전송
+		scheduler.scheduleAtFixedRate(() -> {
 			try {
+				if (!emitters.containsKey(userId))
+					return;
 				emitter.send(SseEmitter.event().name("heartbeat").data("ping"));
 			} catch (IOException e) {
 				emitter.complete();
 			}
-		}, 0, 15, TimeUnit.SECONDS); // 15초마다 실행
+		}, 0, 15, TimeUnit.SECONDS);
 
 		return emitter;
 	}
@@ -123,7 +129,9 @@ public class AlertsServiceImpl implements AlertsService {
 				emitter.send(SseEmitter.event().name("alert").data(data));
 			} catch (IOException e) {
 				emitter.completeWithError(e); // 에러 처리 후 제거
+				log.info("emitter Error userId : {}", userId);
 				emitters.remove(userId);
+				emitters.put(userId, emitter);
 			}
 		}
 	}
