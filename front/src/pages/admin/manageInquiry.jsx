@@ -149,7 +149,9 @@ const ManageInquiry = () => {
 
   const checkMaxLength = (e) => {
     if (e.target.value.length === 2000) {
-      toast.warn("답변 글자 수 2000자를 초과했습니다.");
+      toast.warn("답변 글자 수 2000자를 초과했습니다.", {
+        toastId: "answer-max-length",
+      });
     }
   };
 

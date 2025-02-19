@@ -379,7 +379,9 @@ const TranslateViewer = () => {
                     toggleDocpart(part.id, "leftClick");
                   } else {
                     setBestTrans("");
-                    toast.info("아직 등록된 변역이 없습니다.");
+                    toast.info("아직 등록된 변역이 없습니다.", {
+                      toastId: "no-trans",
+                    });
                   }
                 } else {
                   setBestTrans("");

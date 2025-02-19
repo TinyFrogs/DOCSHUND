@@ -26,7 +26,9 @@ const SearchDB = ({ tableId }) => {
   // 검색 실행
   const handleSearch = async () => {
     if (db && query.trim().length < 2) {
-      toast.warn("두 글자 이상 입력해주세요.");
+      toast.warn("두 글자 이상 입력해주세요.", {
+        toastId: "search-min-length",
+      });
       return;
     }
     setLoading(true);
@@ -46,7 +48,9 @@ const SearchDB = ({ tableId }) => {
 
   const checkMaxLength = (e) => {
     if (e.target.value.length === 500) {
-      toast.warn("검색어 500자 제한 초과");
+      toast.warn("검색어 500자 제한 초과", {
+        toastId: "search-max-length",
+      });
     }
   };
 

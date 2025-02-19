@@ -128,13 +128,17 @@ const ManageNotification = () => {
 
   const checkContentMaxLength = (e) => {
     if (e.target.value.length === 15000) {
-      toast.warn("공지내용 15,000자를 초과할 수 없습니다.");
+      toast.warn("공지내용은 15,000자를 초과할 수 없습니다.", {
+        toastId: "content-max-length",
+      });
     }
   };
 
   const checkTitleMaxLength = (e) => {
     if (e.target.value.length === 50) {
-      toast.warn("공지제목은 50자를 초과할 수 없습니다");
+      toast.warn("공지제목은 50자를 초과할 수 없습니다", {
+        toastId: "title-max-length",
+      });
     }
   };
 

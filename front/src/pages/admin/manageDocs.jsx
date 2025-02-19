@@ -41,7 +41,9 @@ const ManageDocs = () => {
         });
         return;
       } else if (selectedFile.size === 0) {
-        toast.warn("파일이 비어있습니다.");
+        toast.warn("파일이 비어있습니다.", {
+          toastId: "file-warning",
+        });
         setLoading(false);
         return;
       }
