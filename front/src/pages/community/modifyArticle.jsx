@@ -19,6 +19,7 @@ const ModifyArticle = () => {
   const navigate = useNavigate();
   const { validateImageFile, isValidating, error } = UseFileTypeCheck();
   const fileInputRef = useRef(null);
+  const MAX_TITLE_LENGTH = 50;
 
   // store에서 기존 게시글 데이터 및 메소드 불러오기
   const articleItems = communityArticleStore((state) => state.articleItems);
@@ -241,17 +242,25 @@ const ModifyArticle = () => {
             <form onSubmit={handleSubmit}>
               {/* 제목 및 분류 영역 */}
               <div className="border-b border-[#E1E1DF] pb-4 mb-4">
-                <div className="mb-6 flex items-center">
-                  <label className="block text-lg font-medium text-black min-w-[100px]">
-                    제목 <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={title}
-                    onChange={handleTitleChange}
-                    className="flex-1 py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] text-sm"
-                    placeholder="제목을 입력하세요"
-                  />
+                <div className="mb-2">
+                  <div className="flex items-center">
+                    <label className="block text-lg font-medium text-black min-w-[100px] mb-2">
+                      제목 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={title}
+                      className="flex-1 py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] text-sm"
+                      placeholder="제목을 입력하세요"
+                      onChange={(e) =>
+                        convertWhiteSpace(e.target.value).length <=
+                          MAX_TITLE_LENGTH && setTitle(e.target.value)
+                      }
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1 text-right">
+                    {convertWhiteSpace(title).length} / {MAX_TITLE_LENGTH}
+                  </p>
                 </div>
                 <div className="flex flex-col md:flex-row items-start md:items-center">
                   <label className="block text-lg font-medium text-black min-w-[100px] mb-2 md:mb-0">
