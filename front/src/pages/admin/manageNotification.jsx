@@ -289,36 +289,38 @@ const ManageNotification = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                     {!loading && (
-                      <button
-                        onClick={() => {
-                          setIsEditorOpen(true);
-                          setIsEditing(true);
-                          setEditId(notification.noticeId);
-                          setNewNotification({
-                            title: notification.title,
-                            content: notification.content,
-                          });
-                        }}
-                        className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150 cursor-pointer"
-                      >
-                        수정
-                      </button>
+                      <div className="gap-2 flex">
+                        <button
+                          onClick={() => {
+                            setIsEditorOpen(true);
+                            setIsEditing(true);
+                            setEditId(notification.noticeId);
+                            setNewNotification({
+                              title: notification.title,
+                              content: notification.content,
+                            });
+                          }}
+                          className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150 cursor-pointer"
+                        >
+                          수정
+                        </button>
+                        <button
+                          onClick={() => {
+                            const deleteConfirm =
+                              confirm("공지를 삭제하시겠습니까?");
+                            if (deleteConfirm) {
+                              setLoading(true);
+                              debouncedHandleDeleteNotification(
+                                notification.noticeId
+                              );
+                            }
+                          }}
+                          className="text-red-600 hover:text-red-700 transition-colors duration-150 cursor-pointer"
+                        >
+                          삭제
+                        </button>
+                      </div>
                     )}
-                    <button
-                      onClick={() => {
-                        const deleteConfirm =
-                          confirm("공지를 삭제하시겠습니까?");
-                        if (deleteConfirm) {
-                          setLoading(true);
-                          debouncedHandleDeleteNotification(
-                            notification.noticeId
-                          );
-                        }
-                      }}
-                      className="text-red-600 hover:text-red-700 transition-colors duration-150 cursor-pointer"
-                    >
-                      삭제
-                    </button>
                   </td>
                 </tr>
               ))}
