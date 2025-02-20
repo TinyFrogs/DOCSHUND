@@ -29,6 +29,8 @@
   --contexify-hover-bg: #bc5b39;
   --contexify-hover-text: #fff;
   --contexify-submenu-arrow-color: #773131;
+  --toastify-container-width: fit-content;
+  --toastify-toast-width: fit-content;
 }
 
 .contexify {

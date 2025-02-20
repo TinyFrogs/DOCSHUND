@@ -4,7 +4,7 @@ import {
 } from "../../../utils/axiosInstance";
 import { toast } from "react-toastify";
 
-// 좋아요한 문서 조회
+// 신고 철회
 export const withdrawReport = async (reportId) => {
   try {
     const response = await axiosJsonInstance.post(
@@ -14,7 +14,9 @@ export const withdrawReport = async (reportId) => {
 
     return data;
   } catch (error) {
-    // console.log("신고 취소 처리 실패", error);
+    toast.error(error.response.data.message, {
+      toastId: "report-error-in-admin",
+    });
   }
 };
 

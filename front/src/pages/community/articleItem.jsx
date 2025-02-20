@@ -53,6 +53,7 @@ const ArticleItem = () => {
   );
   const toggleReport = useReportStore((state) => state.toggleReport);
   const openReport = useReportStore((state) => state.openReport);
+  const { closeReport } = useReportStore();
 
   const handleReport = (data) => {
     useReportStore.setState({
@@ -141,6 +142,10 @@ const ArticleItem = () => {
       clearArticleItems();
     };
   }, [articleId]);
+
+  useEffect(() => {
+    closeReport();
+  }, []);
 
   const handleDeleteClick = _.debounce(async () => {
     if (!window.confirm("정말 삭제하시겠습니까?")) return;

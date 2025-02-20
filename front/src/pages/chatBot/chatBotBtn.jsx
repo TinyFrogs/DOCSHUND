@@ -119,7 +119,7 @@ const ChatBotBtn = () => {
 
   const checkMaxLength = (e) => {
     if (e.target.value.length === 200) {
-      toast.warn("최대 글자 수 200자를 초과했습니다.", {
+      toast.warn("200자 이상의 메세지는 보낼 수 없습니다.", {
         toastId: "chatbot-max-length",
       });
     }
@@ -181,7 +181,7 @@ const ChatBotBtn = () => {
                         className={`max-w-[70%] px-4 py-2 rounded-lg ${
                           message.isUser
                             ? "bg-[#E4DCD4] text-gray-800 rounded-br-none"
-                            : "bg-gray-100 text-gray-800 rounded-bl-none"
+                            : "bg-gray-200 text-gray-800 rounded-bl-none"
                         }`}
                       >
                         <p className="text-sm break-words">

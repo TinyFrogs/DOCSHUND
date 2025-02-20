@@ -53,11 +53,12 @@ const ManageReport = () => {
         toast.success("신고 철회 완료", {
           toastId: "withdrawSuccess",
         });
-      } else {
-        toast.error("공개 처리 실패", {
-          toastId: "withdrawFail",
-        });
       }
+      // else {
+      //   toast.error("공개 처리 실패", {
+      //     toastId: "withdrawFail",
+      //   });
+      // }
       reportListData.current = await fetchReportList();
       handleFilter(activeFilterRef.current);
     }, 500),
