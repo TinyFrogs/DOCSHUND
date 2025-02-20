@@ -35,6 +35,10 @@ const LikeTranslationPage = () => {
   const [likedItems, setLikedItems] = useState({});
 
   useEffect(() => {
+    closeModal();
+  }, []);
+
+  useEffect(() => {
     setLoading(true);
     const fetchTranslations = async () => {
       try {

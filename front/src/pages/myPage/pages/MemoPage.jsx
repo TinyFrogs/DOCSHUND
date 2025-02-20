@@ -14,7 +14,7 @@ const MemoPage = () => {
   const token = localStorage.getItem("token");
 
   const { isOpen, openId, openModal, closeModal, setOpenId } = modalStore();
-  const { isAlertOpen, toggleAlert } = useAlertStore();
+  const { isAlertOpen, toggleAlert, resetAlert } = useAlertStore();
   const { memos, setMemos, setIsLoading, setError, updateMemo, deleteMemo } =
     useMemoStore();
   const [userId, setUserId] = useState(null);
@@ -24,6 +24,11 @@ const MemoPage = () => {
   const [memoToDelete, setMemoToDelete] = useState(null);
   const [hasFetched, setHasFetched] = useState(false);
   const pageSize = 15;
+
+  useEffect(() => {
+    closeModal();
+    resetAlert();
+  }, []);
 
   useEffect(() => {
     const fetchMemos = async (userId) => {

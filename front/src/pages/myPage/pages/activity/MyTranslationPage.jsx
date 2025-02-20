@@ -28,6 +28,10 @@ const MyTranslationPage = () => {
   const [currentData, setCurrentData] = useState([]);
 
   useEffect(() => {
+    closeModal();
+  }, []);
+
+  useEffect(() => {
     setLoading(true);
     setOpenId(null);
     const fetchTranslations = async () => {

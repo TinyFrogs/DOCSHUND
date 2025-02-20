@@ -49,7 +49,7 @@ const LeftNav = () => {
   const [userId, setUserId] = useState(null);
 
   const [memoToDelete, setMemoToDelete] = useState(null);
-  const { isAlertOpen, toggleAlert } = useAlertStore();
+  const { isAlertOpen, toggleAlert, resetAlert } = useAlertStore();
 
   const toggleNotificationModal = notificationModalStore(
     (state) => state.toggleNotificationModal
@@ -62,6 +62,12 @@ const LeftNav = () => {
   );
 
   const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    closeModal();
+    resetAlert();
+  }, []);
+
   useEffect(() => {
     if (token) {
       const decodedToken = jwtDecode(token);
