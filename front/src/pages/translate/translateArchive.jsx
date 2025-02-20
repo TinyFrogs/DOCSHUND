@@ -73,8 +73,11 @@ const TranslateArchive = () => {
 
   const handleLike = async (docsId, transId) => {
     const status = await likeTranslate(docsId, transId);
-    const tmpTransList = await fetchBestTranslate(docsId, "");
-    setTransList(tmpTransList);
+    setTimeout(async () => {
+      const tmpTransList = await fetchBestTranslate(docsId, "");
+      changeOrderBy(orderBy, tmpTransList);
+      setTransList(tmpTransList);
+    }, 300);
     return status;
   };
 
