@@ -108,7 +108,8 @@ const ReplyRenderItem = ({
               : null}
 
             {token
-              ? jwtDecode(token)?.userId != item.userId && (
+              ? item.userId &&
+                jwtDecode(token)?.userId != item.userId && (
                   <button
                     className="text-[#7d7c77] underline text-sm cursor-pointer"
                     onClick={() => handleReport(item)}

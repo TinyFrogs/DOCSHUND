@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { motion, AnimatePresence } from "framer-motion";
 import MDEditor from "@uiw/react-md-editor";
-import { ArrowLeft } from "lucide-react"; // lucide 아이콘 임포트
+import { ArrowLeft } from "lucide-react";
 import useEditorStore from "../../../store/translateStore/editorStore";
 import { toast } from "react-toastify";
 
@@ -20,6 +20,7 @@ const MemoModal = ({
 }) => {
   const [formData, setFormData] = useState({ title: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false); // 삭제 진행 상태 추가
   const { setCurrentUserText, currentUserText } = useEditorStore();
 
   useEffect(() => {
@@ -31,8 +32,9 @@ const MemoModal = ({
         setFormData({ title: "" });
         setCurrentUserText("");
       }
-      // 모달이 열릴 때 제출 상태 초기화
+      // 모달이 열릴 때 제출, 삭제 상태 초기화
       setIsSubmitting(false);
+      setIsDeleting(false);
     } else {
       setFormData({ title: "" });
       setCurrentUserText("");
@@ -86,7 +88,7 @@ const MemoModal = ({
   const handleSubmit = (e) => {
     e.preventDefault();
     // 이미 제출 중이면 중복 제출 방지
-    if (isSubmitting) return;
+    if (isSubmitting || isDeleting) return;
 
     setIsSubmitting(true);
     const editorContent = currentUserText;
@@ -98,9 +100,11 @@ const MemoModal = ({
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (memoData && onDelete) {
+      setIsDeleting(true);
       onDelete(memoData.memoId);
+      setIsDeleting(false);
     }
   };
 
@@ -171,17 +175,22 @@ const MemoModal = ({
                 {memoData && (
                   <button
                     type="button"
+                    disabled={isSubmitting || isDeleting}
                     onClick={handleDelete}
-                    className="text-sm rounded-[12px] px-[20px] h-10 hover:bg-[#bc5b39] hover:text-[#ffffff] cursor-pointer"
+                    className={`text-sm rounded-[12px] px-[20px] h-10 hover:bg-[#bc5b39] hover:text-[#ffffff] cursor-pointer ${
+                      isSubmitting || isDeleting
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "hover:bg-[#C96442] cursor-pointer"
+                    }`}
                   >
                     삭제
                   </button>
                 )}
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isDeleting} // 삭제 진행중에는 버튼 disable
                   className={`text-sm rounded-[12px] px-[20px] h-10 text-[#ffffff] ${
-                    isSubmitting
+                    isSubmitting || isDeleting
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-[#bc5b39] hover:bg-[#C96442] cursor-pointer"
                   }`}

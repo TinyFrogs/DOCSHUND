@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { jwtDecode } from "jwt-decode";
 import MemoList from "../components/MemoList";
 import MemoModal from "../components/MemoModal";
@@ -8,7 +8,7 @@ import memoService from "../services/memoService";
 import ListPagination from "../../../components/pagination/listPagination";
 import ConfirmModal from "../../../components/alertModal/confirmModal";
 import useAlertStore from "../../../store/alertStore";
-import _ from "lodash";
+// lodash debounce 제거 (또는 꼭 필요하면 옵션 변경 후 useCallback 사용)
 
 const MemoPage = () => {
   const token = localStorage.getItem("token");
@@ -41,7 +41,6 @@ const MemoPage = () => {
         }
       } catch (error) {
         setError(error.message);
-        // console.error("Error fetching memos:", error);
       } finally {
         setHasFetched(true);
       }
@@ -69,59 +68,61 @@ const MemoPage = () => {
     }
   }, [memos, currentPage, pageSize]);
 
-  const handleCreateMemo = _.debounce(async (memoData) => {
-    if (userId) {
-      try {
-        await memoService.createMemo(userId, memoData);
-        const data = await memoService.fetchMemos(userId);
-        if (data) {
-          setMemos(data.reverse());
-        } else {
-          setMemos([]);
-        }
-        closeModal();
-      } catch (error) {
-        // console.error("Error creating memo:", error);
-      }
-    }
-  }, 300);
+  // debounce 제거한 삭제 함수
+  const handleDeleteMemo = useCallback(
+    (memoId) => {
+      setMemoToDelete(memoId);
+      toggleAlert();
+    },
+    [toggleAlert]
+  );
 
-  const handleEditMemo = _.debounce(async (memoId, memoData) => {
-    if (userId) {
-      try {
-        await memoService.updateMemo(userId, memoId, memoData);
-        const data = await memoService.fetchMemos(userId);
-        if (data) {
-          setMemos(data.reverse());
-        } else {
-          setMemos([]);
-        }
-        closeModal();
-      } catch (error) {
-        // console.error("Error updating memo:", error);
-      }
-    }
-  }, 300);
-
-  const handleDeleteMemo = _.debounce(async (memoId) => {
-    setMemoToDelete(memoId);
-    toggleAlert();
-  }, 300);
-
-  const confirmDeleteMemo = _.debounce(async () => {
+  const confirmDeleteMemo = useCallback(async () => {
     if (userId && memoToDelete) {
       try {
         await memoService.deleteMemo(userId, memoToDelete);
         deleteMemo(memoToDelete);
       } catch (error) {
-        // console.error("Error deleting memo:", error);
+        // 오류 처리
       } finally {
         setMemoToDelete(null);
         closeModal();
         toggleAlert();
       }
     }
-  }, 300);
+  }, [userId, memoToDelete, closeModal, toggleAlert, deleteMemo]);
+
+  const handleCreateMemo = useCallback(
+    async (memoData) => {
+      if (userId) {
+        try {
+          await memoService.createMemo(userId, memoData);
+          const data = await memoService.fetchMemos(userId);
+          setMemos(data ? data.reverse() : []);
+          closeModal();
+        } catch (error) {
+          // 오류 처리
+        }
+      }
+    },
+    [userId, setMemos, closeModal]
+  );
+
+  const handleEditMemo = useCallback(
+    async (memoId, memoData) => {
+      if (userId) {
+        try {
+          await memoService.updateMemo(userId, memoId, memoData);
+          const data = await memoService.fetchMemos(userId);
+          setMemos(data ? data.reverse() : []);
+          closeModal();
+        } catch (error) {
+          // 오류 처리
+        }
+      }
+    },
+    [userId, setMemos, closeModal]
+  );
 
   const handleOpenModal = async (memoId) => {
     if (memoId) {
@@ -131,7 +132,7 @@ const MemoPage = () => {
           updateMemo(memoId, detailedMemo);
         }
       } catch (error) {
-        // console.error("Error fetching detailed memo:", error);
+        // 오류 처리
       }
     }
     setOpenId(memoId);
@@ -173,9 +174,7 @@ const MemoPage = () => {
       />
       {isAlertOpen && (
         <ConfirmModal
-          message={{
-            title: "정말로 메모를 삭제하시겠습니까?",
-          }}
+          message={{ title: "정말로 메모를 삭제하시겠습니까?" }}
           onConfirm={confirmDeleteMemo}
           onCancel={toggleAlert}
         />
