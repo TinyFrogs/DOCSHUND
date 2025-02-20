@@ -288,7 +288,7 @@ const ManageNotification = () => {
                     {handleUTC(notification.updatedAt).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                    {!loading && (
+                    {!loading && !isEditorOpen && (
                       <div className="gap-2 flex">
                         <button
                           onClick={() => {
