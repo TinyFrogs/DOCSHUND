@@ -338,6 +338,7 @@ const TranslateViewer = () => {
 
   return (
     <div
+      id="mainContent"
       onClick={(e) => {
         e.stopPropagation();
         clearSearchResults();
@@ -347,7 +348,7 @@ const TranslateViewer = () => {
     >
       {createPortal(<SearchDB tableId={docsId} />, document.body)}
 
-      <div id="mainContent" className="flex flex-col gap-2 w-full">
+      <div className="flex flex-col gap-2 w-full">
         <div className="h-[8vh]"></div>
         {docParts.map((part, index) => (
           <div
