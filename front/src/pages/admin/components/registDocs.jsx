@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { registDocument } from "../services/adminPostService";
+import { fetchDocsList } from "../../translate/services/translateGetService";
 import { toast } from "react-toastify";
 
 const RegistDocs = ({ open, onClose }) => {
@@ -39,6 +40,7 @@ const RegistDocs = ({ open, onClose }) => {
       toast.success("문서 등록 성공", {
         toastId: "registDocs",
       });
+      await fetchDocsList();
       onClose();
     } else {
       toast.error("문서 등록 실패", {

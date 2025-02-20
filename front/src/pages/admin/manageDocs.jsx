@@ -27,7 +27,7 @@ const ManageDocs = () => {
 
   useEffect(() => {
     fetchAdminDocs();
-  }, []);
+  }, [adminDocsList]);
 
   const handleFileChange = async (e, docsId) => {
     const selectedFile = e.target.files[0];
@@ -108,6 +108,7 @@ const ManageDocs = () => {
           {/* <button className="cursor-pointer px-2 py-2 bg-[#ff2121] text-white rounded-lg hover:bg-[#a34e31] transition-colors duration-200">
             - 문서삭제
           </button> */}
+
           <button
             onClick={() => setOpenRegistDocs(true)}
             className="cursor-pointer px-2 py-2 bg-[#bc5b39] text-white rounded-lg hover:bg-[#a34e31] transition-colors duration-200"

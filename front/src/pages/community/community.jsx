@@ -1,10 +1,13 @@
 import CommunityLeftNav from "./components/communityLeftNav";
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
+import useReportStore from "../../store/reportStore";
 
 const community = () => {
+  const { closeReport } = useReportStore();
   useEffect(() => {
     document.body.style.overflow = "auto";
+    closeReport();
   }, []);
   return (
     <div className="w-full flex flex-col md:flex-row px-4 md:px-8 py-5 max-w-screen-xl mx-auto gap-4">
