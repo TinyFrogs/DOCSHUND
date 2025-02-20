@@ -180,7 +180,7 @@ const ManageUser = () => {
                     </span>
                     <button
                       onClick={() => handleUserStatus(user.userId, user.status)}
-                      className="cursor-pointer"
+                      className="cursor-pointer hover:text-[#bc5b39] transition-colors duration-100"
                     >
                       <RefreshCw />
                     </button>

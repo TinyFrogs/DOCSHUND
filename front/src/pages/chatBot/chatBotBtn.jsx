@@ -180,7 +180,7 @@ const ChatBotBtn = () => {
                       <div
                         className={`max-w-[70%] px-4 py-2 rounded-lg ${
                           message.isUser
-                            ? "bg-[#bc5b39] text-white rounded-br-none"
+                            ? "bg-[#E4DCD4] text-gray-800 rounded-br-none"
                             : "bg-gray-100 text-gray-800 rounded-bl-none"
                         }`}
                       >
@@ -234,9 +234,10 @@ const ChatBotBtn = () => {
                       }
                       className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:border-[#C96442] flex-wrap"
                     />
+
                     <button
                       type="submit"
-                      className="p-2 bg-[#C96442] text-white rounded-full hover:cursor-pointer transition-colors"
+                      className="p-2 bg-[#C96442] text-white rounded-full hover:cursor-pointer transition-colors h-[6vh] w-[6vh] flex items-center justify-center"
                       disabled={loading}
                     >
                       <Send />
