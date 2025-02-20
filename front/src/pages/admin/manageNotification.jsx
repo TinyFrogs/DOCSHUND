@@ -225,7 +225,7 @@ const ManageNotification = () => {
                         newNotification.content
                       )
                     }
-                    className="bg-[#bc5b39] text-white px-4 py-2 rounded-lg hover:bg-[#a34b2b] transition-colors duration-200"
+                    className="bg-[#bc5b39] text-white px-4 py-2 rounded-lg hover:bg-[#a34b2b] transition-colors duration-200 cursor-pointer"
                   >
                     수정
                   </button>

@@ -15,6 +15,7 @@ import { Menu } from "lucide-react";
 import useModalStore from "../../store/translateStore/translateModalStore.jsx";
 import useDocsStore from "../../store/translateStore/docsStore.jsx";
 import useReportStore from "../../store/reportStore.jsx";
+import useDbStore from "../../store/translateStore/dbStore.jsx";
 
 // 채팅
 import Chat from "../chat/chat.jsx";
@@ -34,6 +35,8 @@ const ViewerMainPage = () => {
   const { isReportOpen, closeReport } = useReportStore();
   const { setDocsList, setBestDocsList, documentName, clearSearchResults } =
     useDocsStore();
+  const { dbInitialized, activateDbInitialized, deactivateDbInitialized } =
+    useDbStore();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -98,7 +101,7 @@ const ViewerMainPage = () => {
       </div>
 
       {/* 원문/전체번역 버튼 (하단, 가장 위: bottom-34) */}
-      {!isArchiveOpen && !isEditorOpen && (
+      {!isArchiveOpen && !isEditorOpen && dbInitialized && (
         <button
           id="translateAllBtn"
           onClick={async () => {

@@ -40,6 +40,7 @@ import useEditorStore from "../../store/translateStore/editorStore.jsx";
 import useDocsStore from "../../store/translateStore/docsStore.jsx";
 import useArchiveStore from "../../store/translateStore/archiveStore.jsx";
 import MemoStore from "../../store/../store/myPageStore/memoStore.jsx";
+import useDbStore from "../../store/translateStore/dbStore.jsx";
 // import useProgressStore from "../../store/translateStore/progressStore.jsx";
 
 // 이미지 import
@@ -103,6 +104,9 @@ const TranslateViewer = () => {
   // 모달 관련 상태
   const { openEditor, openArchive, closeEditor, closeArchive } =
     useModalStore();
+
+  const { dbInitialized, activateDbInitialized, deactivateDbInitialized } =
+    useDbStore();
   // const {
   //   currentProgress,
   //   totalData,
@@ -206,6 +210,7 @@ const TranslateViewer = () => {
     setHasMore(true);
     setCheckComplete(false);
     setIsDbInitialized(false);
+    deactivateDbInitialized();
     MemoStore.setState({ memos: useMemoService.fetchMemos(userId) });
     docData.current = [];
 
@@ -236,6 +241,8 @@ const TranslateViewer = () => {
               toast.success("원문 데이터가 준비되었습니다.");
               if (isMounted) {
                 setIsDbInitialized(true);
+                activateDbInitialized();
+
                 await loadMore();
                 setCheckComplete(true);
               }
@@ -250,6 +257,7 @@ const TranslateViewer = () => {
           if (isMounted) {
             docData.current = loadedData;
             setIsDbInitialized(true);
+            activateDbInitialized();
             await loadMore();
             setCheckComplete(true);
           }
