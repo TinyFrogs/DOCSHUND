@@ -26,6 +26,16 @@ const RegistDocs = ({ open, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (
+      formData.position === "" ||
+      formData.position === null ||
+      formData.position === undefined
+    ) {
+      toast.warn("포지션을 선택해주세요.", {
+        toastId: "selectPosition",
+      });
+      return;
+    }
     const documentData = {
       documentCategory: formData.documentCategory,
       documentName: formData.documentName,
@@ -75,6 +85,8 @@ const RegistDocs = ({ open, onClose }) => {
                 name="documentCategory"
                 value={formData.documentCategory}
                 onChange={handleChange}
+                maxLength={30}
+                required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
@@ -87,6 +99,8 @@ const RegistDocs = ({ open, onClose }) => {
                 name="documentName"
                 value={formData.documentName}
                 onChange={handleChange}
+                maxLength={30}
+                required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
@@ -102,6 +116,8 @@ const RegistDocs = ({ open, onClose }) => {
                 name="documentVersion"
                 value={formData.documentVersion}
                 onChange={handleChange}
+                maxLength={20}
+                required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
@@ -114,6 +130,8 @@ const RegistDocs = ({ open, onClose }) => {
                 name="license"
                 value={formData.license}
                 onChange={handleChange}
+                maxLength={20}
+                required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
@@ -136,6 +154,7 @@ const RegistDocs = ({ open, onClose }) => {
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
+                <option value="">포지션을 선택해주세요</option>
                 <option value="FRONTEND">FRONTEND</option>
                 <option value="BACKEND">BACKEND</option>
                 <option value="DEVOPS">DEVOPS</option>
@@ -153,6 +172,7 @@ const RegistDocs = ({ open, onClose }) => {
               name="documentLogo"
               value={formData.documentLogo}
               onChange={handleChange}
+              maxLength={200}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
@@ -166,6 +186,7 @@ const RegistDocs = ({ open, onClose }) => {
               name="documentLink"
               value={formData.documentLink}
               onChange={handleChange}
+              maxLength={200}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>

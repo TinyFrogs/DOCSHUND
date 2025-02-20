@@ -80,7 +80,6 @@ const TranslateEditor = () => {
 
   const handleClose = () => {
     clearDocsPart();
-    clearBestTrans();
     clearTempSave();
     clearSubmitData();
   };

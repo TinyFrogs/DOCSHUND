@@ -105,6 +105,9 @@ const ManageInquiry = () => {
           item.inquiryTitle.includes(text.toLowerCase()) ||
           item.email.includes(text.toLowerCase())
       );
+      filteredList.sort(
+        (a, b) => new Date(b.inquiryCreatedAt) - new Date(a.inquiryCreatedAt)
+      );
       setInquiryList(filteredList);
     }
   };
