@@ -14,7 +14,7 @@
 
 <div>
 <!-- [![DocshunD UCC](https://img.youtube.com/vi/vpjdXrrvcJs/0.jpg)](https://youtu.be/vpjdXrrvcJs) -->
-[Dochund UCC 링크크](https://youtu.be/vpjdXrrvcJs)
+[Dochund UCC 링크](https://youtu.be/vpjdXrrvcJs)
 
 </div>
 
