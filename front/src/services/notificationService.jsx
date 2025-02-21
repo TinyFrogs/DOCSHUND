@@ -14,7 +14,7 @@ const NotificationService = {
       // 알림 데이터 store에 저장
       return data;
     } catch (err) {
-      console.error(err);
+      // console.error(err);
     }
   },
 
@@ -30,7 +30,7 @@ const NotificationService = {
       // 알림 데이터 store에 저장
       return status;
     } catch (err) {
-      console.error(err);
+      // console.error(err);
     }
   },
 
@@ -46,7 +46,7 @@ const NotificationService = {
       // 알림 데이터 store에 저장
       return status;
     } catch (err) {
-      console.error(err);
+      // console.error(err);
     }
   },
 
@@ -62,7 +62,7 @@ const NotificationService = {
       // 알림 데이터 store에 저장
       return status;
     } catch (err) {
-      console.error(err);
+      // console.error(err);
     }
   },
 
@@ -78,7 +78,7 @@ const NotificationService = {
       // 알림 데이터 store에 저장
       return status;
     } catch (err) {
-      console.error(err);
+      // console.error(err);
     }
   },
 };

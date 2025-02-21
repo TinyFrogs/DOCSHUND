@@ -1,15 +1,6 @@
 import { axiosJsonInstance } from "../../../utils/axiosInstance";
 import PropTypes from "prop-types";
 
-// import TmpBestData from "../../../store/translateStore/tmpBestData";
-// import TmpTranslateData from "../../../store/translateStore/tmpTranslateData";
-// import TmpDocsList from "../../../store/translateStore/tmpDocsList";
-// import useArchiveStore from "../../../store/translateStore/archiveStore";
-// import useDocsStore from "../../../store/translateStore/docsStore";
-// import useEditorStore from "../../../store/translateStore/editorStore";
-
-// import DocsStore from "../../../store/translateStore/docsStore";
-
 // 좋아요한 문서 조회
 export const fetchLikedList = async (docsId) => {
   try {
@@ -17,7 +8,7 @@ export const fetchLikedList = async (docsId) => {
     const data = response.data;
     return data;
   } catch (error) {
-    console.log("좋아요한 문서 조회 실패", error);
+    // console.log("좋아요한 문서 조회 실패", error);
   }
 };
 
@@ -28,23 +19,19 @@ export const fetchDocsList = async () => {
     const data = response.data;
     return data;
   } catch (error) {
-    console.log(error);
+    // console.log(error);
   }
 };
 
-// 영어 원문 조회
 export const fetchTranslateData = async (docsId, originId) => {
   try {
-    console.log(docsId, originId);
-
     const response = await axiosJsonInstance.get(
       `docs/${docsId}/origin?originId=${originId}`
     );
     const data = response.data;
-    console.log(data);
     return data;
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return null;
   }
 };
@@ -58,7 +45,7 @@ export const fetchBestTranslate = async (docsId, isBest) => {
         `docs/${docsId}/trans?status=${status}`
       );
       const data = response.data;
-      console.log(data);
+
       return data;
     } else {
       const response = await axiosJsonInstance.get(
@@ -82,7 +69,7 @@ export const fetchLikedTranslateList = async (userId) => {
     const data = response.data;
     return data;
   } catch (error) {
-    console.log("좋아요 번역 조회 실패", error);
+    // console.log("좋아요 번역 조회 실패", error);
   }
 };
 

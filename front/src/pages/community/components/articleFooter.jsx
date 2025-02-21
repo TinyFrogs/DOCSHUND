@@ -8,7 +8,7 @@ const ArticleFooter = ({ articleData }) => {
       <div className="bg-gray-50 p-4 rounded-lg w-full">
         <p className="font-medium mb-2">참조된 문서:</p>
         <Link
-          to={`/translate/viewer/${articleData.docsId}`}
+          to={`/translate/main/viewer/${articleData.docsId}`}
           className="hover:underline"
         >
           <p>{articleData.documentName}</p>

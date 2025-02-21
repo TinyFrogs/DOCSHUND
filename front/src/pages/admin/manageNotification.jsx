@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { fetchNoticeList } from "./services/adminGetService";
 import { registNotification } from "./services/adminPostService";
 import { deleteNotification } from "./services/adminDeleteService";
 import { modifyNotice } from "./services/adminPatchService";
 import { toast } from "react-toastify";
+import _ from "lodash";
 
 const ManageNotification = () => {
+  const [loading, setLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -21,31 +23,36 @@ const ManageNotification = () => {
   const fetchNoticeData = async () => {
     try {
       const data = await fetchNoticeList();
-      console.log(data);
       setNotifications(data.content);
     } catch (error) {
-      console.log("공지사항 목록 조회 실패", error);
+      // console.log("공지사항 목록 조회 실패", error);
     }
   };
 
-  const handleAddNotification = () => {
-    setIsEditorOpen(true);
-    setIsEditing(false);
-    setNewNotification({
-      title: "",
-      content: "",
-      createdAt: new Date().toISOString().split("T")[0],
-      updatedAt: new Date().toISOString().split("T")[0],
-    });
-  };
+  const debouncedHandleAddNotification = useMemo(() =>
+    _.debounce(async () => {
+      setIsEditorOpen(true);
+      setIsEditing(false);
+      setNewNotification({
+        title: "",
+        content: "",
+        createdAt: new Date().toISOString().split("T")[0],
+        updatedAt: new Date().toISOString().split("T")[0],
+      });
+    }, 400)
+  );
 
   const handleSaveNotification = async (title, content) => {
     const response = await registNotification(title, content);
     if (response === 200) {
-      toast.success("공지 등록 성공");
+      toast.success("공지 등록 성공", {
+        toastId: "addNotification",
+      });
       fetchNoticeData();
     } else {
-      toast.error("공지 등록 실패");
+      toast.error("공지 등록 실패", {
+        toastId: "addNotification",
+      });
     }
     setIsEditorOpen(false);
     setNewNotification({
@@ -55,14 +62,25 @@ const ManageNotification = () => {
       updatedAt: new Date().toISOString().split("T")[0],
     });
   };
+
+  const debouncedHandleSaveNotification = useCallback(
+    _.debounce((title, content) => {
+      handleSaveNotification(title, content);
+    }, 500),
+    []
+  );
 
   const handleEditNotification = async (noticeId, title, content) => {
     const response = await modifyNotice(noticeId, title, content);
     if (response === 200) {
-      toast.success("공지 수정 성공");
+      toast.success("공지 수정 성공", {
+        toastId: "editNotification",
+      });
       fetchNoticeData();
     } else {
-      toast.error("공지 수정 실패");
+      toast.error("공지 수정 실패", {
+        toastId: "editNotification",
+      });
     }
     setIsEditorOpen(false);
     setNewNotification({
@@ -73,13 +91,61 @@ const ManageNotification = () => {
     });
   };
 
+  const debouncedHandleEditNotification = useCallback(
+    _.debounce((noticeId, title, content) => {
+      handleEditNotification(noticeId, title, content);
+    }, 500),
+    []
+  );
+
   const handleDeleteNotification = async (noticeId) => {
     const response = await deleteNotification(noticeId);
     if (response === 200) {
-      toast.success("삭제 성공");
+      toast.success("삭제 성공", {
+        toastId: "deleteNotification",
+      });
+      setTimeout(() => {
+        setLoading(false);
+      }, 50);
       fetchNoticeData();
     } else {
-      toast.error("공지 삭제 실패");
+      toast.error("공지 삭제 실패", {
+        toastId: "deleteNotification",
+      });
+      setTimeout(() => {
+        setLoading(false);
+      }, 50);
+    }
+  };
+
+  const debouncedHandleDeleteNotification = useCallback(
+    _.debounce((noticeId) => {
+      handleDeleteNotification(noticeId);
+    }, 500),
+    []
+  );
+
+  const handleUTC = (time) => {
+    const date = new Date(time);
+    const kor = date.getHours() + 9;
+    date.setHours(kor);
+
+    return date;
+  };
+
+  const checkContentMaxLength = (e) => {
+    if (e.target.value.length === 15000) {
+      toast.warn("공지내용은 15,000자를 초과할 수 없습니다.", {
+        toastId: "content-max-length",
+      });
+    }
+  };
+
+  const checkTitleMaxLength = (e) => {
+    if (e.target.value.length === 50) {
+      toast.warn("공지제목은 50자를 초과할 수 없습니다", {
+        toastId: "title-max-length",
+      });
     }
   };
 
@@ -93,8 +159,8 @@ const ManageNotification = () => {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-gray-800">공지사항 관리</h1>
         <button
-          onClick={handleAddNotification}
-          className="bg-[#bc5b39] text-white px-4 py-2 rounded-lg hover:bg-[#a34b2b] transition-colors duration-200"
+          onClick={debouncedHandleAddNotification}
+          className="bg-[#bc5b39] text-white px-4 py-2 rounded-lg hover:bg-[#a34b2b] transition-colors duration-200 cursor-pointer"
         >
           + 공지사항 등록
         </button>
@@ -113,12 +179,14 @@ const ManageNotification = () => {
               <input
                 type="text"
                 value={newNotification.title}
-                onChange={(e) =>
+                maxLength={50}
+                onChange={(e) => {
                   setNewNotification({
                     ...newNotification,
                     title: e.target.value,
-                  })
-                }
+                  });
+                  checkTitleMaxLength(e);
+                }}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
               />
             </div>
@@ -128,20 +196,22 @@ const ManageNotification = () => {
               </label>
               <textarea
                 value={newNotification.content}
-                onChange={(e) =>
+                maxLength={15000}
+                onChange={(e) => {
                   setNewNotification({
                     ...newNotification,
                     content: e.target.value,
-                  })
-                }
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
+                  });
+                  checkContentMaxLength(e);
+                }}
+                className="resize-none mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
                 style={{ height: "250px" }}
               ></textarea>
             </div>
             <div className="flex justify-end space-x-2">
               <button
                 onClick={() => setIsEditorOpen(false)}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors duration-200"
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors duration-200 cursor-pointer"
               >
                 취소
               </button>
@@ -149,25 +219,25 @@ const ManageNotification = () => {
                 {isEditing ? (
                   <button
                     onClick={() =>
-                      handleEditNotification(
+                      debouncedHandleEditNotification(
                         editId,
                         newNotification.title,
                         newNotification.content
                       )
                     }
-                    className="bg-[#bc5b39] text-white px-4 py-2 rounded-lg hover:bg-[#a34b2b] transition-colors duration-200"
+                    className="bg-[#bc5b39] text-white px-4 py-2 rounded-lg hover:bg-[#a34b2b] transition-colors duration-200 cursor-pointer"
                   >
                     수정
                   </button>
                 ) : (
                   <button
                     onClick={() =>
-                      handleSaveNotification(
+                      debouncedHandleSaveNotification(
                         newNotification.title,
                         newNotification.content
                       )
                     }
-                    className="bg-[#bc5b39] text-white px-4 py-2 rounded-lg hover:bg-[#a34b2b] transition-colors duration-200"
+                    className="bg-[#bc5b39] text-white px-4 py-2 rounded-lg hover:bg-[#a34b2b] transition-colors duration-200 cursor-pointer"
                   >
                     작성
                   </button>
@@ -208,38 +278,49 @@ const ManageNotification = () => {
                   key={notification.id}
                   className="hover:bg-gray-50 transition-colors duration-150"
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-ellipsis overflow-hidden max-w-[20vw]">
                     {notification.title}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(notification.createdAt).toLocaleString()}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-ellipsis">
+                    {handleUTC(notification.createdAt).toLocaleString()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(notification.updatedAt).toLocaleString()}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-ellipsis">
+                    {handleUTC(notification.updatedAt).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                    <button
-                      onClick={() => {
-                        setIsEditorOpen(true);
-                        setIsEditing(true);
-                        setEditId(notification.noticeId);
-                        setNewNotification({
-                          title: notification.title,
-                          content: notification.content,
-                        });
-                      }}
-                      className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150"
-                    >
-                      수정
-                    </button>
-                    <button
-                      onClick={() =>
-                        handleDeleteNotification(notification.noticeId)
-                      }
-                      className="text-red-600 hover:text-red-700 transition-colors duration-150"
-                    >
-                      삭제
-                    </button>
+                    {!loading && !isEditorOpen && (
+                      <div className="gap-2 flex">
+                        <button
+                          onClick={() => {
+                            setIsEditorOpen(true);
+                            setIsEditing(true);
+                            setEditId(notification.noticeId);
+                            setNewNotification({
+                              title: notification.title,
+                              content: notification.content,
+                            });
+                          }}
+                          className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150 cursor-pointer"
+                        >
+                          수정
+                        </button>
+                        <button
+                          onClick={() => {
+                            const deleteConfirm =
+                              confirm("공지를 삭제하시겠습니까?");
+                            if (deleteConfirm) {
+                              setLoading(true);
+                              debouncedHandleDeleteNotification(
+                                notification.noticeId
+                              );
+                            }
+                          }}
+                          className="text-red-600 hover:text-red-700 transition-colors duration-150 cursor-pointer"
+                        >
+                          삭제
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

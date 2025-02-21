@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { Stomp } from "@stomp/stompjs";
 import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
@@ -6,10 +6,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { axiosJsonInstance } from "../../utils/axiosInstance.jsx";
 import ChatStore from "../../store/chatStore.jsx";
-import { Flag, Send } from "lucide-react";
+import { Flag, Send, X } from "lucide-react";
 import { toast } from "react-toastify";
 import ReportModal from "../report.jsx";
 import useReportStore from "../../store/reportStore.jsx";
+import useKeyComposing from "../../hooks/useKeyComposing";
+import useKoreanTime from "../../hooks/useKoreanTime";
 
 const Chat = () => {
   const { isChatVisible, toggleChat } = ChatStore();
@@ -17,7 +19,9 @@ const Chat = () => {
   const navigate = useNavigate();
   const docsId = location.pathname.split("/")[4];
   const token = localStorage.getItem("token");
-  const { openReport, toggleReport } = useReportStore();
+  const { openReport, closeReport, toggleReport } = useReportStore();
+  const { isComposing, keyComposingEvents } = useKeyComposing();
+  const { convertToKoreanTime } = useKoreanTime();
 
   const [userId, setUserId] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -37,71 +41,96 @@ const Chat = () => {
     }
   }, [token]);
 
-  // 웹소켓 연결 (실시간 채팅)
-  const connect = () => {
-    // 이미 연결되어 있다면 재연결 방지
-    if (stompClient.current && stompClient.current.connected) return;
+  const scrollToBottom = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  };
 
-    // socketFactory 내부에서 웹소켓 에러 이벤트를 처리
+  useLayoutEffect(() => {
+    if (!loadingInitialMessages && isChatVisible) {
+      const container = containerRef.current;
+      if (container) {
+        const distanceFromBottom =
+          container.scrollHeight - container.scrollTop - container.clientHeight;
+        if (distanceFromBottom < 50) {
+          setTimeout(() => {
+            scrollToBottom();
+          }, 300);
+        }
+      }
+    }
+  }, [loadingInitialMessages, isChatVisible, messages]);
+
+  const connect = () => {
+    if (stompClient.current && stompClient.current.connected) return;
     const socketFactory = () => {
       const socket = new WebSocket("wss://i12a703.p.ssafy.io/ws-connect");
-
-      // 웹소켓 자체 에러 처리
       socket.onerror = (event) => {
-        console.error("WebSocket Error:", event);
-        toast.error("웹소켓 연결 오류가 발생했습니다.");
+        // console.error("WebSocket Error:", event);
+        toast.error("웹소켓 연결 오류가 발생했습니다.", {
+          toastId: "websocket-error",
+        });
       };
-
       socket.onclose = (event) => {
         console.warn("WebSocket Closed:", event);
-        toast.error("웹소켓 연결이 종료되었습니다.");
+        toast.error("웹소켓 연결이 종료되었습니다.", {
+          toastId: "websocket-closed",
+        });
       };
-
       return socket;
     };
-
-    // STOMP 클라이언트 생성 (웹소켓 에러 핸들러는 위에서 정의됨)
     stompClient.current = Stomp.over(socketFactory);
-
-    // 연결 시 인증 헤더 전송
+    stompClient.current.debug = () => {};
     stompClient.current.connect(
       { Authorization: `Bearer ${token}` },
-      (frame) => {
-        console.log("STOMP Connected:", frame);
-
-        // 채팅 메시지 구독
+      () => {
         stompClient.current.subscribe(`/sub/chats/${docsId}`, (message) => {
           const newMessage = JSON.parse(message.body);
+          const container = containerRef.current;
           setMessages((prev) => [...prev, newMessage]);
+          if (newMessage.userId === userId) {
+            setTimeout(() => {
+              scrollToBottom();
+            }, 300);
+          } else if (
+            container &&
+            container.scrollHeight -
+              container.scrollTop -
+              container.clientHeight <
+              50
+          ) {
+            setTimeout(() => {
+              scrollToBottom();
+            }, 300);
+          }
         });
-
-        // STOMP 에러 구독 (구독 채널을 통해 전달되는 에러)
         stompClient.current.subscribe("/user/queue/errors", (message) => {
           const errorData = JSON.parse(message.body);
-          console.error("STOMP 구독 에러:", errorData);
-          toast.error(`${errorData.errorType}: ${errorData.message}`);
+          // console.error("STOMP 구독 에러:", errorData);
+          toast.error(`${errorData.errorType}: ${errorData.message}`, {
+            toastId: "stomp-error",
+          });
         });
       },
       (error) => {
-        console.error("STOMP Error:", error);
-        // error.headers.message가 없을 수도 있으므로 fallback 메시지 처리
+        // console.error("STOMP Error:", error);
         const errorMessage =
           (error && error.headers && error.headers.message) ||
           "알 수 없는 STOMP 오류가 발생했습니다.";
-        toast.error(errorMessage);
+        toast.error(errorMessage, {
+          toastId: "stomp-error",
+        });
       }
     );
   };
 
   const disconnect = () => {
     if (stompClient.current && stompClient.current.connected) {
-      stompClient.current.disconnect(() =>
-        console.log("WebSocket disconnected")
-      );
+      stompClient.current.disconnect();
     }
   };
 
-  // 초기 메시지 로드 (페이지 0, size 50)
   const loadInitialMessages = async () => {
     setLoadingInitialMessages(true);
     try {
@@ -112,23 +141,15 @@ const Chat = () => {
       const initialMessages = content.reverse();
       setMessages(initialMessages);
       setCurrentPage(0);
-      setHasMore(!last && initialMessages.length > 0); // last가 false면 더 불러올 메시지가 있음
-
-      // 스크롤을 맨 아래로 이동
-      setTimeout(() => {
-        if (containerRef.current) {
-          containerRef.current.scrollTop = containerRef.current.scrollHeight;
-        }
-      }, 0);
+      setHasMore(!last && initialMessages.length > 0);
     } catch (error) {
-      console.error("Error loading initial messages:", error);
+      // console.error("Error loading initial messages:", error);
     }
     setLoadingInitialMessages(false);
   };
 
-  // 이전 채팅 더 불러오기 (다음 페이지 불러오기)
   const loadPreviousMessages = async () => {
-    if (!hasMore) return; // 더 불러올 메시지가 없으면 종료
+    if (!hasMore) return;
     const container = containerRef.current;
     const prevScrollHeight = container.scrollHeight;
     const prevScrollTop = container.scrollTop;
@@ -148,26 +169,35 @@ const Chat = () => {
           prevScrollTop + (newScrollHeight - prevScrollHeight);
       }, 0);
     } catch (error) {
-      console.error("Error loading previous messages:", error);
+      // console.error("Error loading previous messages:", error);
     }
   };
 
   const handleInputChange = (event) => {
-    if (event.target.value.length <= 255) {
+    if (event.target.value.length <= 200) {
       setInputValue(event.target.value);
+    } else {
+      toast.warn("200자 이상의 메세지는 보낼 수 없습니다.", {
+        toastId: "message-length-warning",
+      });
     }
   };
 
   const handleKeyDown = (event) => {
-    if (event.key === "Enter") sendMessage();
+    if (event.key === "Enter" && !isComposing) {
+      event.preventDefault();
+      sendMessage();
+    }
   };
 
   const sendMessage = () => {
     if (inputValue.length > 200) {
-      toast.error("200자 이상 메세지는 보낼 수 없습니다.");
+      toast.warn("200자 이상의 메세지는 보낼 수 없습니다.", {
+        toastId: "message-length-warning",
+      });
       return;
     }
-    if (stompClient.current?.connected && inputValue) {
+    if (stompClient.current?.connected && inputValue.trim() !== "") {
       const body = { docsId, content: inputValue };
       stompClient.current.send(
         `/pub/chats/${docsId}`,
@@ -176,163 +206,187 @@ const Chat = () => {
       );
       setInputValue("");
       setTimeout(() => {
-        if (containerRef.current) {
-          containerRef.current.scrollTop = containerRef.current.scrollHeight;
-        }
-      }, 100);
+        scrollToBottom();
+      }, 300);
     }
   };
 
   useEffect(() => {
+    if (!isChatVisible) {
+      closeReport();
+    }
+  }, [isChatVisible, closeReport]);
+
+  useEffect(() => {
+    // docsId가 변경될 때마다 기존 연결을 해제하고 상태를 초기화합니다.
+    disconnect();
+    setMessages([]);
+    setCurrentPage(0);
+    setHasMore(false);
+
+    // 새로운 docsId에 맞게 연결을 재설정하고 초기 메시지를 로드합니다.
     connect();
     loadInitialMessages();
+
+    // 컴포넌트 언마운트 혹은 docsId 변경 시 연결 해제
     return () => disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [docsId]);
 
   return (
-    <AnimatePresence>
-      {isChatVisible && (
-        <motion.div
-          key="chat-modal"
-          initial={{ opacity: 0, y: 1000 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 1000 }}
-          transition={{
-            ease: "easeInOut",
-            duration: 0.5,
-          }}
-          className="fixed bottom-22 right-5 w-[400px] h-[600px] bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col z-[2600] -translate-x-[12.5%] translate-y-[16%]"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <ReportModal />
-          <div className="p-4 bg-[#C96442] rounded-t-xl text-white font-semibold flex items-center justify-between">
-            <span>문서 채팅</span>
-            <button
-              onClick={() => {
-                ChatStore.setState({
-                  isChatVisible: false,
-                });
-              }}
-              className="cursor-pointer"
-            >
-              &times;
-            </button>
-          </div>
-
-          <div
-            ref={containerRef}
-            className="flex-1 overflow-y-auto p-4 space-y-4"
-          >
-            {!loadingInitialMessages && (
-              <div className="text-center mb-2">
-                {hasMore && messages.length > 0 ? (
+    <div>
+      {localStorage.getItem("token") && (
+        <div className="fixed z-[2600] right-1 flex">
+          <AnimatePresence>
+            {isChatVisible && (
+              <motion.div
+                key="chatbot-modal"
+                initial={{ opacity: 0, y: 1000 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 1000 }}
+                onAnimationComplete={scrollToBottom}
+                transition={{ ease: "easeInOut", duration: 0.5 }}
+                // className="fixed inset-0 sm:inset-auto sm:bottom-35 sm:right-3.5 w-full h-full sm:w-[400px] sm:h-[95vh] bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col z-[2600] sm:-translate-x-[12.5%] sm:translate-y-[16%]"
+                className="fixed inset-0 sm:inset-auto sm:bottom-[9vh] sm:right-[1vw] w-full h-full sm:w-[400px] sm:h-[95vh] bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col z-[2600] sm:-translate-x-[12.5%] sm:translate-y-[8%]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ReportModal />
+                <div className="p-2 bg-[#C96442] rounded-t-xl text-white font-semibold flex items-center justify-between">
+                  <span>문서 채팅</span>
                   <button
-                    onClick={loadPreviousMessages}
-                    className="px-3 py-1 text-gray-400 underline rounded hover:text-gray-800"
+                    onClick={() => {
+                      ChatStore.setState({ isChatVisible: false });
+                      closeReport();
+                    }}
+                    className="cursor-pointer"
                   >
-                    이전 채팅 더 불러오기
+                    <X className="h-8 w-8 text-white" />
                   </button>
-                ) : (
-                  messages.length > 0 && (
-                    <span className="text-xs text-gray-500">
-                      더 이상 불러올 메세지가 없습니다.
-                    </span>
-                  )
-                )}
-              </div>
-            )}
+                </div>
 
-            {loadingInitialMessages ? (
-              <div className="text-center text-gray-500">
-                메시지를 불러오는 중...
-              </div>
-            ) : messages.length === 0 ? (
-              <div className="text-center text-gray-500">
-                메시지가 없습니다.
-              </div>
-            ) : (
-              messages.map((item, index) => (
                 <div
-                  key={index}
-                  className={`flex ${
-                    item.userId === userId ? "justify-end" : "justify-start"
-                  }`}
+                  ref={containerRef}
+                  className="flex-1 overflow-y-auto p-2 space-y-2"
                 >
-                  {item.userId !== userId && (
-                    <img
-                      src={item.profileImg}
-                      alt="Profile"
-                      className="w-10 h-10 rounded-full border border-[#c5afa7] cursor-pointer mr-2"
-                      onClick={() => {
-                        toggleChat();
-                        setTimeout(() => {
-                          navigate(`/userPage/${item.userId}`);
-                        }, 300);
-                      }}
-                    />
-                  )}
-                  <div className="max-w-[70%]">
-                    {item.userId !== userId && (
-                      <p className="text-xs font-semibold mb-1">
-                        {item.nickName}
-                      </p>
-                    )}
-                    <div
-                      className={`p-3 rounded-lg ${
-                        item.userId === userId
-                          ? "bg-[#bc5b39] text-white"
-                          : "bg-gray-100"
-                      }`}
-                    >
-                      <p className="text-sm">{item.content}</p>
-                      {item.userId !== userId && (
+                  {!loadingInitialMessages && (
+                    <div className="text-center mb-2">
+                      {hasMore && messages.length > 0 ? (
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            useReportStore.setState({
-                              originContent: item.content,
-                              reportedUser: item.userId,
-                              commentId: null,
-                              articleId: null,
-                              transId: null,
-                              chatId: item.chatId,
-                            });
-                            openReport();
-                            toggleReport();
-                          }}
-                          className="text-xs text-red-500 flex items-center gap-1 mt-1 cursor-pointer hover:underline"
+                          onClick={loadPreviousMessages}
+                          className="px-2 py-1 text-gray-400 underline rounded hover:text-gray-800"
                         >
-                          <Flag size={10} /> 신고
+                          이전 채팅 더 불러오기
                         </button>
+                      ) : (
+                        messages.length > 0 && (
+                          <span className="text-xs text-gray-500">
+                            더 이상 불러올 메세지가 없습니다.
+                          </span>
+                        )
                       )}
                     </div>
-                  </div>
-                </div>
-              ))
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+                  )}
 
-          <div className="p-4 border-t border-gray-200 flex gap-2">
-            <input
-              type="text"
-              value={inputValue}
-              onChange={handleInputChange}
-              onKeyDown={handleKeyDown}
-              className="flex-1 px-4 py-2 border rounded-full focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39]"
-              placeholder="메시지를 입력하세요..."
-            />
-            <button
-              onClick={sendMessage}
-              className="px-3 py-3 bg-[#bc5b39] text-white rounded-full hover:bg-[#C96442] cursor-pointer"
-            >
-              <Send />
-            </button>
-          </div>
-        </motion.div>
+                  {loadingInitialMessages ? (
+                    <div className="text-center text-gray-500">
+                      메시지를 불러오는 중...
+                    </div>
+                  ) : messages.length === 0 ? (
+                    <div className="text-center text-gray-500">
+                      메시지가 없습니다.
+                    </div>
+                  ) : (
+                    messages.map((item, index) =>
+                      item.userId !== userId ? (
+                        <div key={index} className="flex flex-col items-start">
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={item.profileImg}
+                              alt="Profile"
+                              className="w-8 h-8 rounded-full border border-[#c5afa7] cursor-pointer"
+                              onClick={() => {
+                                toggleChat();
+                                setTimeout(() => {
+                                  navigate(`/userPage/${item.userId}`);
+                                }, 300);
+                              }}
+                            />
+                            <p className="text-xs font-semibold">
+                              {item.nickName}
+                            </p>
+                          </div>
+                          <div className="mt-1 ml-10 p-2 rounded-lg bg-gray-100 text-gray-800 max-w-[280px]">
+                            <p className="text-sm break-all break-words overflow-wrap">
+                              {item.content}
+                            </p>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                useReportStore.setState({
+                                  originContent: item.content,
+                                  reportedUser: item.userId,
+                                  commentId: null,
+                                  articleId: null,
+                                  transId: null,
+                                  chatId: item.chatId,
+                                });
+                                openReport();
+                                toggleReport();
+                              }}
+                              className="mt-1 text-xs text-red-500 flex items-center gap-1 cursor-pointer hover:underline"
+                            >
+                              <Flag size={10} /> 신고
+                            </button>
+                          </div>
+                          <div className="ml-10 mt-1">
+                            <span className="text-xs text-gray-500">
+                              {convertToKoreanTime(item.createdAt) ||
+                                "표시할 수 없는 날짜입니다."}
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        // 본인 메시지
+                        <div key={index} className="flex flex-col items-end">
+                          <div className="mt-1 p-2 rounded-lg bg-[#bc5b39] text-white max-w-[280px]">
+                            <p className="text-sm break-all break-words overflow-wrap">
+                              {item.content}
+                            </p>
+                          </div>
+                          <div className="mt-1">
+                            <span className="text-xs text-gray-500">
+                              {convertToKoreanTime(item.createdAt) ||
+                                "표시할 수 없는 날짜입니다."}
+                            </span>
+                          </div>
+                        </div>
+                      )
+                    )
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+                <div className="p-2 border-t border-gray-200 flex flex-row gap-2">
+                  <input
+                    type="text"
+                    value={inputValue}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    {...keyComposingEvents}
+                    className="flex-1 w-full px-3 py-2 border rounded-full focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39]"
+                    placeholder="메시지를 입력하세요..."
+                  />
+                  <button
+                    onClick={sendMessage}
+                    className="sm:w-auto px-3 py-2 bg-[#bc5b39] text-white rounded-full hover:bg-[#C96442] cursor-pointer"
+                  >
+                    <Send />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       )}
-    </AnimatePresence>
+    </div>
   );
 };
 

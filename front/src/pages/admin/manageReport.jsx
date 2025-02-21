@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   fetchReportList,
   fetchUserList,
@@ -8,9 +8,11 @@ import { MoveRight, Download } from "lucide-react";
 import useUserManagerStore from "../../store/adminStore/userManagerStore";
 import ToastViewer from "../../pages/translate/components/toastViewer";
 import { toast } from "react-toastify";
+import _ from "lodash";
 
 const ManageReport = () => {
   const reportListData = useRef([]);
+  const activeFilterRef = useRef("all");
   const [reportStates, setReportStates] = useState({});
   const [userList, setUserList] = useState([]);
   const [reportList, setReportList] = useState([]);
@@ -44,16 +46,24 @@ const ManageReport = () => {
     }
   };
 
-  const handleReportStatus = async (reportId) => {
-    const response = await withdrawReport(reportId);
-    if (response === 200) {
-      toast.success("신고 철회 완료");
-    } else {
-      toast.error("공개 처리 실패");
-    }
-    const data = await fetchReportList();
-    setReportList(data);
-  };
+  const handleReportStatus = useCallback(
+    _.debounce(async (reportId) => {
+      const response = await withdrawReport(reportId);
+      if (response === 200) {
+        toast.success("신고 철회 완료", {
+          toastId: "withdrawSuccess",
+        });
+      }
+      // else {
+      //   toast.error("공개 처리 실패", {
+      //     toastId: "withdrawFail",
+      //   });
+      // }
+      reportListData.current = await fetchReportList();
+      handleFilter(activeFilterRef.current);
+    }, 500),
+    []
+  );
 
   const processUserList = (userListContent) => {
     userListContent.forEach((user) => {
@@ -73,6 +83,30 @@ const ManageReport = () => {
     }));
   };
 
+  // const handleSearch = async (e) => {
+  //   const searchKeyword = e.target.value;
+  //   if (!searchKeyword) {
+  //     const data = await fetchReportList();
+  //     data.sort((a, b) => b.reportCount - a.reportCount);
+  //     setReportList(data);
+  //     return;
+  //   } else {
+  //     const filteredList = reportList.filter(
+  //       (item) =>
+  //         item.title.includes(searchKeyword.toLowerCase()) ||
+  //         item.nickname.includes(searchKeyword.toLowerCase())
+  //     );
+  //     setUserList(filteredList);
+  //   }
+  // };
+
+  const handleUTC = (time) => {
+    const date = new Date(time);
+    const kor = date.getHours() + 9;
+    date.setHours(kor);
+    return date;
+  };
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -81,7 +115,7 @@ const ManageReport = () => {
         setUserList(data);
         processUserList(data);
       } catch (error) {
-        console.error("Error fetching users:", error);
+        // console.error("Error fetching users:", error);
       }
     };
 
@@ -94,6 +128,10 @@ const ManageReport = () => {
     fetchUsers();
     fetchData();
   }, []);
+
+  useEffect(() => {
+    activeFilterRef.current = activeFilter;
+  }, [activeFilter]);
 
   const filterButtons = [
     { label: "전체", value: "all" },
@@ -108,26 +146,6 @@ const ManageReport = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-gray-800">신고 관리</h1>
-        <div className="relative w-64">
-          <input
-            type="text"
-            placeholder="이메일로 검색"
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#bc5b39] focus:ring-1 focus:ring-[#bc5b39] transition-colors duration-200"
-          />
-          <svg
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-        </div>
       </div>
 
       {/* Filter Buttons */}
@@ -138,6 +156,7 @@ const ManageReport = () => {
             onClick={() => {
               handleFilter(button.value);
               setActiveFilter(button.value);
+              console.log(activeFilter);
             }}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer duration-200 ${
               activeFilter === button.value
@@ -181,28 +200,24 @@ const ManageReport = () => {
                     key={report.reportId}
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log(report.content);
                       toggleReportContent(report.reportId);
                     }}
                     className="hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-[200px] overflow-hidden text-ellipsis">
                       {report.category}
                     </td>
-                    <td className="flex gap-1 px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="flex gap-1 px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-[300px] overflow-hidden text-ellipsis">
                       {currentUserList[report.userId]} <MoveRight />{" "}
                       {currentUserList[report.reportedUser]}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(
-                        new Date(report.createdAt).toISOString()
-                      ).toLocaleString()}
+                      {handleUTC(report.createdAt).toLocaleString()}
                     </td>
                     <td className="px-3 py-4 whitespace-nowrap w-28 flex items-center gap-2">
                       <span
                         onClick={(e) => {
                           e.stopPropagation();
-                          console.log(report.reportId);
                           handleReportStatus(report.reportId);
                         }}
                         className={`px-3 py-1 text-xs font-medium rounded-full ${
@@ -215,14 +230,18 @@ const ManageReport = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <button className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150 cursor-pointer">
-                        <a
-                          onClick={(e) => e.stopPropagation()}
-                          download={report.reportFile}
-                        >
-                          <Download />
-                        </a>
-                      </button>
+                      {report.reportFile && (
+                        <button className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150 cursor-pointer">
+                          <a
+                            onClick={(e) => e.stopPropagation()}
+                            href={report.reportFile}
+                            download="신고이미지"
+                            target="_blank"
+                          >
+                            <Download />
+                          </a>
+                        </button>
+                      )}
                     </td>
                   </tr>
                   <tr>
@@ -234,17 +253,17 @@ const ManageReport = () => {
                             : "max-h-0 opacity-0"
                         }`}
                       >
-                        <div className="border-t border-slate-200 p-4 text-slate-700 leading-relaxed">
-                          <div className="mb-4">
+                        <div className="border-t border-slate-200 p-4 text-slate-700 leading-relaxed max-h-[45vh] overflow-y-scroll">
+                          <div className="mb-4 max-w-[55vw]">
                             <div className="font-medium text-slate-900 mb-2">
                               원본 내용
                             </div>
-                            <div className="bg-gray-50 rounded-lg p-3">
+                            <div className="bg-gray-50 rounded-lg p-3 max-w-[60vw] overflow-hidden text-ellipsis">
                               <ToastViewer content={report.originContent} />
                             </div>
                           </div>
                           <div>
-                            <div className="font-medium text-slate-900 mb-2">
+                            <div className="font-medium text-slate-900 mb-2 max-w-[60vw] overflow-hidden text-ellipsis">
                               신고 내용
                             </div>
                             <div className="bg-gray-50 rounded-lg p-3">

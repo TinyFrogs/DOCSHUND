@@ -7,7 +7,7 @@ const menuItems = [
   { text: "회원관리", path: "/admin/manageUser" },
   { text: "신고관리", path: "/admin/manageReport" },
   { text: "문의관리", path: "/admin/manageInquiry" },
-  { text: "공지사항 등록", path: "/admin/manageNotification" },
+  { text: "공지사항 관리", path: "/admin/manageNotification" },
   { text: "문서관리", path: "/admin/manageDocs" },
 ];
 
@@ -43,7 +43,11 @@ const AdminSideBar = () => {
             </button>
           ))}
         </nav>
-        <div className="flex justify-center align-center">
+        <div className="flex flex-col mt-[2vh] gap-3 justify-center align-center">
+          <RoundCornerBtn
+            onClick={() => navigate("/myPage")}
+            text="마이페이지"
+          />
           <RoundCornerBtn onClick={() => logout()} text="로그아웃" />
         </div>
       </div>

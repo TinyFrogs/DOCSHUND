@@ -1,19 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { jwtDecode } from "jwt-decode";
 import MemoList from "../components/MemoList";
-import EditorModal from "../components/EditorModal";
+import MemoModal from "../components/MemoModal";
 import modalStore from "../../../store/myPageStore/myPageModalStore";
 import useMemoStore from "../../../store/myPageStore/memoStore";
 import memoService from "../services/memoService";
 import ListPagination from "../../../components/pagination/listPagination";
 import ConfirmModal from "../../../components/alertModal/confirmModal";
 import useAlertStore from "../../../store/alertStore";
+// lodash debounce 제거 (또는 꼭 필요하면 옵션 변경 후 useCallback 사용)
 
 const MemoPage = () => {
   const token = localStorage.getItem("token");
 
   const { isOpen, openId, openModal, closeModal, setOpenId } = modalStore();
-  const { isAlertOpen, toggleAlert } = useAlertStore();
+  const { isAlertOpen, toggleAlert, resetAlert } = useAlertStore();
   const { memos, setMemos, setIsLoading, setError, updateMemo, deleteMemo } =
     useMemoStore();
   const [userId, setUserId] = useState(null);
@@ -25,18 +26,21 @@ const MemoPage = () => {
   const pageSize = 15;
 
   useEffect(() => {
+    closeModal();
+    resetAlert();
+  }, []);
+
+  useEffect(() => {
     const fetchMemos = async (userId) => {
       try {
         const data = await memoService.fetchMemos(userId);
         if (data) {
           setMemos(data.reverse());
-          console.log("Fetched memos:", data);
         } else {
           setMemos([]);
         }
       } catch (error) {
         setError(error.message);
-        console.error("Error fetching memos:", error);
       } finally {
         setHasFetched(true);
       }
@@ -64,60 +68,61 @@ const MemoPage = () => {
     }
   }, [memos, currentPage, pageSize]);
 
-  const handleCreateMemo = async (memoData) => {
-    if (userId) {
-      try {
-        await memoService.createMemo(userId, memoData);
-        const data = await memoService.fetchMemos(userId);
-        if (data) {
-          setMemos(data.reverse());
-        } else {
-          setMemos([]);
-        }
-        closeModal();
-      } catch (error) {
-        console.error("Error creating memo:", error);
-      }
-    }
-  };
+  // debounce 제거한 삭제 함수
+  const handleDeleteMemo = useCallback(
+    (memoId) => {
+      setMemoToDelete(memoId);
+      toggleAlert();
+    },
+    [toggleAlert]
+  );
 
-  const handleEditMemo = async (memoId, memoData) => {
-    if (userId) {
-      try {
-        await memoService.updateMemo(userId, memoId, memoData);
-        const data = await memoService.fetchMemos(userId);
-        if (data) {
-          setMemos(data.reverse());
-        } else {
-          setMemos([]);
-        }
-        closeModal();
-      } catch (error) {
-        console.error("Error updating memo:", error);
-      }
-    }
-  };
-
-  const handleDeleteMemo = async (memoId) => {
-    setMemoToDelete(memoId);
-    toggleAlert();
-  };
-
-  const confirmDeleteMemo = async () => {
+  const confirmDeleteMemo = useCallback(async () => {
     if (userId && memoToDelete) {
       try {
         await memoService.deleteMemo(userId, memoToDelete);
         deleteMemo(memoToDelete);
-        console.log("Deleted memo with ID:", memoToDelete);
       } catch (error) {
-        console.error("Error deleting memo:", error);
+        // 오류 처리
       } finally {
         setMemoToDelete(null);
         closeModal();
         toggleAlert();
       }
     }
-  };
+  }, [userId, memoToDelete, closeModal, toggleAlert, deleteMemo]);
+
+  const handleCreateMemo = useCallback(
+    async (memoData) => {
+      if (userId) {
+        try {
+          await memoService.createMemo(userId, memoData);
+          const data = await memoService.fetchMemos(userId);
+          setMemos(data ? data.reverse() : []);
+          closeModal();
+        } catch (error) {
+          // 오류 처리
+        }
+      }
+    },
+    [userId, setMemos, closeModal]
+  );
+
+  const handleEditMemo = useCallback(
+    async (memoId, memoData) => {
+      if (userId) {
+        try {
+          await memoService.updateMemo(userId, memoId, memoData);
+          const data = await memoService.fetchMemos(userId);
+          setMemos(data ? data.reverse() : []);
+          closeModal();
+        } catch (error) {
+          // 오류 처리
+        }
+      }
+    },
+    [userId, setMemos, closeModal]
+  );
 
   const handleOpenModal = async (memoId) => {
     if (memoId) {
@@ -125,15 +130,13 @@ const MemoPage = () => {
         const detailedMemo = await memoService.fetchMemo(userId, memoId);
         if (detailedMemo) {
           updateMemo(memoId, detailedMemo);
-          console.log("Fetched detailed memo:", detailedMemo);
         }
       } catch (error) {
-        console.error("Error fetching detailed memo:", error);
+        // 오류 처리
       }
     }
     setOpenId(memoId);
     openModal();
-    console.log("Opening modal with memoId:", memoId);
   };
 
   return (
@@ -142,7 +145,7 @@ const MemoPage = () => {
         <h1 className="font-bold text-2xl">메모장</h1>
         <button
           onClick={() => handleOpenModal(null)}
-          className="border-box bg-[#bc5b39] rounded-[12px] px-[20px] w-fit h-10 text-[#ffffff] hover:bg-[#C96442]"
+          className="border-box bg-[#bc5b39] rounded-[12px] px-[20px] w-fit h-10 text-[#ffffff] hover:bg-[#C96442] cursor-pointer"
         >
           + 새메모
         </button>
@@ -160,7 +163,7 @@ const MemoPage = () => {
           setCurrentPage={setCurrentPage}
         />
       )}
-      <EditorModal
+      <MemoModal
         title={openId ? "메모 수정" : "새 메모"}
         buttonText={openId ? "수정 완료" : "완료"}
         isOpen={isOpen}
@@ -171,7 +174,7 @@ const MemoPage = () => {
       />
       {isAlertOpen && (
         <ConfirmModal
-          message="정말로 메모를 삭제하시겠습니까?"
+          message={{ title: "정말로 메모를 삭제하시겠습니까?" }}
           onConfirm={confirmDeleteMemo}
           onCancel={toggleAlert}
         />
