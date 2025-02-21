@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import { toast } from "react-toastify";
 import {
   axiosJsonInstance,
   axiosMultipartInstance,
@@ -10,14 +11,12 @@ const ArticleItemService = {
     try {
       // axios 헤더 json에 token을 담아주는 객체를 사용하여 서버에 GET 요청
       const response = await axiosJsonInstance.get(`forums/${articleId}`);
-      const data = response.data;
 
-      console.log("fetchArticleItem", articleId, data);
+      const data = response.data;
 
       // 가져온 데이터를 반환
       return data;
     } catch (error) {
-      //TODO: error handling -> 에러 페이지 제작후 연결까지 구현
       console.log(error);
       return error;
     }
@@ -30,7 +29,6 @@ const ArticleItemService = {
 
       return response;
     } catch (error) {
-      // TODO: error handling -> 에러 페이지 제작후 연결까지 구현
       console.log(error);
       return error;
     }
@@ -63,15 +61,18 @@ const ArticleItemService = {
 
       return response;
     } catch (error) {
-      console.log(error);
-      return error;
+      console.error("파일 업로드 실패");
+      // 사용자 피드백 (UI)
+      toast.warn("이미지 형식이 아닙니다.", {
+        toastId: "uploadFail",
+      });
+      return Promise.reject({ message: "Upload failed" }); // 상세정보 제거
     }
   },
 
   // 게시글 작성 요청 함수
   async postArticleItem(title, category, content) {
     try {
-      console.log(title, category, content);
       const response = await axiosJsonInstance.post("/forums", {
         title,
         category,

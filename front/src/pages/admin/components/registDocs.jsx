@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { registDocument } from "../services/adminPostService";
+import { fetchDocsList } from "../../translate/services/translateGetService";
 import { toast } from "react-toastify";
 
 const RegistDocs = ({ open, onClose }) => {
@@ -25,6 +26,16 @@ const RegistDocs = ({ open, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (
+      formData.position === "" ||
+      formData.position === null ||
+      formData.position === undefined
+    ) {
+      toast.warn("포지션을 선택해주세요.", {
+        toastId: "selectPosition",
+      });
+      return;
+    }
     const documentData = {
       documentCategory: formData.documentCategory,
       documentName: formData.documentName,
@@ -36,10 +47,24 @@ const RegistDocs = ({ open, onClose }) => {
     };
     const status = await registDocument(documentData);
     if (status === 200) {
-      toast.success("문서 등록 성공");
+      toast.success("문서 등록 성공", {
+        toastId: "registDocs",
+      });
+
+      // await fetchDocsList();
+      window.location.reload();
       onClose();
     } else {
-      toast.error("문서 등록 실패");
+      toast.error("문서 등록 실패", {
+        toastId: "registDocs",
+      });
+      formData.documentCategory = "";
+      formData.documentName = "";
+      formData.documentVersion = "";
+      formData.documentLink = "";
+      formData.documentLogo = "";
+      formData.license = "";
+      formData.position = "";
     }
   };
 
@@ -69,6 +94,8 @@ const RegistDocs = ({ open, onClose }) => {
                 name="documentCategory"
                 value={formData.documentCategory}
                 onChange={handleChange}
+                maxLength={30}
+                required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
@@ -81,6 +108,8 @@ const RegistDocs = ({ open, onClose }) => {
                 name="documentName"
                 value={formData.documentName}
                 onChange={handleChange}
+                maxLength={30}
+                required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
@@ -96,6 +125,8 @@ const RegistDocs = ({ open, onClose }) => {
                 name="documentVersion"
                 value={formData.documentVersion}
                 onChange={handleChange}
+                maxLength={20}
+                required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
@@ -108,6 +139,8 @@ const RegistDocs = ({ open, onClose }) => {
                 name="license"
                 value={formData.license}
                 onChange={handleChange}
+                maxLength={20}
+                required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
@@ -117,13 +150,25 @@ const RegistDocs = ({ open, onClose }) => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 포지션
               </label>
-              <input
+              {/* <input
                 type="text"
                 name="position"
                 value={formData.position}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
+              /> */}
+              <select
+                name="position"
+                value={formData.position}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="">포지션을 선택해주세요</option>
+                <option value="FRONTEND">FRONTEND</option>
+                <option value="BACKEND">BACKEND</option>
+                <option value="DEVOPS">DEVOPS</option>
+                <option value="DBSQL">DBSQL</option>
+              </select>
             </div>
           </div>
 
@@ -136,6 +181,7 @@ const RegistDocs = ({ open, onClose }) => {
               name="documentLogo"
               value={formData.documentLogo}
               onChange={handleChange}
+              maxLength={200}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
@@ -149,6 +195,7 @@ const RegistDocs = ({ open, onClose }) => {
               name="documentLink"
               value={formData.documentLink}
               onChange={handleChange}
+              maxLength={200}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>

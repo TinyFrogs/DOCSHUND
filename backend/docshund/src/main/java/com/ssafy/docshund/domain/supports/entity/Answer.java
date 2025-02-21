@@ -28,7 +28,7 @@ public class Answer extends BaseTimeEntity {
 	@JoinColumn(name = "inquiry_id", referencedColumnName = "inquiry_id")
 	private Inquiry inquiry;  // 문의와 1:1 관계 설정 (inquiry 테이블과 연결)
 
-	@Column(name = "content", nullable = false)
+	@Column(name = "content", nullable = false, columnDefinition = "TEXT")
 	private String content;  // 답변 내용
 
 	public static Answer createAnswer(AnswerRequestDto answerRequestDto, Inquiry inquiry) {

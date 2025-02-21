@@ -8,6 +8,7 @@ import useUserManagerStore from "../../store/adminStore/userManagerStore";
 import ToastViewer from "../../pages/translate/components/toastViewer";
 import { toast } from "react-toastify";
 import LodingImage from "../../assets/loading.gif";
+import _ from "lodash";
 
 const ManageInquiry = () => {
   const inquiryListData = useRef([]);
@@ -16,7 +17,7 @@ const ManageInquiry = () => {
   const [inquiryStates, setInquiryStates] = useState({});
   const [userList, setUserList] = useState([]);
   const [inquiryList, setInquiryList] = useState([]);
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [activeFilter, setActiveFilter] = useState("ALL");
   const { currentUserList, addUserList, removeUserList } =
     useUserManagerStore();
 
@@ -36,6 +37,16 @@ const ManageInquiry = () => {
     } else if (category === "REPORT") {
       const tmpInquiryList = inquiryListData.current.filter(
         (inquiry) => inquiry.inquiryCategory === "REPORT"
+      );
+      setInquiryList(tmpInquiryList);
+    } else if (category === "ANSWERED") {
+      const tmpInquiryList = inquiryListData.current.filter(
+        (inquiry) => inquiry.answered === true
+      );
+      setInquiryList(tmpInquiryList);
+    } else if (category === "NOTANSWERED") {
+      const tmpInquiryList = inquiryListData.current.filter(
+        (inquiry) => inquiry.answered === false
       );
       setInquiryList(tmpInquiryList);
     }
@@ -59,17 +70,53 @@ const ManageInquiry = () => {
     }));
   };
 
-  const handleRespond = async (inquiryId) => {
+  const handleRespond = _.debounce(async (inquiryId) => {
     setLoading(true);
     const data = await respondInquiry(inquiryId, answer);
-    console.log(data);
-    if (data.status === 200) {
+
+    if (data === 200) {
       setLoading(false);
-      toast.success("작성 완료");
+      toast.success("작성 완료", {
+        toastId: "respond",
+      });
+      const data = await fetchInquiryList();
+      const processedData = await data.sort(
+        (a, b) => new Date(b.inquiryCreatedAt) - new Date(a.inquiryCreatedAt)
+      );
+      inquiryListData.current = processedData;
+      await handleFilter(activeFilter);
     } else {
       setLoading(false);
-      toast.error("작성 실패");
+      toast.error("작성 실패", {
+        toastId: "respond",
+      });
     }
+  }, 500); // 500ms delay
+
+  const handleSearch = async (text) => {
+    if (!text) {
+      const data = await fetchInquiryList();
+      setInquiryList(data);
+      return;
+    } else {
+      const data = await fetchInquiryList();
+      const filteredList = data.filter(
+        (item) =>
+          item.inquiryTitle.includes(text.toLowerCase()) ||
+          item.email.includes(text.toLowerCase())
+      );
+      filteredList.sort(
+        (a, b) => new Date(b.inquiryCreatedAt) - new Date(a.inquiryCreatedAt)
+      );
+      setInquiryList(filteredList);
+    }
+  };
+
+  const handleUTC = (time) => {
+    const date = new Date(time);
+    const kor = date.getHours() + 9;
+    date.setHours(kor);
+    return date;
   };
 
   useEffect(() => {
@@ -80,7 +127,7 @@ const ManageInquiry = () => {
         setUserList(data);
         processUserList(data);
       } catch (error) {
-        console.error("Error fetching users:", error);
+        // console.error("Error fetching users:", error);
       }
     };
 
@@ -88,14 +135,14 @@ const ManageInquiry = () => {
       try {
         const data = await fetchInquiryList();
         const processedData = await data.sort(
-          (a, b) => b.inquiryCreatedAt - a.inquiryCreatedAt
+          (a, b) => new Date(b.inquiryCreatedAt) - new Date(a.inquiryCreatedAt)
         );
-        console.log(processedData);
+        await handleFilter(activeFilter);
+
         setInquiryList(processedData);
         inquiryListData.current = processedData;
-        console.log(data);
       } catch (error) {
-        console.error("Error fetching inquiry:", error);
+        // console.error("Error fetching inquiry:", error);
       }
     };
 
@@ -103,22 +150,33 @@ const ManageInquiry = () => {
     fetchInquiryData();
   }, []);
 
+  const checkMaxLength = (e) => {
+    if (e.target.value.length === 2000) {
+      toast.warn("답변 글자 수 2000자를 초과했습니다.", {
+        toastId: "answer-max-length",
+      });
+    }
+  };
+
   const filterButtons = [
     { label: "전체", value: "ALL" },
     { label: "회원 관련", value: "MEMBER" },
     { label: "문서 요청 관련", value: "DOCUMENT_REQUEST" },
     { label: "신고 관련", value: "REPORT" },
+    { label: "답변 완료", value: "ANSWERED" },
+    { label: "답변 대기", value: "NOTANSWERED" },
   ];
 
   return (
     <div className="p-6 max-w-[1200px] mx-auto">
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-800">신고 관리</h1>
+        <h1 className="text-2xl font-bold text-gray-800">문의 관리</h1>
         <div className="relative w-64">
           <input
             type="text"
             placeholder="이메일로 검색"
+            onChange={(e) => handleSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#bc5b39] focus:ring-1 focus:ring-[#bc5b39] transition-colors duration-200"
           />
           <svg
@@ -176,7 +234,7 @@ const ManageInquiry = () => {
                   상태
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  답변일
+                  파일
                 </th>
               </tr>
             </thead>
@@ -187,7 +245,7 @@ const ManageInquiry = () => {
                     key={inquiry.inquiryId}
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log(inquiry.content);
+
                       toggleInquiryContent(inquiry.inquiryId);
                     }}
                     className="hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
@@ -196,19 +254,15 @@ const ManageInquiry = () => {
                       {inquiry.inquiryTitle}
                     </td>
                     <td className="flex gap-1 px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {currentUserList[inquiry.userId]}
+                      {inquiry.email}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(
-                        new Date(inquiry.inquiryCreatedAt).toISOString()
-                      ).toLocaleString()}
+                      {handleUTC(inquiry.inquiryCreatedAt).toLocaleString()}
                     </td>
                     <td className="px-3 py-4 whitespace-nowrap w-28 flex items-center gap-2">
                       <span
                         onClick={(e) => {
                           e.stopPropagation();
-                          console.log(inquiry.inquiryId);
-                          // handleInquiryStatus(inquiry.inquiryId);
                         }}
                         className={`px-3 py-1 text-xs font-medium rounded-full ${
                           inquiry.answered
@@ -220,14 +274,18 @@ const ManageInquiry = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <button className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150 cursor-pointer">
-                        <a
-                          onClick={(e) => e.stopPropagation()}
-                          download={inquiry.inquiryFile}
-                        >
-                          <Download />
-                        </a>
-                      </button>
+                      {inquiry.inquiryImageUrl && (
+                        <button className="text-[#bc5b39] hover:text-[#a34b2b] transition-colors duration-150 cursor-pointer">
+                          <a
+                            onClick={(e) => e.stopPropagation()}
+                            href={inquiry.inquiryImageUrl}
+                            download="문의 이미지"
+                            target="_blank"
+                          >
+                            <Download />
+                          </a>
+                        </button>
+                      )}
                     </td>
                   </tr>
                   <tr>
@@ -239,12 +297,12 @@ const ManageInquiry = () => {
                             : "max-h-0 opacity-0"
                         }`}
                       >
-                        <div className="border-t border-slate-200 p-4 text-slate-700 leading-relaxed">
-                          <div className="mb-4">
+                        <div className="border-t border-slate-200 p-4 text-slate-700 leading-relaxed max-h-[45vh] overflow-y-scroll">
+                          <div className="mb-4 max-w-[55vw]">
                             <div className="font-medium text-slate-900 mb-2">
                               문의 내용
                             </div>
-                            <div className="bg-gray-50 rounded-lg p-3">
+                            <div className="bg-gray-50 rounded-lg p-3 max-w-[60vw] overflow-hidden text-ellipsis">
                               <ToastViewer content={inquiry.inquiryContent} />
                             </div>
                           </div>
@@ -254,21 +312,20 @@ const ManageInquiry = () => {
                             </div>
                             <div className="bg-gray-50 rounded-lg p-3">
                               {inquiry.answerCreatedAt ? (
-                                <textarea
-                                  className="w-full p-2"
-                                  onChange={(e) => setAnswer(e.target.value)}
-                                  value={inquiry.answerContent}
-                                  name=""
-                                  id=""
-                                ></textarea>
+                                <ToastViewer content={inquiry.answerContent} />
                               ) : (
                                 <textarea
-                                  className="w-full p-2"
-                                  onChange={(e) => setAnswer(e.target.value)}
+                                  className="w-full p-2 text-ellipsis break-words break-all resize-none whitespace-pre-wrap"
+                                  rows={5}
+                                  onChange={(e) => {
+                                    setAnswer(e.target.value);
+                                    checkMaxLength(e);
+                                  }}
+                                  maxLength={2000}
                                   placeholder="답변을 입력해주세요."
                                   name=""
                                   id=""
-                                ></textarea>
+                                />
                               )}
                             </div>
 

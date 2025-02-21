@@ -7,10 +7,10 @@ export const changeUserStatus = async (userId, status) => {
       status: status,
     });
     const data = response.status;
-    console.log(data);
+    // console.log(data);
     return data;
   } catch (error) {
-    console.log("유저 상태 변경 실패", error);
+    // console.log("유저 상태 변경 실패", error);
   }
 };
 
@@ -22,9 +22,9 @@ export const modifyNotice = async (noticeId, title, content) => {
       { title, content }
     );
     const data = response.status;
-    console.log(data);
+    // console.log(data);
     return data;
   } catch (error) {
-    console.log("공지사항 수정 실패", error);
+    // console.log("공지사항 수정 실패", error);
   }
 };

@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
+import { ChevronDown, ChevronUp, Layout, Menu as MenuIcon } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import docsStore from "../../../store/translateStore/docsStore";
 import docsCategoryStore from "../../../store/docsCategoryStore";
 import communityArticleStore from "../../../store/communityStore/communityArticleStore";
 import { fetchDocsList } from "../../translate/services/translateGetService";
-
-import ListIcon from "../../../assets/icon/docsList.png";
-import { ChevronDown, ChevronUp, Layout } from "lucide-react";
 
 // TODO: 디자인 수정(패딩, 마진 등)
 
@@ -16,17 +15,25 @@ const CommunityLeftNav = () => {
   const setDocsList = docsStore((state) => state.setDocsList);
 
   // 대분류 목록과 소분류 목록을 가져옴
-  const positions = docsCategoryStore((state) => state.positions); // 대분류 목록
   const setPositions = docsCategoryStore((state) => state.setPositions);
   const category = communityArticleStore((state) => state.category); // 소분류 카테고리(단일)
   const setCategory = communityArticleStore((state) => state.setCategory);
-  const documentNames = docsCategoryStore((state) => state.documentNames); // 소분류 목록
   const setDocumentNames = docsCategoryStore((state) => state.setDocumentNames);
+  const clearArticles = communityArticleStore((state) => state.clearArticles);
 
   // 대분류와 소분류 목록을 저장할 Map
   const [positionMap, setPositionMap] = useState(new Map());
   const [expandedSections, setExpandedSections] = useState({});
   const [navData, setNavData] = useState({});
+
+  // 모바일 토글 상태 및 모바일 여부
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  // collapsed 상태를 반응형 디자인에 사용할 변수 (모바일에서만 적용)
+  const isSidebarCollapsed = isMobile && isCollapsed;
+
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // 섹션 토글 hook
   const toggleSection = (section) => {
@@ -36,36 +43,27 @@ const CommunityLeftNav = () => {
     }));
   };
 
-  // Map에 데이터 추가하는 hook
-  // const handleAddDataToMap = (key, value, mapCategory) => {
-  //   if (key && value) {
-  //     if (mapCategory === "position") {
-  //       if (!positionMap.has(key)) {
-  //         // 새로운 키의 경우 빈 Set으로 초기화
-  //         setPositionMap((prev) => new Map(prev.set(key, new Set([value]))));
-  //       } else {
-  //         // 기존 키의 경우 Set에 값을 추가
-  //         setPositionMap((prev) => {
-  //           const existingSet = prev.get(key);
-  //           existingSet.add(value);
-  //           return new Map(prev.set(key, existingSet));
-  //         });
-  //       }
-  //     }
-  //   }
-  // };
+  // 모바일 화면 감지
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setIsCollapsed(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // 카테고리 및 문서 목록 가져오기
   useEffect(() => {
     async function asyncFetchDocsList() {
       try {
-        // store에 docsList가 저장돼있지 않으면
-        if (docsList.length === 0) {
-          const response = await fetchDocsList(); // docsList 호출
-          // response가 있으면
-          if (response) {
-            setDocsList(response); // store에 저장
-          }
+        const response = await fetchDocsList(); // docsList 호출
+        // response가 있으면
+        if (response) {
+          setDocsList(response); // store에 저장
         }
       } catch (error) {
         console.log(error);
@@ -117,11 +115,43 @@ const CommunityLeftNav = () => {
     } catch (error) {
       console.log(error);
     }
-  }, [docsList, setPositions]); // 필요한 의존성만 추가
+  }, [docsList, setPositions]);
 
   return (
-    <div className="w-auto min-h-screen p-4">
-      <nav className="border-1 border-[#E1E1DF] rounded-xl px-4 py-5 bg-[#FFFFFF]">
+    <div className="bg-white border border-[#E1E1DF] rounded-xl p-4 w-full mr-4 md:w-48 h-fit md:overflow-y-auto">
+      {/* 모바일 토글 버튼: sm 미만에서만 보임 */}
+      {isMobile && (
+        <div className="flex justify-end">
+          <button onClick={() => setIsCollapsed(!isCollapsed)} className="p-1">
+            {isCollapsed ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
+          </button>
+        </div>
+      )}
+      {/* 내비게이션: 데스크탑에서는 항상 보이고, 모바일에서는 collapsed 여부에 따라 너비가 변경됨 */}
+      <nav
+        className={`rounded-xl py-5 bg-[#FFFFFF] transition-all duration-300 ${
+          isMobile && isSidebarCollapsed ? "hidden" : "block"
+        }`}
+      >
+        <button
+          onClick={() => {
+            clearArticles();
+            navigate("/community");
+          }}
+          className="w-full flex items-center justify-between p-2 bg-[#424242] text-white rounded cursor-pointer mb-2"
+        >
+          <div className="flex items-center gap-2">
+            <Layout size={18} />
+            {/* collapsed 상태에서는 텍스트 숨김 */}
+            <span
+              className={`text-sm font-medium ${
+                isSidebarCollapsed ? "hidden" : ""
+              }`}
+            >
+              ALL
+            </span>
+          </div>
+        </button>
         {/* navData에 있는 각 entry들 조회 */}
         {Object.entries(navData).map(([section, items]) => (
           <div key={section} className="mb-2">
@@ -130,31 +160,40 @@ const CommunityLeftNav = () => {
               className="w-full flex items-center justify-between p-2 bg-[#bc5b39] text-white rounded cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <Layout size={18} />
-                <span className="text-sm font-medium">{section}</span>
+                {/* collapsed 상태이면 섹션명의 첫 글자만 */}
+                {isSidebarCollapsed ? (
+                  <span className="text-lg font-bold">
+                    {section.charAt(0).toUpperCase()}
+                  </span>
+                ) : (
+                  <>
+                    <Layout size={18} />
+                    <span className="text-sm font-medium">{section}</span>
+                  </>
+                )}
               </div>
-              {expandedSections[section] ? (
-                <ChevronUp size={18} />
-              ) : (
-                <ChevronDown size={18} />
-              )}
+              {!isSidebarCollapsed &&
+                (expandedSections[section] ? (
+                  <ChevronUp size={18} />
+                ) : (
+                  <ChevronDown size={18} />
+                ))}
             </button>
-            {expandedSections[section] && (
+            {!isSidebarCollapsed && expandedSections[section] && (
               <ul className="mt-1 ml-6 space-y-2">
                 {items.map((item) => (
                   <li
                     key={item}
-                    className={`                      
-                      text-sm hover:text-[#bc5b39] cursor-pointer py-1
-                      ${category === item ? "text-[#bc5b39]" : "text-[#7D7C77]"}
-                      `}
+                    className={`text-sm cursor-pointer py-1 hover:text-[#bc5b39] ${
+                      category === item ? "text-[#bc5b39]" : "text-[#7D7C77]"
+                    }`}
                     onClick={() => {
-                      // 문서(소분류) 제목 변경
                       setCategory(item);
+                      if (!location.pathname.includes("list")) {
+                        navigate(`/community/list`);
+                      }
                     }}
                   >
-                    {/* TODO: 게시글 상세 페이지에서 카테고리 누르면 카테고리에 해당하는 articleList로 */}
-
                     {item}
                   </li>
                 ))}

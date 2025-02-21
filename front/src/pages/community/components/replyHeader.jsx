@@ -1,8 +1,7 @@
 import propTypes from "prop-types";
-
 import communityArticleStore from "../../../store/communityStore/communityArticleStore";
 
-const ReplyHeader = ({ replyCount }) => {
+const ReplyHeader = () => {
   const commentCount = communityArticleStore((state) => state.commentCount);
 
   // NOTE: 댓글 정렬 방식을 변경하기 위한 store의 메소드
@@ -12,18 +11,18 @@ const ReplyHeader = ({ replyCount }) => {
 
   // 등록순 정렬
   const handleSortByRegist = () => {
-    //NOTE: default가 등록순이므로 다시 등록순으로 정렬
+    // NOTE: default가 등록순이므로 다시 등록순으로 정렬
     setReplySortType("regist");
   };
 
   const handleSortByLatest = () => {
-    //NOTE: map으로 거꾸로 뒤집으면 최신순
+    // NOTE: map으로 거꾸로 뒤집으면 최신순
     setReplySortType("latest");
   };
 
   return (
-    <div className="flex justify-between items-center mb-6">
-      <h2 className="text-xl font-bold mb-4 inline-flex items-center gap-3">
+    <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+      <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-0 inline-flex items-center gap-3">
         <span className="inline-flex">
           <svg
             className="text-[#C65D21]"
@@ -38,7 +37,7 @@ const ReplyHeader = ({ replyCount }) => {
         </span>
         <span className="inline-flex">{commentCount}개의 댓글이 있습니다.</span>
       </h2>
-      <div className="flex gap-2 mb-4 text-gray-600">
+      <div className="flex gap-2 text-gray-600 text-sm md:text-base">
         <button
           className="hover:text-[#C65D21] cursor-pointer"
           onClick={handleSortByRegist}

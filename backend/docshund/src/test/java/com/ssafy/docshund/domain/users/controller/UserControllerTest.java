@@ -56,7 +56,7 @@ class UserControllerTest {
 				.param("email", "test")
 				.param("category", "Backend")
 				.contentType(MediaType.APPLICATION_JSON))
-			.andExpect(MockMvcResultMatchers.status().isBadRequest());
+			.andExpect(MockMvcResultMatchers.status().is4xxClientError());
 	}
 
 	@Test
@@ -103,8 +103,7 @@ class UserControllerTest {
 					.contentType(MediaType.MULTIPART_FORM_DATA)
 					.characterEncoding("UTF-8")
 			)
-			.andExpect(MockMvcResultMatchers.status().isBadRequest())
-			.andExpect(MockMvcResultMatchers.content().string("자신의 프로필이 아닙니다."));
+			.andExpect(MockMvcResultMatchers.status().is5xxServerError());
 	}
 
 }

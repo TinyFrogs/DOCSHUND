@@ -1,14 +1,17 @@
 package com.ssafy.docshund.domain.docs.service;
 
-import static org.assertj.core.api.Assertions.*;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-
+import com.ssafy.docshund.domain.docs.dto.DocumentDto;
+import com.ssafy.docshund.domain.docs.dto.OriginDocumentDto;
+import com.ssafy.docshund.domain.docs.dto.TranslatedDocumentDto;
 import com.ssafy.docshund.domain.docs.entity.*;
 import com.ssafy.docshund.domain.docs.repository.*;
+import com.ssafy.docshund.domain.users.entity.Provider;
+import com.ssafy.docshund.domain.users.entity.User;
 import com.ssafy.docshund.domain.users.repository.UserRepository;
+import com.ssafy.docshund.fixture.UserTestHelper;
+import com.ssafy.docshund.fixture.WithMockCustomOAuth2User;
+import com.ssafy.docshund.global.util.user.UserUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,20 +19,14 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cache.CacheManager;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.docshund.domain.docs.dto.DocumentDto;
-import com.ssafy.docshund.domain.docs.dto.OriginDocumentDto;
-import com.ssafy.docshund.domain.docs.dto.TranslatedDocumentDto;
-import com.ssafy.docshund.domain.users.entity.Provider;
-import com.ssafy.docshund.domain.users.entity.User;
-import com.ssafy.docshund.fixture.UserTestHelper;
-import com.ssafy.docshund.fixture.WithMockCustomOAuth2User;
-import com.ssafy.docshund.global.util.user.UserUtil;
+import java.time.LocalDateTime;
+import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 @Slf4j
 @SpringBootTest
@@ -59,7 +56,7 @@ class DocsServiceImplTest {
 	@Autowired
 	private CustomDocumentRepository customDocumentRepository;
 
-	private User user1;	// 어드민 유저
+	private User user1;    // 어드민 유저
 	private User user2; // 좋아요 및 번역 CUD 테스트용 유저
 	private User user3; // 좋아요 및 번역 CUD 테스트용 유저
 
@@ -76,12 +73,15 @@ class DocsServiceImplTest {
 	@BeforeEach
 	public void setUp() {
 		// user repository setup
-		user1 = userTestHelper.saveUser("admin@gmail.com", "100000", "adminUser", Provider.GOOGLE, true, "안녕하세요", "Backend",
-				true);
-		user2 = userTestHelper.saveUser("test1@gmail.com", "10001", "testUser1", Provider.GOOGLE, false, "안녕하세요", "Frontend",
-				true);
-		user3 = userTestHelper.saveUser("test2@github.com", "10002", "testUser2", Provider.GITHUB, false, "안녕하세요", "Backend",
-				true);
+		user1 = userTestHelper.saveUser("admin@gmail.com", "100000", "adminUser", Provider.GOOGLE, true, "안녕하세요",
+			"Backend",
+			true);
+		user2 = userTestHelper.saveUser("test1@gmail.com", "10001", "testUser1", Provider.GOOGLE, false, "안녕하세요",
+			"Frontend",
+			true);
+		user3 = userTestHelper.saveUser("test2@github.com", "10002", "testUser2", Provider.GITHUB, false, "안녕하세요",
+			"Backend",
+			true);
 		// document repository setup
 		doc1 = documentRepository.save(new Document("Spring", "Spring Boot", "logoImage", "v1",
 			0, Position.BACKEND, "apache", "docLink"));
@@ -94,12 +94,16 @@ class DocsServiceImplTest {
 		documentLikeRepository.save(new DocumentLike(doc2, user2));
 
 		// origin document repository setup
-		originDoc1 = originDocumentRepository.save(new OriginDocument(doc1, 1, "<p>", "<p>Spring Framework is the best Framework for Java.</p>"));
-		originDoc2 = originDocumentRepository.save(new OriginDocument(doc1, 2, "<p>", "<p>And Spring boot is very easy and simple.</p>"));
+		originDoc1 = originDocumentRepository.save(
+			new OriginDocument(doc1, 1, "<p>", "<p>Spring Framework is the best Framework for Java.</p>"));
+		originDoc2 = originDocumentRepository.save(
+			new OriginDocument(doc1, 2, "<p>", "<p>And Spring boot is very easy and simple.</p>"));
 
 		// translated document repository setup
-		transDoc1 = translatedDocumentRepository.save(new TranslatedDocument(originDoc1, user2, "스프링 프레임워크는 자바를 위한 최고의 프레임워크입니다.", 0, Status.VISIBLE));
-		transDoc2 = translatedDocumentRepository.save(new TranslatedDocument(originDoc2, user3, "그리고 스프링 부트는 아주 쉽고 간단합니다.", 0, Status.VISIBLE));
+		transDoc1 = translatedDocumentRepository.save(
+			new TranslatedDocument(originDoc1, user2, "스프링 프레임워크는 자바를 위한 최고의 프레임워크입니다.", 0, Status.VISIBLE));
+		transDoc2 = translatedDocumentRepository.save(
+			new TranslatedDocument(originDoc2, user3, "그리고 스프링 부트는 아주 쉽고 간단합니다.", 0, Status.VISIBLE));
 
 		// translated document like repository setup
 		translatedDocumentLikeRepository.save(new TranslatedDocumentLike(transDoc1, user2));
@@ -156,9 +160,9 @@ class DocsServiceImplTest {
 
 		// when
 		Mockito.when(userUtil.getUser()).thenReturn(user1);
-		Mockito.when(userUtil.isAdmin(Mockito.any())).thenReturn(true);
+		Mockito.when(userUtil.isAdmin(any())).thenReturn(true);
 		User user = userUtil.getUser();
-		DocumentDto result = docsService.createDocument(documentDto, user);
+		DocumentDto result = docsService.createDocument(documentDto);
 
 		// then
 		assertThat(result).isNotNull();
@@ -170,8 +174,10 @@ class DocsServiceImplTest {
 	@DisplayName("문서 좋아요 등록/취소 테스트")
 	void toggleLikes() {
 
+		Mockito.when(userUtil.getUser()).thenReturn(user2);
+
 		// when
-		DocumentDto result = docsService.toggleLikes(doc2.getDocsId(), user3);
+		DocumentDto result = docsService.toggleLikes(doc2.getDocsId());
 
 		// then
 		assertThat(result).isNotNull();
@@ -195,10 +201,12 @@ class DocsServiceImplTest {
 	@DisplayName("원본 문서 조회 테스트 (전체)")
 	void getAllOriginDocuments() {
 		// given
-		Integer docsId = 1;
+
+		Mockito.when(userUtil.getUser()).thenReturn(user2);
 
 		// when
-		List<OriginDocumentDto> result = docsService.getAllOriginDocuments(docsId);
+
+		List<OriginDocumentDto> result = docsService.getAllOriginDocuments(doc1.getDocsId());
 
 		// then
 		assertThat(result).isNotNull();
@@ -213,10 +221,10 @@ class DocsServiceImplTest {
 
 		// when
 		Mockito.when(userUtil.getUser()).thenReturn(user1);
-		Mockito.when(userUtil.isAdmin(Mockito.any())).thenReturn(true);
+		Mockito.when(userUtil.isAdmin(any())).thenReturn(true);
 		User user = userUtil.getUser();
 
-		List<OriginDocumentDto> result = docsService.createOriginDocuments(doc2.getDocsId(), content, user1);
+		List<OriginDocumentDto> result = docsService.createOriginDocuments(doc2.getDocsId(), content);
 
 		// then
 		assertThat(result).isNotNull();
@@ -252,10 +260,13 @@ class DocsServiceImplTest {
 	@DisplayName("번역 작성 테스트")
 	void createTranslatedDocument() {
 		// given
-		String content = "새 번역 내용";
+		TranslatedDocumentDto createdTrans = new TranslatedDocumentDto(1L, 1, 100L, "새 번역", 0, Status.VISIBLE,
+				LocalDateTime.now(), LocalDateTime.now(), 0, List.of());
+
+		Mockito.when(userUtil.getUser()).thenReturn(user2);
 
 		// when
-		TranslatedDocumentDto result = docsService.createTranslatedDocument(doc1.getDocsId(), originDoc2.getOriginId(), user2, content);
+		TranslatedDocumentDto result = docsService.createTranslatedDocument(doc1.getDocsId(), originDoc2.getOriginId(), createdTrans);
 
 		// then
 		assertThat(result).isNotNull();
@@ -267,9 +278,13 @@ class DocsServiceImplTest {
 	@DisplayName("번역 수정 테스트")
 	void updateTranslatedDocument() {
 		String content = "수정된 번역 내용";
+		TranslatedDocumentDto updateTrans = new TranslatedDocumentDto(1L, 1, user2.getUserId(), "새 번역", 0, Status.VISIBLE,
+				LocalDateTime.now(), LocalDateTime.now(), 0, List.of());
+		Mockito.when(userUtil.getUser()).thenReturn(user2);
 
 		// when
-		TranslatedDocumentDto result = docsService.updateTranslatedDocument(doc1.getDocsId(), Math.toIntExact(transDoc1.getTransId()), user2, content);
+		TranslatedDocumentDto result = docsService.updateTranslatedDocument(doc1.getDocsId(),
+			(long)Math.toIntExact(transDoc1.getTransId()), updateTrans);
 
 		// then
 		assertThat(result).isNotNull();
@@ -281,8 +296,10 @@ class DocsServiceImplTest {
 	@DisplayName("번역 삭제 테스트")
 	void deleteTranslatedDocument() {
 
+		Mockito.when(userUtil.getUser()).thenReturn(user2);
+
 		// when
-		docsService.deleteTranslatedDocument(doc1.getDocsId(), Math.toIntExact(transDoc1.getTransId()), user2);
+		docsService.deleteTranslatedDocument(doc1.getDocsId(), (long)Math.toIntExact(transDoc1.getTransId()));
 
 		// then
 		log.info("번역 삭제 성공");
@@ -293,8 +310,10 @@ class DocsServiceImplTest {
 	@DisplayName("번역 좋아요 테스트")
 	void toggleVotes() {
 
+		Mockito.when(userUtil.getUser()).thenReturn(user1);
+
 		// when
-		boolean result = docsService.toggleVotes(doc1.getDocsId(), Math.toIntExact(transDoc1.getTransId()), user1);
+		boolean result = docsService.toggleVotes(doc1.getDocsId(), (long)Math.toIntExact(transDoc1.getTransId()));
 
 		// then
 		assertThat(result).isTrue();

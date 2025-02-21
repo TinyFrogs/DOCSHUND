@@ -15,7 +15,7 @@ const LikeDocsService = {
       return data;
     } catch (error) {
       //TODO: error handling -> 에러 페이지 제작후 연결까지 구현
-      console.error(error);
+      // console.error(error);
       return null;
     }
   },

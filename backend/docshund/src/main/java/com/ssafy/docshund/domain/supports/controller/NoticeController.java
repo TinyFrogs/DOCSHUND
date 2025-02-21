@@ -16,6 +16,7 @@ import com.ssafy.docshund.domain.supports.dto.notice.NoticeRequestDto;
 import com.ssafy.docshund.domain.supports.dto.notice.NoticeResponseDto;
 import com.ssafy.docshund.domain.supports.service.NoticeService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +34,7 @@ public class NoticeController {
 	}
 
 	@PostMapping
-	public ResponseEntity<String> createNotice(@RequestBody NoticeRequestDto noticeRequestDto) {
+	public ResponseEntity<String> createNotice(@Valid @RequestBody NoticeRequestDto noticeRequestDto) {
 		noticeService.createNotice(noticeRequestDto);
 		return ResponseEntity.ok("공지사항이 생성되었습니다.");
 	}
@@ -44,7 +45,7 @@ public class NoticeController {
 	}
 
 	@PatchMapping("/{noticeId}")
-	public ResponseEntity<String> modifyNotice(@RequestBody NoticeRequestDto noticeRequestDto,
+	public ResponseEntity<String> modifyNotice(@Valid @RequestBody NoticeRequestDto noticeRequestDto,
 		@PathVariable Integer noticeId) {
 		noticeService.modifyNotice(noticeRequestDto, noticeId);
 		return ResponseEntity.ok("공지사항이 수정되었습니다.");

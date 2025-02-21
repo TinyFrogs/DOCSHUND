@@ -1,13 +1,14 @@
 package com.ssafy.docshund.domain.docs.service;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.ssafy.docshund.domain.docs.dto.DocumentDto;
 import com.ssafy.docshund.domain.docs.dto.OriginDocumentDto;
 import com.ssafy.docshund.domain.docs.dto.TranslatedDocumentDto;
-import com.ssafy.docshund.domain.users.entity.User;
+import com.ssafy.docshund.domain.docs.dto.UserTransDocumentDto;
+import com.ssafy.docshund.domain.docs.entity.Status;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 public interface DocsService {
@@ -18,7 +19,7 @@ public interface DocsService {
 	DocumentDto getDocumentDetail(Integer docsId);
 
 	// 문서 생성하기
-	DocumentDto createDocument(DocumentDto documentdto, User user);
+	DocumentDto createDocument(DocumentDto documentdto);
 
 	// 원본 조회하기
 	List<OriginDocumentDto> getAllOriginDocuments(Integer docsId);
@@ -27,10 +28,11 @@ public interface DocsService {
 	OriginDocumentDto getOriginDocumentDetail(Integer originId);
 
 	// 원본 생성하기
-	List<OriginDocumentDto> createOriginDocuments(Integer docsId, String content, User user);
+	// List<OriginDocumentDto> createOriginDocuments(Integer docsId, String content);
+	List<OriginDocumentDto> createOriginDocuments(Integer docsId, MultipartFile file);
 
 	// 관심문서 등록/취소
-	DocumentDto toggleLikes(Integer docsId, User user);
+	DocumentDto toggleLikes(Integer docsId);
 
 	// 특정 유저 관심 문서 조회
 	List<DocumentDto> getLikesDocument(Long userId);
@@ -45,23 +47,25 @@ public interface DocsService {
 	List<TranslatedDocumentDto> getTranslatedDocuments(Integer docsId, Integer originId, String sort, String order);
 
 	// 번역 작성하기
-	TranslatedDocumentDto createTranslatedDocument(Integer docsId, Integer originId, User user, String content);
+	TranslatedDocumentDto createTranslatedDocument(Integer docsId, Integer originId, TranslatedDocumentDto translatedDocumentDto);
 
 	// 특정 유저의 번역본 조회
-	List<TranslatedDocumentDto> getUserTransDocument(Long userId);
+	List<UserTransDocumentDto> getUserTransDocument(Long userId);
 
 	// 번역 상세보기
-	TranslatedDocumentDto getTranslatedDocumentDetail(Integer docsId, Integer transId);
+	TranslatedDocumentDto getTranslatedDocumentDetail(Integer docsId, Long transId);
 
 	// 번역 수정하기
-	TranslatedDocumentDto updateTranslatedDocument(Integer docsId, Integer transId, User user, String content);
+	TranslatedDocumentDto updateTranslatedDocument(Integer docsId, Long transId, TranslatedDocumentDto translatedDocumentDto);
 
 	// 번역 삭제하기
-	void deleteTranslatedDocument(Integer docsId, Integer transId, User user);
+	void deleteTranslatedDocument(Integer docsId, Long transId);
 
 	// 번역 투표 / 투표해제
-	boolean toggleVotes(Integer docsId, Integer transId, User user);
+	boolean toggleVotes(Integer docsId, Long transId);
 
 	// 유저가 좋아한 번역본 목록 조회
-	List<TranslatedDocumentDto> getUserLikedTrans(Long userId);
+	List<UserTransDocumentDto> getUserLikedTrans(Long userId);
+
+	public void modifyDocsStatus(Long transId, Status status);
 }
