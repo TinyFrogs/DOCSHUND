@@ -81,12 +81,12 @@
 
 ### 프론트엔드 (Front-end)
 
-|   Name   | 조홍균 👑팀장                       | 이시호 🎖️FE리더                                  | 김서현                                           |
-| :------: | ------------------------------------ | ------------------------------------------------- |-------------------------------------------------|
-| Profile  |<p align="center"><img src="https://github.com/user-attachments/assets/49da79e2-1131-4e15-a7c2-dc04f29ca1e6" style="width:180px; height:220px; object-fit:cover;"></p>|<p align="center"><img src="https://www.svgrepo.com/show/407222/polar-bear.svg" style="width:180px; height:220px; object-fit:cover;"></p>|<p align="center"><img src="https://avatars.githubusercontent.com/u/94886139?v=4" style="width:180px; height:220px; object-fit:cover;"></p>|
-| Position | Front-end Develop / PM  | Front-end Develop / PL  | Front-end Develop / Design |
-|   Git    | [@깃허브](https://github.com/doh3e) | [@harimau97](https://github.com/harimau97) | [@seohye-ki](https://github.com/seohye-ki) |
-|   E-mail    | email@gmail.com | harimau97@gmail.com | seohyeon.shkim@gmail.com |
+|   Name   | 조홍균 👑팀장                                                                                                  | 이시호 🎖️FE리더                                  | 김서현                                           |
+| :------: |-----------------------------------------------------------------------------------------------------------| ------------------------------------------------- |-------------------------------------------------|
+| Profile  | <p align="center"><img src="image/png/hong.png" style="width:180px; height:220px; object-fit:cover;"></p> |<p align="center"><img src="https://www.svgrepo.com/show/407222/polar-bear.svg" style="width:180px; height:220px; object-fit:cover;"></p>|<p align="center"><img src="https://avatars.githubusercontent.com/u/94886139?v=4" style="width:180px; height:220px; object-fit:cover;"></p>|
+| Position | Front-end Develop / PM                                                                                    | Front-end Develop / PL  | Front-end Develop / Design |
+|   Git    | [@깃허브](https://github.com/doh3e)                                                                          | [@harimau97](https://github.com/harimau97) | [@seohye-ki](https://github.com/seohye-ki) |
+|   E-mail    | email@gmail.com                                                                                           | harimau97@gmail.com | seohyeon.shkim@gmail.com |
 
 <br>
 
