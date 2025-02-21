@@ -62,9 +62,7 @@ const ReplyItemService = {
         `forums/${articleId}/comments/${commentId}`
       );
 
-      const data = response.data;
-
-      return data;
+      return response;
     } catch (error) {
       console.log(error);
       return null;

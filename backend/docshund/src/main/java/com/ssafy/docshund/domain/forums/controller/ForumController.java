@@ -1,11 +1,12 @@
 package com.ssafy.docshund.domain.forums.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,10 +25,14 @@ import com.ssafy.docshund.domain.forums.dto.ArticleDto;
 import com.ssafy.docshund.domain.forums.dto.ArticleInfoDto;
 import com.ssafy.docshund.domain.forums.dto.CommentDto;
 import com.ssafy.docshund.domain.forums.dto.CommentInfoDto;
+import com.ssafy.docshund.domain.forums.entity.Status;
 import com.ssafy.docshund.domain.forums.service.ArticleService;
 import com.ssafy.docshund.domain.forums.service.CommentService;
 import com.ssafy.docshund.global.aws.s3.S3FileUploadService;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -43,48 +48,48 @@ public class ForumController {
 
 	@PostMapping
 	public ResponseEntity<ArticleInfoDto> postArticle(
-			@RequestBody ArticleDto articleDto
+			@RequestBody @Valid ArticleDto articleDto
 	) {
 		ArticleInfoDto result = articleService.createArticle(articleDto);
-
 		return ResponseEntity.ok(result);
 	}
 
 	@PostMapping("/image")
-	public ResponseEntity<String> postImage(
+	public ResponseEntity<Map<String, String>> postImage(
 			@RequestPart(value = "file") MultipartFile file
 	) {
 		String image = s3FileUploadService.uploadFile(file, "article");
+		Map<String, String> response = new HashMap<>();
+		response.put("imageUrl", image);
 
-		return ResponseEntity.ok(image);
+		return ResponseEntity.ok(response);
 	}
 
 	@PatchMapping("/{articleId}")
 	public ResponseEntity<Void> patchArticle(
-			@PathVariable Integer articleId,
-			@RequestBody ArticleDto articleDto
+			@PathVariable @Positive Integer articleId,
+			@RequestBody @Valid ArticleDto articleDto
 	) {
 		articleService.updateArticle(articleId, articleDto);
-
 		return ResponseEntity.noContent().build();
 	}
 
 	@GetMapping
 	public ResponseEntity<Page<ArticleInfoDto>> getArticleList(
-		@RequestParam(required = false) String sort,
-		@RequestParam(required = false) String filter,
-		@RequestParam(required = false) String keyword,
-		@RequestParam(required = false) String searchType,
-		@PageableDefault(page = 0, size = 10) Pageable pageable
+			@RequestParam(required = false) String sort,
+			@RequestParam(required = false) String filter,
+			@RequestParam(required = false) String keyword,
+			@RequestParam(required = false) String searchType,
+			Pageable pageable
 	) {
 		Object parsedFilter = parseFilter(filter);
 		Page<ArticleInfoDto> result = articleService.getArticles(
-			Optional.ofNullable(sort).orElse("latest"),
-			(parsedFilter instanceof Position) ? (Position) parsedFilter : null,
-			(parsedFilter instanceof String) ? (String) parsedFilter : "",
-			Optional.ofNullable(keyword).orElse(""),
-			Optional.ofNullable(searchType).orElse(""),
-			pageable
+				Optional.ofNullable(sort).orElse("latest"),
+				(parsedFilter instanceof Position) ? (Position)parsedFilter : null,
+				(parsedFilter instanceof String) ? (String)parsedFilter : "",
+				Optional.ofNullable(keyword).orElse(""),
+				Optional.ofNullable(searchType).orElse(""),
+				pageable
 		);
 
 		return ResponseEntity.ok(result);
@@ -92,35 +97,32 @@ public class ForumController {
 
 	@GetMapping("/user/{userId}")
 	public ResponseEntity<Page<ArticleInfoDto>> getArticleListByUser(
-		@PathVariable(name = "userId") Long userId,
-		@PageableDefault(page = 0, size = 10) Pageable pageable
+			@PathVariable(name = "userId") @Positive Long userId,
+			Pageable pageable
 	) {
 		Page<ArticleInfoDto> result = articleService.getArticlesByUserId(userId, pageable);
-
 		return ResponseEntity.ok(result);
 	}
 
 	@GetMapping("/likes")
 	public ResponseEntity<Page<ArticleInfoDto>> getArticleLikes(
-		@PageableDefault(page = 0, size = 10) Pageable pageable
+			Pageable pageable
 	) {
 		Page<ArticleInfoDto> result = articleService.getArticlesLikedByUserId(pageable);
-
 		return ResponseEntity.ok(result);
 	}
 
 	@GetMapping("/{articleId}")
 	public ResponseEntity<ArticleInfoDto> getArticle(
-		@PathVariable(name = "articleId") Integer articleId
+			@PathVariable(name = "articleId") @Min(1) Integer articleId
 	) {
 		ArticleInfoDto result = articleService.getArticleDetail(articleId);
-
 		return ResponseEntity.ok(result);
 	}
 
 	@DeleteMapping("/{articleId}")
 	public ResponseEntity<Void> deleteArticle(
-		@PathVariable Integer articleId
+			@PathVariable @Positive Integer articleId
 	) {
 		articleService.deleteArticle(articleId);
 		return ResponseEntity.noContent().build();
@@ -128,7 +130,7 @@ public class ForumController {
 
 	@PostMapping("/{articleId}/likes")
 	public ResponseEntity<Void> likeArticle(
-		@PathVariable Integer articleId
+			@PathVariable @Positive Integer articleId
 	) {
 		articleService.likeArticle(articleId);
 		return ResponseEntity.noContent().build();
@@ -150,61 +152,74 @@ public class ForumController {
 
 	@GetMapping("{articleId}/comments")
 	public ResponseEntity<List<CommentInfoDto>> getCommentsByArticle(
-		@PathVariable Integer articleId
+			@PathVariable @Positive Integer articleId
 	) {
 		List<CommentInfoDto> result = commentService.getCommentsByArticleId(articleId);
-
 		return ResponseEntity.ok(result);
 	}
 
 	@GetMapping("/comments/user/{userId}")
 	public ResponseEntity<List<CommentInfoDto>> getCommentsByUser(
-		@PathVariable Long userId
+			@PathVariable @Positive Long userId
 	) {
 		List<CommentInfoDto> result = commentService.getCommentsByUserId(userId);
-
 		return ResponseEntity.ok(result);
 	}
 
 	@PostMapping("/{articleId}/comments")
 	public ResponseEntity<CommentInfoDto> postComment(
-			@PathVariable Integer articleId,
-			@RequestBody CommentDto commentDto
+			@PathVariable @Positive Integer articleId,
+			@RequestBody @Valid CommentDto commentDto
 	) {
 		CommentInfoDto result = commentService.createComment(articleId, commentDto);
-
 		return ResponseEntity.ok(result);
 	}
 
 	@PostMapping("/{articleId}/comments/{commentId}")
 	public ResponseEntity<CommentInfoDto> postReplyComment(
-			@PathVariable Integer articleId,
-			@PathVariable Integer commentId,
-			@RequestBody CommentDto commentDto
+			@PathVariable @Positive Integer articleId,
+			@PathVariable @Positive Integer commentId,
+			@RequestBody @Valid CommentDto commentDto
 	) {
 		CommentInfoDto result = commentService.createReply(articleId, commentId, commentDto);
-
 		return ResponseEntity.ok(result);
 	}
 
 	@PatchMapping("/{articleId}/comments/{commentId}")
 	public ResponseEntity<Void> updateComment(
-			@PathVariable Integer articleId,
-			@PathVariable Integer commentId,
-			@RequestBody CommentDto commentDto
+			@PathVariable @Positive Integer articleId,
+			@PathVariable @Positive Integer commentId,
+			@RequestBody @Valid CommentDto commentDto
 	) {
 		commentService.updateComment(articleId, commentId, commentDto);
-
 		return ResponseEntity.noContent().build();
 	}
 
 	@DeleteMapping("/{articleId}/comments/{commentId}")
 	public ResponseEntity<Void> deleteComment(
-			@PathVariable Integer articleId,
-			@PathVariable Integer commentId
+			@PathVariable @Positive Integer articleId,
+			@PathVariable @Positive Integer commentId
 	) {
 		commentService.deleteComment(articleId, commentId);
-
 		return ResponseEntity.noContent().build();
 	}
+
+	@PatchMapping("/article/{articleId}/status")
+	public ResponseEntity<String> modifyArticleStatus(
+			@PathVariable Integer articleId,
+			@RequestBody Status status
+	) {
+		articleService.modifyArticleStatus(articleId, status);
+		return ResponseEntity.ok("변경이 완료되었습니다");
+	}
+
+	@PatchMapping("/comment/{commentId}/status")
+	public ResponseEntity<String> modifyCommentStatus(
+			@PathVariable Integer commentId,
+			@RequestBody Status status
+	) {
+		commentService.modifyCommentStatus(commentId, status);
+		return ResponseEntity.ok("변경이 완료되었습니다");
+	}
+
 }

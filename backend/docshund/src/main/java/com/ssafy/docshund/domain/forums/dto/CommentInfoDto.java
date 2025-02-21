@@ -3,7 +3,6 @@ package com.ssafy.docshund.domain.forums.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.ssafy.docshund.domain.forums.entity.Comment;
 import com.ssafy.docshund.domain.forums.entity.Status;
@@ -32,14 +31,15 @@ public class CommentInfoDto {
 		Status status = comment.getStatus();
 		boolean isHidden = (status == Status.INVISIBLE || status == Status.DELETED);
 
-		if(isHidden && comment.getReplies().isEmpty()){
-			return Optional.empty();
-		}
-
 		List<CommentInfoDto> filteredReplies = comment.getReplies().stream()
 			.map(CommentInfoDto::from)
-			.flatMap(Optional::stream)
-			.collect(Collectors.toList());
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.toList();
+
+		if(isHidden && filteredReplies.isEmpty()){
+			return Optional.empty();
+		}
 
 		return Optional.of(new CommentInfoDto(
 			comment.getArticle().getArticleId(),

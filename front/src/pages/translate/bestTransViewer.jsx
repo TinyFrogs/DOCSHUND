@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigationType } from "react-router-dom";
 import {
   initDB,
   addData,
@@ -9,6 +9,7 @@ import {
 import {
   fetchTranslateData,
   fetchBestTranslate,
+  fetchDocsList,
 } from "./services/translateGetService.jsx";
 // 컴포넌트 import
 import TranslateEditor from "./translateEditor.jsx";
@@ -17,12 +18,14 @@ import ToastViewer from "./components/toastViewer.jsx";
 
 //이미지 import
 import loadingGif from "../../assets/loading.gif";
-import { Trophy } from "lucide-react";
-import { Languages } from "lucide-react";
-import English from "../../assets/icon/english.png";
+
+//상태
+import useModalStore from "../../store/translateStore/translateModalStore.jsx";
+import useDocsStore from "../../store/translateStore/docsStore.jsx";
+import useEditorStore from "../../store/translateStore/editorStore.jsx";
 
 const BestTransViewer = () => {
-  const navigate = useNavigate();
+  const navigationType = useNavigationType();
   const { docsId } = useParams();
   const [docParts, setDocParts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -37,12 +40,43 @@ const BestTransViewer = () => {
   const loadingRef = useRef(null);
   const chunk_size = 20;
 
-  //번역 전체보기 관련
-
   //indexedDB 관련 변수
   const dbName = "docs";
   const objectStoreName = docsId;
   const [isDbInitialized, setIsDbInitialized] = useState(false);
+
+  //뒤로가기시 예외 처리
+  const { isEditorOpen, closeEditor, openArchive, closeArchive } =
+    useModalStore();
+  const {
+    clearDocsPart,
+    clearBestTrans,
+    clearCurrentUserText,
+    clearTempSave,
+    clearSubmitData,
+  } = useEditorStore();
+
+  const { documentName, setDocumentName } = useDocsStore();
+
+  const handleClose = () => {
+    clearDocsPart();
+    clearBestTrans();
+    clearTempSave();
+    clearSubmitData();
+    clearCurrentUserText();
+  };
+
+  const showCurrentDocumentName = async () => {
+    const tmpDocsList = await fetchDocsList();
+    const currentDocs = await tmpDocsList.filter(
+      (doc) => doc.docsId === Number(docsId)
+    );
+    if (currentDocs.length !== 0) {
+      setDocumentName(currentDocs[0].documentName);
+    } else {
+      setDocumentName("");
+    }
+  };
 
   // 문서 내용 전부 가져오기
   const loadMore = async () => {
@@ -53,7 +87,7 @@ const BestTransViewer = () => {
       await new Promise((resolve) => setTimeout(resolve, 600));
       const data = docData.current;
       if (!data || data.length === 0) {
-        console.log("오류 발생 : 데이터 없음");
+        // console.log("오류 발생 : 데이터 없음");
         return;
       }
       const newChunk = data.slice(processedCount, processedCount + chunk_size);
@@ -76,7 +110,17 @@ const BestTransViewer = () => {
     }
   };
 
+  //뒤로가기 예외 처리
   useEffect(() => {
+    if (navigationType === "POP") {
+      closeEditor();
+      closeArchive();
+      handleClose();
+    }
+  }, [navigationType]);
+
+  useEffect(() => {
+    showCurrentDocumentName();
     let isMounted = true; // 컴포넌트 마운트 상태 추적
     closeAllConnections();
     // 상태 초기화
@@ -90,17 +134,17 @@ const BestTransViewer = () => {
     const fetchData = async () => {
       const data = await fetchBestTranslate(docsId, "best");
       tmpTransList.current = data;
-      console.log("tmpTransList.current", tmpTransList.current);
+      // console.log("tmpTransList.current", tmpTransList.current);
       tmpTransList.current.forEach((element) => {
         tmpBestTransList.current[element.originId] = {
           element,
           key: element.originId,
         };
       });
-      console.log(
-        "번역 전체 보기 데이터를 불러왔습니다.: ",
-        tmpBestTransList.current
-      );
+      // console.log(
+      //   "번역 전체 보기 데이터를 불러왔습니다.: ",
+      //   tmpBestTransList.current
+      // );
     };
 
     // const processFetchedData = async () => {
@@ -112,22 +156,22 @@ const BestTransViewer = () => {
       setLoading(true);
 
       try {
-        console.log("Initializing DB for docsId:", docsId); // 디버깅용
+        // console.log("Initializing DB for docsId:", docsId); // 디버깅용
         await initDB(dbName, objectStoreName);
         const loadedData = await loadData(objectStoreName);
-        console.log("Loaded data from DB:", loadedData.length); // 디버깅용
+        // console.log("Loaded data from DB:", loadedData.length); // 디버깅용
 
         if (!isMounted) return; // 비동기 작업 후 마운트 상태 다시 확인
 
         if (!loadedData || loadedData.length === 0) {
-          console.log("Fetching data from server for docsId:", docsId); // 디버깅용
+          // console.log("Fetching data from server for docsId:", docsId); // 디버깅용
           try {
             const data = await fetchTranslateData(docsId, false);
             if (!isMounted) return;
             if (data && Array.isArray(data)) {
               docData.current = data;
               await addData(data, objectStoreName);
-              console.log("Server data saved, length:", data.length); // 디버깅용
+              // console.log("Server data saved, length:", data.length); // 디버깅용
               if (isMounted) {
                 setIsDbInitialized(true);
                 await loadMore(); // 여기서 바로 loadMore 실행
@@ -137,10 +181,10 @@ const BestTransViewer = () => {
               throw new Error("Invalid data format received from server");
             }
           } catch (error) {
-            console.error("Failed to fetch data from server:", error);
+            // console.error("Failed to fetch data from server:", error);
           }
         } else {
-          console.log("Using cached data from IndexedDB"); // 디버깅용
+          // console.log("Using cached data from IndexedDB"); // 디버깅용
           if (isMounted) {
             docData.current = loadedData;
             setIsDbInitialized(true);
@@ -149,7 +193,7 @@ const BestTransViewer = () => {
           }
         }
       } catch (error) {
-        console.log("Error in checkDB:", error);
+        // console.log("Error in checkDB:", error);
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -182,23 +226,22 @@ const BestTransViewer = () => {
   // Race Condition Prevention Pattern : useEffect에서 함수가 동시 실행되는 것을 방지
 
   return (
-    <div className="h-[99%] min-w-[800px] bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] max-w-screen-xl mx-auto shadow-xl">
+    <div className="h-screen w-[90vw] md:w-[60vw] bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] mx-auto shadow-xl">
       <div className="flex flex-col gap-2">
+        <div className="h-[8vh]"></div>
         {docParts.map((part, index) => (
           <div key={index} className="paragraph flex flex-row gap-4 relative">
             <div className="flex flex-col w-full p-1 rounded-sm text-[#424242]">
               <div className="flex justify-between">
-                {tmpBestTransList.current[part.id] ? (
+                {tmpBestTransList.current[part.originId] ? (
                   <ToastViewer
-                    content={tmpBestTransList.current[part.id].element.content}
+                    content={
+                      tmpBestTransList.current[part.originId].element.content
+                    }
                   />
                 ) : (
-                  <ToastViewer content={""} />
+                  <ToastViewer content={part.content} />
                 )}
-
-                {/* {tmpBestTransList.current[part.id] && (
-                  <Trophy className="w-6 h-6 shrink-0 m-2 text-yellow-500" />
-                )} */}
               </div>
             </div>
           </div>

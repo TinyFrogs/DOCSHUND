@@ -23,6 +23,16 @@ public class JwtUtil {
 			Jwts.SIG.HS256.key().build().getAlgorithm());
 	}
 
+	public Long getUserId(String token) {
+
+		return Jwts.parser()
+			.verifyWith(secretKey)
+			.build()
+			.parseSignedClaims(token)
+			.getPayload()
+			.get("userId", Long.class);
+	}
+
 	public String getPersonalId(String token) {
 
 		return Jwts.parser()

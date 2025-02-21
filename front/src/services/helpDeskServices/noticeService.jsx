@@ -8,7 +8,7 @@ const NoticeService = {
       );
       return response.data;
     } catch (error) {
-      console.error("공지사항 목록 가져오는 중 오류 발생:", error);
+      // console.error("공지사항 목록 가져오는 중 오류 발생:", error);
       return null;
     }
   },
@@ -20,7 +20,7 @@ const NoticeService = {
       );
       return response.data;
     } catch (error) {
-      console.error("공지사항 상세 가져오는 중 오류 발생:", error);
+      // console.error("공지사항 상세 가져오는 중 오류 발생:", error);
       return null;
     }
   },

@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { fetchUserList } from "../admin/services/adminGetService";
 import { changeUserStatus } from "../admin/services/adminPatchService";
 import useUserManagerStore from "../../store/adminStore/userManagerStore";
 import { toast } from "react-toastify";
 import { RefreshCw } from "lucide-react";
+import _ from "lodash";
+
 const ManageUser = () => {
   const [userList, setUserList] = useState([]);
   const { addUserList, removeUserList, currentUserList } =
@@ -11,13 +13,15 @@ const ManageUser = () => {
 
   const handleSearch = async (e) => {
     const searchKeyword = e.target.value;
+    console.log(searchKeyword);
     if (!searchKeyword) {
       const data = await fetchUserList();
       data.sort((a, b) => b.reportCount - a.reportCount);
       setUserList(data);
       return;
-    } else {
-      const filteredList = userList.filter(
+    } else if (searchKeyword !== "") {
+      const data = await fetchUserList();
+      const filteredList = data.filter(
         (item) =>
           item.email.includes(searchKeyword.toLowerCase()) ||
           item.nickname.includes(searchKeyword.toLowerCase())
@@ -32,50 +36,62 @@ const ManageUser = () => {
     });
   };
 
-  const handleUserStatus = async (userId, currentStatus) => {
-    if (currentStatus === "ACTIVE") {
-      const response = await changeUserStatus(userId, "WITHDRAWN");
-      if (response === 200) {
-        toast.success("상태 변경 완료");
-      } else {
-        toast.error("상태 변경 실패");
+  const handleUserStatus = useCallback(
+    _.debounce(async (userId, currentStatus) => {
+      if (currentStatus === "ACTIVE") {
+        const response = await changeUserStatus(userId, "WITHDRAWN");
+        if (response === 200) {
+          toast.success("상태 변경 완료", {
+            toastId: "changeStatus",
+          });
+        } else {
+          toast.error("상태 변경 실패", {
+            toastId: "changeStatus",
+          });
+        }
+      } else if (currentStatus === "WITHDRAWN") {
+        const response = await changeUserStatus(userId, "BANNED");
+        if (response === 200) {
+          toast.success("상태 변경 완료", {
+            toastId: "changeStatus",
+          });
+        } else {
+          toast.error("상태 변경 실패", {
+            toastId: "changeStatus",
+          });
+        }
+      } else if (currentStatus === "BANNED") {
+        const response = await changeUserStatus(userId, "ACTIVE");
+        if (response === 200) {
+          toast.success("상태 변경 완료", {
+            toastId: "changeStatus",
+          });
+        } else {
+          toast.error("상태 변경 실패", {
+            toastId: "changeStatus",
+          });
+        }
       }
-    } else if (currentStatus === "WITHDRAWN") {
-      const response = await changeUserStatus(userId, "BANNED");
-      if (response === 200) {
-        toast.success("상태 변경 완료");
-      } else {
-        toast.error("상태 변경 실패");
-      }
-    } else if (currentStatus === "BANNED") {
-      const response = await changeUserStatus(userId, "ACTIVE");
-      if (response === 200) {
-        toast.success("상태 변경 완료");
-      } else {
-        toast.error("상태 변경 실패");
-      }
-    }
 
-    const data = await fetchUserList();
-    data.sort((a, b) => b.reportCount - a.reportCount);
-    setUserList(data);
-  };
+      const data = await fetchUserList();
+      data.sort((a, b) => b.reportCount - a.reportCount);
+      setUserList(data);
+    }, 300),
+    []
+  );
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const data = await fetchUserList();
-        console.log(data);
         data.sort((a, b) => b.reportCount - a.reportCount);
         setUserList(data);
-        console.log(userList);
         processUserList(data);
       } catch (error) {
-        console.error("Error fetching users:", error);
+        // console.error("Error fetching users:", error);
       }
     };
     fetchUsers();
-    console.log(currentUserList);
   }, []);
 
   return (
@@ -87,7 +103,7 @@ const ManageUser = () => {
           <input
             onChange={handleSearch}
             type="text"
-            placeholder="이메일, 닉네임 검색"
+            placeholder="이메일로 검색"
             className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#bc5b39] focus:ring-1 focus:ring-[#bc5b39] transition-colors duration-200"
           />
           <svg
@@ -164,7 +180,7 @@ const ManageUser = () => {
                     </span>
                     <button
                       onClick={() => handleUserStatus(user.userId, user.status)}
-                      className="cursor-pointer"
+                      className="cursor-pointer hover:text-[#bc5b39] transition-colors duration-100"
                     >
                       <RefreshCw />
                     </button>

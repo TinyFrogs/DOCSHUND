@@ -1,55 +1,102 @@
 import propTypes from "prop-types";
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useParams } from "react-router-dom";
-
+import { toast } from "react-toastify";
+import { debounce } from "lodash";
 import communityArticleStore from "../../../store/communityStore/communityArticleStore";
 import ReplyItemService from "../services/replyItemService";
 import RectBtn from "../../../components/button/rectBtn";
+import ArticleItemService from "../services/articleItemService";
 
 const ReplyTextarea = ({ reCommentFlag, commentId }) => {
   const { articleId } = useParams();
   const [replyContent, setReplyContent] = useState("");
   const [contentLength, setContentLength] = useState(0);
+  const [isLoading, setLoading] = useState(false);
 
-  // store에서 데이터를 가져오기 위해 정의
+  const commentCount = communityArticleStore((state) => state.commentCount);
+  const setCommentCount = communityArticleStore(
+    (state) => state.setCommentCount
+  );
   const setIsReplied = communityArticleStore((state) => state.setIsReplied);
 
-  const handleContentLength = (e) => {
-    setContentLength(replyContent.length);
+  const convertWhiteSpace = (content) => {
+    return content.replace(/\n/g, "\r\n"); // 개행 문자 정규화
   };
 
-  // 댓글 작성
-  const handleSubmit = async () => {
-    if (!replyContent.trim()) {
-      alert("댓글을 입력해주세요.");
-      return;
-    } else if (replyContent.length > 5000) {
-      alert("댓글은 10,000자 이하로 입력해주세요.");
+  // Debounced submit handler
+  const debouncedSubmit = useCallback(
+    debounce(async (content, isReComment, commentId) => {
+      setLoading(true);
+      if (!content.trim()) {
+        toast.warn("댓글을 입력해주세요.", {
+          toastId: "emptyReply",
+        });
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const formattedContent = convertWhiteSpace(content); // 개행 문자 정규화
+
+        if (isReComment) {
+          await ReplyItemService.postReReplyItem(
+            articleId,
+            commentId,
+            formattedContent.trim()
+          );
+        } else {
+          await ReplyItemService.postReplyItem(
+            articleId,
+            formattedContent.trim()
+          );
+        }
+
+        const resData = await ArticleItemService.fetchArticleItem(articleId);
+        if (resData) {
+          setCommentCount(resData.commentCount);
+        }
+
+        setReplyContent("");
+        setContentLength(0);
+        setIsReplied((prev) => !prev);
+        setLoading(false);
+      } catch (error) {
+        toast.error("댓글 작성에 실패했습니다.", {
+          toastId: "failedReply",
+        });
+        setLoading(false);
+        return error;
+      }
+    }, 300),
+    [articleId, setIsReplied]
+  );
+
+  // 즉시 상태를 업데이트하는 함수
+  const updateContent = (value) => {
+    if (convertWhiteSpace(value).length > 500) {
+      toast.warn("댓글은 500자 이내로 작성해주세요.", {
+        toastId: "exceedReply",
+      });
       return;
     }
+    setReplyContent(value);
+    setContentLength(convertWhiteSpace(value).length);
+  };
 
-    // NOTE: 대댓글인지 원댓글인지에 따라 다르게 처리
-    // 1. 대댓글 작성
-    if (reCommentFlag) {
-      // 대댓글 작성 시에는 대댓글을 작성하는 원댓글의 id를 가져와야 함
-      const response = await ReplyItemService.postReReplyItem(
-        articleId,
-        commentId,
-        replyContent
-      );
-    } else {
-      // 2. 원댓글 작성
-      const response = await ReplyItemService.postReplyItem(
-        articleId,
-        replyContent
-      );
-    }
+  // Cleanup function
+  useEffect(() => {
+    return () => {
+      debouncedSubmit.cancel();
+    };
+  }, [debouncedSubmit]);
 
-    setReplyContent(""); // 제출 후 입력창 초기화
-    setContentLength(0); // 제출 후 글자 수 초기화
+  const handleSubmit = () => {
+    debouncedSubmit(replyContent, reCommentFlag, commentId);
+  };
 
-    // 제출 후 댓글 리스트 리렌더링
-    setIsReplied((prev) => !prev);
+  const handleOnChange = (e) => {
+    updateContent(e.target.value);
   };
 
   return (
@@ -57,26 +104,25 @@ const ReplyTextarea = ({ reCommentFlag, commentId }) => {
       <div className="flex flex-col gap-3">
         <textarea
           value={replyContent}
-          onChange={(e) => {
-            setReplyContent(e.target.value);
-            setContentLength(e.target.value.length);
-          }}
+          onChange={handleOnChange}
           placeholder="댓글을 입력해주세요."
           className="w-full h-24 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
         ></textarea>
         <div className="flex justify-between items-center">
           <span
             className={`text-sm ${
-              contentLength > 5000 ? "text-red-500" : "text-gray-500"
+              contentLength > 500 ? "text-red-500" : "text-gray-500"
             }`}
           >
-            {contentLength.toLocaleString()} / 5,000자
+            {contentLength} / 500자
           </span>
-          <RectBtn
-            onClick={handleSubmit}
-            text="댓글 작성"
-            className="w-28 h-10 text-sm"
-          />
+          <button disabled={isLoading}>
+            <RectBtn
+              onClick={handleSubmit}
+              text="댓글 작성"
+              className="w-28 h-10 text-sm"
+            />
+          </button>
         </div>
       </div>
     </div>

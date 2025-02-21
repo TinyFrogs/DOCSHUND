@@ -39,6 +39,6 @@ public interface TranslatedDocumentLikeRepository extends
 	@Query("SELECT tl.translatedDocument FROM TranslatedDocumentLike tl "
 		+ "JOIN FETCH tl.translatedDocument.originDocument "
 		+ "JOIN FETCH tl.translatedDocument.user "
-		+ "WHERE tl.user.userId = :userId")
+		+ "WHERE tl.user.userId = :userId AND tl.translatedDocument.status = 'VISIBLE'")
 	List<TranslatedDocument> findLikedTranslatedDocsByUserId(@Param("userId") Long userId);
 }

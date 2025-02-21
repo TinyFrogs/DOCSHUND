@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import * as motion from "motion/react-client";
 import { AnimatePresence } from "motion/react";
@@ -10,23 +10,23 @@ import ReportModal from "../report.jsx";
 import { fetchBestTranslate } from "./services/translateGetService.jsx";
 import { likeTranslate } from "./services/translatePostService.jsx";
 import userProfileService from "../myPage/services/userProfileService.jsx";
+
 //상태관리
 import useEditorStore from "../../store/translateStore/editorStore.jsx";
 import useArchiveStore from "../../store/translateStore/archiveStore.jsx";
 import useReportStore from "../../store/reportStore.jsx";
 import useModalStore from "../../store/translateStore/translateModalStore.jsx";
+import useChatStore from "../../store/chatStore.jsx";
+import _ from "lodash";
 
 const TranslateArchive = () => {
   let userId = 0;
-  const tmpUserList = useRef([]);
-  const [isLiked, setIsLiked] = useState(false);
   if (localStorage.getItem("token")) {
     const token = localStorage.getItem("token");
     userId = jwtDecode(token).userId;
   }
 
   const [transStates, setTransStates] = useState({});
-  const [status, setStatus] = useState(0);
 
   const {
     docsId,
@@ -53,16 +53,8 @@ const TranslateArchive = () => {
     setOrderByLike,
     setOrderByUpdatedAt,
   } = useArchiveStore();
-  const {
-    openReport,
-    toggleReport,
-    originContent,
-    reportedUser,
-    chatId,
-    articleId,
-    transId,
-    commentId,
-  } = useReportStore();
+  const { openReport, toggleReport, closeReport } = useReportStore();
+  const { toggleChat, isChatVisible } = useChatStore();
 
   //모달 관련 상태
   const { isArchiveOpen, closeArchive } = useModalStore();
@@ -81,14 +73,19 @@ const TranslateArchive = () => {
 
   const handleLike = async (docsId, transId) => {
     const status = await likeTranslate(docsId, transId);
-    const tmpTransList = await fetchBestTranslate(docsId, "");
-    setTransList(tmpTransList);
+    setTimeout(async () => {
+      const tmpTransList = await fetchBestTranslate(docsId, "");
+      changeOrderBy(orderBy, tmpTransList);
+      setTransList(tmpTransList);
+    }, 300);
     return status;
   };
 
+  // Create debounced version of handleLike
+  const debouncedHandleLike = _.debounce(handleLike, 300);
+
   const handleClose = () => {
     clearDocsPart();
-    clearBestTrans();
     clearTempSave();
     clearSubmitData();
     clearDocsId();
@@ -108,23 +105,31 @@ const TranslateArchive = () => {
     }
   };
 
+  const handleUTC = (time) => {
+    const date = new Date(time);
+    const kor = date.getHours() + 9;
+    date.setHours(kor);
+    return date;
+  };
+
   useEffect(() => {
+    closeReport();
+    useChatStore.setState({ isChatVisible: false });
     const fetchData = async () => {
       if (isArchiveOpen) {
         const tmpTransList = await fetchBestTranslate(docsId, "");
-        console.log(docsId, "번역 전체", tmpTransList);
         setTransList(tmpTransList);
-        changeOrderBy("like", tmpTransList);
+        changeOrderBy(orderBy, tmpTransList);
       }
     };
     fetchData();
-  }, []);
+  }, [isArchiveOpen]);
 
   return (
     <AnimatePresence>
       {isArchiveOpen && (
         <motion.div
-          className="fixed inset-0 flex items-center justify-center z-[2100] backdrop-brightness-60"
+          className="fixed inset-0 flex items-center justify-center z-[2800] backdrop-brightness-60"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -133,13 +138,6 @@ const TranslateArchive = () => {
           {/* {isArchiveVisible ? ( */}
           <motion.div
             key="archive-modal"
-            // initial={{ opacity: 0, y: 1000 }}
-            // animate={{ opacity: 1, y: 0 }}
-            // exit={{ opacity: 0, y: 1000 }}
-            // transition={{
-            //   ease: "easeOut",
-            //   duration: 0.3,
-            // }}
             className="fixed inset-0 flex items-center justify-center min-w-full min-h-full "
           >
             <ReportModal />
@@ -168,7 +166,7 @@ const TranslateArchive = () => {
                   }}
                   className={`${
                     orderByUpdatedAt ? toggledStyle : defaultStyle
-                  } transition-all duration-200 hover:shadow-md`}
+                  } transition-all duration-200 hover:underline`}
                 >
                   최신순
                 </div>
@@ -180,7 +178,7 @@ const TranslateArchive = () => {
                   }}
                   className={`${
                     orderByLike ? toggledStyle : defaultStyle
-                  } transition-all duration-200 hover:shadow-md`}
+                  } transition-all duration-200 hover:underline`}
                 >
                   좋아요순
                 </div>
@@ -199,7 +197,7 @@ const TranslateArchive = () => {
                     return (
                       <div
                         key={trans.transId}
-                        className="w-full flex flex-col bg-white border border-[#87867F] py-4 px-5 rounded-xl hover:shadow-lg transition-all duration-300 ease-in-out"
+                        className="w-full flex flex-col max-h-[45vh] bg-white border border-[#87867F] py-4 px-5 rounded-xl hover:shadow-lg transition-all duration-300 ease-in-out"
                       >
                         <div
                           onClick={() => {
@@ -213,36 +211,39 @@ const TranslateArchive = () => {
                               님의 번역본
                             </div>
                             <div className="text-sm text-gray-500">
-                              {new Date(
-                                new Date(trans.updatedAt).toISOString()
-                              ).toLocaleString()}
+                              {handleUTC(trans.updatedAt).toLocaleString()}
                             </div>
                           </div>
                           <div className="flex items-center gap-4">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                console.log(trans);
-                                useReportStore.setState({
-                                  originContent: trans.content,
-                                  reportedUser: trans.userId,
-                                  commentId: null,
-                                  articleId: null,
-                                  transId: trans.transId,
-                                  chatId: null,
-                                });
-                                openReport();
-                                toggleReport();
-                              }}
-                              className="text-gray-500 cursor-pointer underline"
-                            >
-                              신고
-                            </button>
+                            {userId !== trans.userId && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // console.log(trans);
+                                  useReportStore.setState({
+                                    originContent: trans.content,
+                                    reportedUser: trans.userId,
+                                    commentId: null,
+                                    articleId: null,
+                                    transId: trans.transId,
+                                    chatId: null,
+                                  });
+                                  openReport();
+                                  toggleReport();
+                                }}
+                                className="text-gray-500 cursor-pointer underline"
+                              >
+                                신고
+                              </button>
+                            )}
 
-                            <div
+                            <button
                               onClick={async (e) => {
                                 e.stopPropagation();
-                                await handleLike(docsId, trans.transId);
+                                await debouncedHandleLike(
+                                  docsId,
+                                  trans.transId
+                                );
                               }}
                               className={`flex w-fititems-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 cursor-pointer right-5 top-1/2  ${
                                 trans.likeUserIds.includes(Number(userId))
@@ -268,18 +269,18 @@ const TranslateArchive = () => {
                               >
                                 {trans.likeCount}
                               </span>
-                            </div>
+                            </button>
                           </div>
                         </div>
 
                         <div
-                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                          className={`overflow-y-scroll transition-all duration-300 ease-in-out ${
                             transStates[trans.transId]
                               ? "max-h-[500px] opacity-100"
                               : "max-h-0 opacity-0"
                           }`}
                         >
-                          <div className="border-t border-slate-200 mt-4 pt-4 px-2 text-slate-700 leading-relaxed">
+                          <div className="border-t border-slate-200 mt-4 pt-4 px-2 text-slate-700 leading-relaxed max-w-[10vh">
                             <ToastViewer content={trans.content} />
                           </div>
                         </div>

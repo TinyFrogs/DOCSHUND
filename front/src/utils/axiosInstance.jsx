@@ -1,5 +1,4 @@
 import axios from "axios";
-import { toast } from "react-toastify"; // toast 임포트
 import useAuthStore from "../store/authStore"; // authStore 임포트 (경로 확인)
 
 const BASE_URL = "https://i12a703.p.ssafy.io/api/v1/docshund/";
@@ -37,16 +36,24 @@ const responseInterceptor = (error) => {
       error.response.data?.message || "알 수 없는 오류가 발생했습니다.";
 
     if (status === 401) {
-      // 401 에러 발생 시: 잘못된/만료된 토큰 처리
-      useAuthStore.getState().logout(); // store에서 토큰 삭제 및 상태 업데이트
-      toast.error(
-        "세션이 만료되었거나 유효하지 않은 토큰입니다. 다시 로그인 해주세요."
-      );
+      useAuthStore.getState().logout();
       if (window.location.pathname !== "/") {
-        window.location.href = "/"; // 홈 페이지로 강제 이동
+        window.location.href = "/";
       }
+      return Promise.reject(error);
+    } else if (
+      (status === 400 &&
+        (message === "이미 신고한 상태입니다." ||
+          message === "유효하지 않은 메일입니다." ||
+          message === "이미지 형식이 아닙니다." ||
+          message === "문서에 이미 연결된 원본이 존재합니다." ||
+          message === "필수 요소는 비워둘 수 없습니다.")) ||
+      message === "해당 데이터를 찾을 수 없습니다." ||
+      message === "해당 게시글을 찾을 수 없습니다." ||
+      message === "해당 댓글을 찾을 수 없습니다."
+    ) {
+      return Promise.reject(error);
     } else {
-      // 401 이외의 에러: /error 페이지로 이동
       if (window.location.pathname !== "/error") {
         window.location.href = `/error?status=${status}&message=${encodeURIComponent(
           message
@@ -58,20 +65,20 @@ const responseInterceptor = (error) => {
 };
 
 // 인터셉터 적용
-axiosJsonInstance.interceptors.request.use(requestInterceptor, (error) =>
-  Promise.reject(error)
-);
-axiosMultipartInstance.interceptors.request.use(requestInterceptor, (error) =>
-  Promise.reject(error)
-);
+axiosJsonInstance.interceptors.request.use(requestInterceptor, (error) => {
+  Promise.reject(error);
+});
+axiosMultipartInstance.interceptors.request.use(requestInterceptor, (error) => {
+  Promise.reject(error);
+});
 
-// axiosJsonInstance.interceptors.response.use(
-//   (response) => response,
-//   responseInterceptor
-// );
-// axiosMultipartInstance.interceptors.response.use(
-//   (response) => response,
-//   responseInterceptor
-// );
+axiosJsonInstance.interceptors.response.use(
+  (response) => response,
+  responseInterceptor
+);
+axiosMultipartInstance.interceptors.response.use(
+  (response) => response,
+  responseInterceptor
+);
 
 export { axiosJsonInstance, axiosMultipartInstance };

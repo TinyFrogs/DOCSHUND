@@ -12,7 +12,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "document")
@@ -25,23 +24,22 @@ public class Document extends BaseTimeEntity {
 	@Column(name = "docs_id")
 	private Integer docsId;
 
-	@Column(name = "document_category", nullable = false)
+	@Column(name = "document_category", nullable = false, length = 120)
 	private String documentCategory;
 
-	@Column(name = "document_name", nullable = false)
+	@Column(name = "document_name", nullable = false, length = 120)
 	private String documentName;
 
-	@Column(name = "license", nullable = false)
+	@Column(name = "license", nullable = false, length = 80)
 	private String license;
 
 	@Column(name = "document_link", nullable = false)
 	private String documentLink;
 
-	@Column(name = "view_count", nullable = false)
-	@Setter
+	@Column(name = "view_count", nullable = false, columnDefinition = "INT DEFAULT 0")
 	private Integer viewCount;
 
-	@Column(name = "document_version", nullable = false)
+	@Column(name = "document_version", nullable = false, length = 80)
 	private String documentVersion;
 
 	@Column(name = "document_logo")
@@ -63,6 +61,10 @@ public class Document extends BaseTimeEntity {
 		this.position = position;
 		this.license = license;
 		this.documentLink = documentLink;
+	}
+
+	public void increaseViewCount() {
+		this.viewCount++;
 	}
 
 }

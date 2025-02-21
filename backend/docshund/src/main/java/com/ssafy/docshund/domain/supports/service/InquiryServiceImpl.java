@@ -1,19 +1,25 @@
 package com.ssafy.docshund.domain.supports.service;
 
+import static com.ssafy.docshund.domain.supports.exception.inquiry.InquiryExceptionCode.INQUIRY_NOT_FOUND;
+import static com.ssafy.docshund.domain.users.exception.auth.AuthExceptionCode.INVALID_MEMBER_ROLE;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ssafy.docshund.domain.alerts.service.AlertsService;
 import com.ssafy.docshund.domain.supports.dto.inquiry.AnswerRequestDto;
 import com.ssafy.docshund.domain.supports.dto.inquiry.InquiryRequestDto;
 import com.ssafy.docshund.domain.supports.dto.inquiry.page.InquiryAndAnswerDto;
 import com.ssafy.docshund.domain.supports.entity.Answer;
 import com.ssafy.docshund.domain.supports.entity.Inquiry;
+import com.ssafy.docshund.domain.supports.exception.inquiry.InquiryException;
 import com.ssafy.docshund.domain.supports.repository.AnswerRepository;
 import com.ssafy.docshund.domain.supports.repository.InquiryRepository;
 import com.ssafy.docshund.domain.users.entity.User;
+import com.ssafy.docshund.domain.users.exception.auth.AuthException;
 import com.ssafy.docshund.global.aws.s3.S3FileUploadService;
 import com.ssafy.docshund.global.mail.MailSendService;
 import com.ssafy.docshund.global.util.user.UserUtil;
@@ -31,6 +37,7 @@ public class InquiryServiceImpl implements InquiryService {
 	private final MailSendService mailSendService;
 	private final S3FileUploadService fileUploadService;
 	private final UserUtil userUtil;
+	private final AlertsService alertsService;
 
 	@Override
 	@Transactional
@@ -42,33 +49,33 @@ public class InquiryServiceImpl implements InquiryService {
 		}
 
 		Inquiry inquiry = Inquiry.createInquiry(user, inquiryRequestDto, imageUrl);
-		inquiryRepository.save(inquiry);
 
 		inquiryRequestDto.emailTextGenerator();
 		mailSendService.sendEmail(inquiryRequestDto.getEmail(), inquiryRequestDto.getTitle(),
 			inquiryRequestDto.getContent(), imageUrl);
 
+		inquiryRepository.save(inquiry);
 	}
 
 	@Override
 	public Page<InquiryAndAnswerDto> getInquiries(Long userId, Pageable pageable) {
 		User user = userUtil.getUser();
 		if (user == null) {
-			throw new SecurityException("조회할 수 있는 권한이 없습니다.");
+			throw new AuthException(INVALID_MEMBER_ROLE);
 		}
-		
+
 		if (userUtil.isAdmin(user) || (userId != null && userUtil.isMine(userId, user))) {
 			return inquiryRepository.searchInquiryAndAnswer(userId, pageable);
 		}
 
-		throw new SecurityException("조회할 수 있는 권한이 없습니다.");
+		throw new AuthException(INVALID_MEMBER_ROLE);
 	}
 
 	@Override
 	@Transactional
 	public void respondToInquiry(Long inquiryId, AnswerRequestDto answerRequestDto) {
 		Inquiry inquiry = inquiryRepository.findById(inquiryId).orElseThrow(
-			() -> new RuntimeException("문의가 존재하지 않습니다."));
+			() -> new InquiryException(INQUIRY_NOT_FOUND));
 
 		Answer answer = Answer.createAnswer(answerRequestDto, inquiry);
 
@@ -77,6 +84,9 @@ public class InquiryServiceImpl implements InquiryService {
 
 		inquiry.isAnsweredTrue();
 		answerRepository.save(answer);
+		if (inquiry.getUser() != null) {
+			alertsService.sendInquiryAnswerAlert(inquiry);
+		}
 	}
 
 }
