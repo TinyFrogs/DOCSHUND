@@ -101,12 +101,12 @@
 
 ### 백엔드 (Back-end)
 
-|   Name   | 이경훈 🎖️BE리더                       | 이승연                                  | 정지은                                           |
-| :------: | ------------------------------------ | ------------------------------------------------- |-------------------------------------------------|
-| Profile  |<p align="center"><img src="https://avatars.githubusercontent.com/u/87762815?v=4" style="width:180px; height:220px; object-fit:cover;"></p>|<p align="center"><img src="https://avatars.githubusercontent.com/u/176969313?v=4" style="width:180px; height:220px; object-fit:cover;"></p>|<p align="center"><img src="https://avatars.githubusercontent.com/u/151860111?v=4" style="width:180px; height:220px; object-fit:cover;"></p>|
-| Position | Back-end Develop / PL  | Back-end Develop / Infra  | Back-end Develop / Document |
-|   Git    | [@TinyFrogs](https://github.com/TinyFrogs) | [@leesyseel](https://github.com/leesyseel) | [@doh3e](https://github.com/doh3e) |
-|   E-mail    | qns0147@gmail.com | leesyseel@gmail.com |  wldms3333@gmail.com |
+|   Name   | 이경훈 🎖️BE리더                       | 이승연                                                                                                        | 정지은                                           |
+| :------: | ------------------------------------ |------------------------------------------------------------------------------------------------------------|-------------------------------------------------|
+| Profile  |<p align="center"><img src="https://avatars.githubusercontent.com/u/87762815?v=4" style="width:180px; height:220px; object-fit:cover;"></p>| <p align="center"><img src="image/png/seung.jpg" style="width:180px; height:220px; object-fit:cover;"></p> |<p align="center"><img src="https://avatars.githubusercontent.com/u/151860111?v=4" style="width:180px; height:220px; object-fit:cover;"></p>|
+| Position | Back-end Develop / PL  | Back-end Develop / Infra                                                                                   | Back-end Develop / Document |
+|   Git    | [@TinyFrogs](https://github.com/TinyFrogs) | [@leesyseel](https://github.com/leesyseel)                                                                 | [@doh3e](https://github.com/doh3e) |
+|   E-mail    | qns0147@gmail.com | leesyseel@gmail.com                                                                                        |  wldms3333@gmail.com |
 
 <br>
 
