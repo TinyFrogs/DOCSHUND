@@ -15,7 +15,6 @@ const LikeDocsPage = () => {
 
   const docs = likeDocsStore((state) => state.docs);
   const setDocs = likeDocsStore((state) => state.setDocs);
-
   const setLoading = likeDocsStore((state) => state.setLoading);
   const setError = likeDocsStore((state) => state.setError);
 
@@ -27,14 +26,12 @@ const LikeDocsPage = () => {
 
   useEffect(() => {
     setLoading(true);
-    const fetchTranslations = async () => {
+    const fetchDocs = async () => {
       try {
         if (token) {
           const decoded = jwtDecode(token);
           const userId = decoded.userId;
-
           const data = await likeDocsService.fetchDocs(userId);
-
           if (data.length > 0) {
             setDocs(data);
           }
@@ -45,7 +42,7 @@ const LikeDocsPage = () => {
         setLoading(false);
       }
     };
-    fetchTranslations();
+    fetchDocs();
   }, [token]);
 
   useEffect(() => {
@@ -53,7 +50,6 @@ const LikeDocsPage = () => {
       const startIndex = currentPage * itemsPerPage;
       const endIndex = Math.min(startIndex + itemsPerPage, docs.length);
       const newTotalPages = Math.ceil(docs.length / itemsPerPage);
-
       setTotalPages(newTotalPages);
       setCurrentData(docs.slice(startIndex, endIndex));
     }
@@ -68,8 +64,8 @@ const LikeDocsPage = () => {
   };
 
   const renderDocs = (item) => (
-    <div className="flex justify-between text-lg px-3">
-      <div className="flex-1 min-w-0 mr-3 font-semibold line-clamp-1 break-all">
+    <div className="flex justify-between items-center text-sm sm:text-base md:text-lg px-3">
+      <div className="flex-1 min-w-0 mr-3 font-semibold line-clamp-1 break-all break-words overflow-wrap text-sm sm:text-base md:text-lg">
         <Link
           to={`/translate/main/viewer/${item.docsId}`}
           className="text-[#7d7c77] hover:text-[#bc5b39]"
@@ -77,8 +73,10 @@ const LikeDocsPage = () => {
           {item.documentName}
         </Link>
       </div>
-      <div className="flex space-x-6">
-        <p className="whitespace-nowrap">{item.position}</p>
+      <div className="flex space-x-4 sm:space-x-6">
+        <p className="whitespace-nowrap text-xs sm:text-sm md:text-base">
+          {item.position}
+        </p>
         <button onClick={() => handleLikeClick(item)}>
           <img
             src={likedItems[item.docsId] ? likeCancel : like}
@@ -91,15 +89,21 @@ const LikeDocsPage = () => {
   );
 
   return (
-    <div className="p-10 bg-white rounded-bl-xl rounded-br-xl border-b border-l border-r border-[#E1E1DF] text-[#7D7C77]">
-      <ListRender
-        data={currentData}
-        renderItem={renderDocs}
-        totalPages={totalPages}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        itemCategory="docs"
-      />
+    <div>
+      <div className="flex justify-between mt-5 mb-5">
+        <h1 className="font-bold text-2xl">관심 문서</h1>
+      </div>
+      <div className="bg-white rounded-tl-xl rounded-tr-xl border-t border-l border-r border-[#E1E1DF] pt-4 pl-6"></div>
+      <div className="p-4 sm:p-6 lg:p-10 bg-white rounded-bl-xl rounded-br-xl border-b border-l border-r border-[#E1E1DF] text-[#7D7C77]">
+        <ListRender
+          data={currentData}
+          renderItem={renderDocs}
+          totalPages={docs.length > 0 ? totalPages : 0}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          itemCategory="docs"
+        />
+      </div>
     </div>
   );
 };

@@ -11,25 +11,18 @@ import LodingImage from "../../assets/loading.gif";
 
 const ManageDocs = () => {
   const [loading, setLoading] = useState(false);
-  const [currentDocsId, setCurrentDocsId] = useState(null);
 
   const [adminDocsList, setAdminDocsList] = useState([]);
-  const [selectedDocs, setSelectedDocs] = useState([]);
 
   //등록 관련 모달 상태관리
   const [openRegistDocs, setOpenRegistDocs] = useState(false);
-  const [openRegistDocsContent, setOpenRegistDocsContent] = useState(false);
-
-  const [file, setFile] = useState(null);
 
   const fetchAdminDocs = async () => {
     try {
       const response = await fetchDocsList();
+      response.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setAdminDocsList(response);
-      console.log(response);
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -37,13 +30,29 @@ const ManageDocs = () => {
   }, []);
 
   const handleFileChange = async (e, docsId) => {
-    setLoading(true);
     const selectedFile = e.target.files[0];
-    console.log("Selected File:", selectedFile);
 
     if (selectedFile) {
-      if (selectedFile.size > 5 * 1024 * 1024) {
-        toast.error("파일 크기는 최대 5MB까지 업로드 가능합니다.");
+      setLoading(true);
+      if (selectedFile.size > 10 * 1000 * 1000) {
+        setLoading(false);
+        toast.warn("파일 크기는 최대 10MB까지 업로드 가능합니다.", {
+          toastId: "file-warning",
+        });
+        return;
+      } else if (selectedFile.size === 0) {
+        toast.warn("파일이 비어있습니다.", {
+          toastId: "file-warning",
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (selectedFile.type !== "text/plain") {
+        setLoading(false);
+        toast.warn("파일 형식은 .txt만 가능합니다.", {
+          toastId: "file-warning",
+        });
         return;
       }
 
@@ -54,23 +63,35 @@ const ManageDocs = () => {
       try {
         // 파일 업로드
         const result = await registDocumentContent(docsId, formData);
-        console.log("Upload result:", result);
 
-        if (result && result !== 400) {
-          toast.success("파일이 성공적으로 업로드되었습니다.");
+        if (result === 200) {
           setLoading(false);
-          fetchAdminDocs();
+          toast.success("파일이 성공적으로 업로드되었습니다.", {
+            toastId: "file-success",
+          });
+          await fetchAdminDocs();
         } else {
           setLoading(false);
-          toast.error("파일 업로드에 실패했습니다.");
-          fetchAdminDocs();
+          // toast.error("파일 업로드에 실패했습니다.", {
+          //   toastId: "file-error",
+          // });
+          await fetchAdminDocs();
         }
       } catch (error) {
         setLoading(false);
-        console.error("파일 업로드 중 오류 발생:", error);
-        toast.error("파일 업로드에 실패했습니다.");
+        // toast.error("파일 업로드에 실패했습니다.", {
+        //   toastId: "file-error",
+        // });
+        await fetchAdminDocs();
       }
     }
+  };
+
+  const handleUTC = (time) => {
+    const date = new Date(time);
+    const kor = date.getHours() + 9;
+    date.setHours(kor);
+    return date;
   };
 
   return (
@@ -83,11 +104,11 @@ const ManageDocs = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-gray-800">문서관리</h1>
-        <h2>* 삭제하실 문서를 선택 후 삭제 버튼을 눌러주세요.</h2>
         <div className="flex gap-2">
           {/* <button className="cursor-pointer px-2 py-2 bg-[#ff2121] text-white rounded-lg hover:bg-[#a34e31] transition-colors duration-200">
             - 문서삭제
           </button> */}
+
           <button
             onClick={() => setOpenRegistDocs(true)}
             className="cursor-pointer px-2 py-2 bg-[#bc5b39] text-white rounded-lg hover:bg-[#a34e31] transition-colors duration-200"
@@ -142,9 +163,7 @@ const ManageDocs = () => {
                     {adminDocs.license}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(
-                      new Date(adminDocs.createdAt).toISOString()
-                    ).toLocaleString()}
+                    {handleUTC(adminDocs.createdAt).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {adminDocs.viewCount}
@@ -156,7 +175,7 @@ const ManageDocs = () => {
                     <div className="relative">
                       <input
                         type="file"
-                        // accept=".txt"
+                        accept=".txt"
                         id="file"
                         name="file"
                         onChange={async (e) => {

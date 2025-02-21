@@ -44,12 +44,14 @@ const communityArticleStore = create(
       articleItems: {},
       likeCount: 0,
       contentLength: 0,
+      isLikedArticleIds: [],
 
       // article item의 메소드 설정
       setArticleId: (articleId) => set({ articleId }),
       setArticleItems: (articleItems) => set({ articleItems }),
       setLikeCount: (likeCount) => set({ likeCount }),
       setContentLength: (contentLength) => set({ contentLength }),
+      setIsLikedArticleIds: (isLikedArticleIds) => set({ isLikedArticleIds }),
 
       // article item의 전체 메소드 설정
       setArticleData: (data) =>
@@ -77,6 +79,7 @@ const communityArticleStore = create(
       category: "", // 문서(소분류) 제목
       content: "",
       fileUrl: "", // 파일 URL
+      isPossibleInsertImage: true,
 
       // 글 작성에 필요한 메소드 설정
       setTitle: (title) => set({ title }),
@@ -84,6 +87,8 @@ const communityArticleStore = create(
       setCategory: (category) => set({ category }), // 문서(소분류) 제목 수정
       setContent: (content) => set({ content }),
       setFileUrl: (fileUrl) => set({ fileUrl }),
+      setIsPossibleInsertImage: (isPossibleInsertImage) =>
+        set({ isPossibleInsertImage }),
 
       // reply list의 초기값 설정
       replies: [], // 댓글 리스트
@@ -109,7 +114,7 @@ const communityArticleStore = create(
       getStorage: () => createJSONStorage(), // storage 설정
       partialize: (state) => ({
         articleItems: state.articleItems,
-        // 다른 유지하고 싶은 상태들
+        isLikedArticleIds: state.isLikedArticleIds,
       }),
     }
   )

@@ -1,17 +1,24 @@
 import { useEffect, useState } from "react";
 import { EventSourcePolyfill, NativeEventSource } from "event-source-polyfill";
+import { toast } from "react-toastify";
+
 import notificationModalStore from "../store/notificationModalStore";
+import useAuthStore from "../store/authStore";
 
 const UseSSE = (userId) => {
+  const token = useAuthStore(
+    (state) => state.token,
+    (prev, next) => prev === next // shallow comparison
+  );
   const addNotification = notificationModalStore(
     (state) => state.addNotification
   );
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState(null);
-  const [retryCount, setRetryCount] = useState(0);
+  // const [retryCount, setRetryCount] = useState(0);
 
-  const MAX_RETRY_ATTEMPTS = 5;
-  const RETRY_TIMEOUT = 3000; // 3초
+  // const MAX_RETRY_ATTEMPTS = 5;
+  // const RETRY_TIMEOUT = 3000; // 3초
 
   const EventSource = EventSourcePolyfill || NativeEventSource;
 
@@ -31,6 +38,11 @@ const UseSSE = (userId) => {
           eventSource.close();
         }
 
+        // token이 없고(로그아웃 상태) 연결이 되어있으면 return
+        if (!token) {
+          return;
+        }
+
         // INFO: EventSource 객체 생성 -> stream 주소, 헤더 설정
         eventSource = new EventSource(
           `https://i12a703.p.ssafy.io/api/v1/docshund/alerts/stream`,
@@ -46,26 +58,39 @@ const UseSSE = (userId) => {
 
         // INFO: 이벤트 소스 연결 성공 시
         eventSource.onopen = () => {
-          console.log("SSE 연결 성공");
           setIsConnected(true);
           setError(null);
-          setRetryCount(0);
+          // setRetryCount(0);
         };
 
         // INFO: Backend에서 설정한 'alert' 이벤트 리스닝
         eventSource.addEventListener("alert", (event) => {
           try {
             const notification = JSON.parse(event.data);
-            console.log("새로운 알림 수신:", notification);
-            addNotification(notification);
+
+            // 모든 UI 업데이트를 requestAnimationFrame 내부로 이동
+            requestAnimationFrame(() => {
+              // 알림 상태 업데이트
+              addNotification(notification);
+
+              // 토스트 알림 표시
+              toast.info(notification.content, {
+                position: "top-right",
+                autoClose: 2000,
+                hideProgressBar: true,
+                toastId: notification.alertId, // 고유성 보장을 위해 타임스탬프 추가
+                pauseOnFocusLoss: false, // 포커스 손실시에도 타이머 계속 실행
+                pauseOnHover: true, // 호버시 일시 정지
+              });
+            });
           } catch (err) {
-            console.error("알림 데이터 파싱 오류:", err);
+            // console.error("알림 데이터 파싱 오류:", err);
           }
         });
 
         // INFO: 에러 핸들링
         eventSource.onerror = (error) => {
-          console.error("SSE 연결 오류:", error);
+          // console.error("SSE 연결 오류:", error);
           setIsConnected(false);
 
           // NOTE: 현재 재연결 로직은 비활성화 <- 필요 시 주석 해제
@@ -95,7 +120,7 @@ const UseSSE = (userId) => {
           // }
         };
       } catch (err) {
-        console.error("EventSource 초기화 오류:", err);
+        // console.error("EventSource 초기화 오류:", err);
         setIsConnected(false);
         setError("알림 서버 연결에 실패했습니다.");
       }
@@ -107,16 +132,17 @@ const UseSSE = (userId) => {
     // Cleanup
     return () => {
       if (eventSource) {
-        console.log("SSE 연결 종료");
+        // console.log("SSE 연결 종료");
         eventSource.close();
+        setIsConnected(false);
       }
     };
-  }, [userId]); // userId가 변경될 때만 재연결
+  }, [userId, token]); // userId가 변경될 때만 재연결
 
   return {
     isConnected,
     error,
-    retryCount,
+    // retryCount,
   };
 };
 

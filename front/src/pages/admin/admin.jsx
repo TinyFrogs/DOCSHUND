@@ -1,7 +1,12 @@
 import { Outlet } from "react-router-dom";
+import { useEffect } from "react";
 import AdminSideBar from "./components/adminSideBar";
 
 const Admin = () => {
+  useEffect(() => {
+    document.body.style.overflow = "auto";
+  }, []);
+
   return (
     <div className="flex min-h-screen">
       <AdminSideBar />

@@ -1,18 +1,15 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
 import { jwtDecode } from "jwt-decode";
 import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
 import { toast } from "react-toastify";
-import Modal from "react-modal";
 import ReportStore from "../store/reportStore";
 import ReportService from "../services/reportService";
-
 import { X } from "lucide-react";
+import UseFileTypeCheck from "../hooks/useFileTypeCheck";
+import _ from "lodash";
 
 const ReportModal = () => {
-  const navigate = useNavigate();
-
   const {
     originContent,
     reportedUser,
@@ -21,27 +18,53 @@ const ReportModal = () => {
     transId,
     chatId,
     isReportOpen,
-    isReportVisible,
     closeReport,
     toggleReport,
   } = ReportStore();
 
   const [category, setCategory] = useState("");
-  const [title, setTitle] = useState("");
-  const [email, setEmail] = useState("");
   const [content, setContent] = useState("");
   const [file, setFile] = useState(null);
+  const [tmpFile, setTmpFile] = useState(null); // 임시 파일 상태
   const [isSelected, setIsSelected] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef(null);
+  const { validateImageFile, isValidating, error } = UseFileTypeCheck();
 
   const MAX_CONTENT_LENGTH = 500;
+  const MAX_FILE_SIZE = 10 * 1000 * 1000; // 10MB
 
+  // 모달이 열릴 때 상태 초기화
+  useEffect(() => {
+    if (isReportOpen) {
+      setCategory("");
+      setContent("");
+      setFile(null);
+      setIsSelected(true);
+      setIsSubmitting(false);
+    }
+  }, [isReportOpen]);
+
+  const convertWhiteSpace = (content) => {
+    return content.replace(/\n/g, "\r\n"); // 개행 문자 정규화
+  };
+
+  // 신고 제출 처리 (debounce 제거)
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!category || !content) {
-      toast.warn("신고 카테고리, 내용을 모두 입력해주세요.");
+
+    console.log(category, content);
+
+    // 필수 필드 확인
+    if (!category || !content.trim()) {
+      toast.warn("신고 카테고리, 내용을 모두 입력해주세요.", {
+        toastId: "report-warning",
+      });
+      setIsSubmitting(false);
       return;
     }
 
+    // 토큰에서 userId 추출
     let userId = null;
     const token = localStorage.getItem("token");
     if (token) {
@@ -49,10 +72,20 @@ const ReportModal = () => {
       userId = decodedToken.userId;
     }
 
+    // 신고 객체 구성
+    const formattedContent = convertWhiteSpace(content);
+
+    if (formattedContent.length > MAX_CONTENT_LENGTH) {
+      toast.info(`글 내용은 ${MAX_CONTENT_LENGTH}자 이하로 작성해주세요.`, {
+        toastId: "contentLength",
+      });
+      return;
+    }
+
     const report = {
       category,
+      content: formattedContent,
       originContent,
-      content,
       reportedUser,
       commentId,
       articleId,
@@ -64,6 +97,7 @@ const ReportModal = () => {
       report.userId = userId;
     }
 
+    // FormData 구성
     const formData = new FormData();
     formData.append(
       "report",
@@ -73,53 +107,68 @@ const ReportModal = () => {
       formData.append("file", file);
     }
 
-    // Log FormData content
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ": " + pair[1]);
-    }
-
-    try {
-      // 문의 제출 API 호출
-      await ReportService.submitReport(formData);
-      toast.success("신고가 성공적으로 제출되었습니다.");
+    const response = await ReportService.submitReport(formData);
+    if (response) {
+      toast.success("신고가 성공적으로 제출되었습니다.", {
+        toastId: "report-success",
+      });
+      // 신고 성공 시 상태 초기화
       setCategory("");
-      setTitle("");
-      setEmail("");
       setContent("");
       setFile(null);
-
-      // 문의 제출 후 마이페이지로 이동
-    } catch (error) {
-      toast.error("신고 제출 중 오류가 발생했습니다.");
-      console.log("신고 등록 실패", error);
+      // 모달 닫기
+      toggleReport();
+      closeReport();
     }
-
-    toggleReport();
-    closeReport();
+    setIsSubmitting(false);
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = _.debounce(async (e) => {
     const selectedFile = e.target.files[0];
 
-    if (selectedFile) {
-      if (selectedFile.size > 5 * 1024 * 1024) {
-        // 5MB 제한
-        toast.info("파일 크기는 최대 5MB까지 업로드 가능합니다.");
-        return;
+    const isValid = await validateImageFile(selectedFile);
+
+    if (!isValid) {
+      toast.warn("이미지 파일만 업로드 가능합니다.", {
+        toastId: "file-warning",
+      });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
-      setFile(selectedFile);
+      return;
     }
-  };
+
+    if (selectedFile.size > MAX_FILE_SIZE) {
+      toast.warn("파일 크기는 최대 10MB까지 업로드 가능합니다.", {
+        toastId: "file-warning",
+      });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      return;
+    }
+
+    if (selectedFile === tmpFile) {
+      setFile(selectedFile);
+      return;
+    }
+
+    setTmpFile(selectedFile);
+    setFile(selectedFile);
+  }, 300);
 
   const handleFileCancel = () => {
     setFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   return (
     <AnimatePresence>
       {isReportOpen && (
         <motion.div
-          className="fixed inset-0 flex items-center justify-center z-[2200] backdrop-brightness-60 border-box w-full h-full"
+          className="fixed inset-0 flex items-center justify-center z-[2200] w-full h-full backdrop-brightness-60"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -127,17 +176,17 @@ const ReportModal = () => {
         >
           <motion.div
             key="editor-modal"
-            className="fixed inset-0 flex items-center justify-center min-w-full min-h-full "
+            className="fixed inset-0 flex items-center justify-center min-w-full min-h-full"
           >
-            <div className="p-6 bg-white h-fit rounded-xl border-b border-l border-r border-[#E1E1DF] text-[#7D7C77] mb-5">
-              <div className="w-full h-fit flex justify-end items-center">
+            <div className="p-6 bg-white h-fit rounded-xl border border-[#E1E1DF] text-[#7D7C77] mb-5 min-w-[400px]">
+              <div className="w-full flex justify-end items-center">
                 <button
                   onClick={() => {
                     closeReport();
                   }}
                   className="cursor-pointer"
                 >
-                  <X className="text-red-800 " />
+                  <X className="text-red-800" />
                 </button>
               </div>
 
@@ -154,7 +203,6 @@ const ReportModal = () => {
                     {isSelected && (
                       <option value="">카테고리를 선택하세요</option>
                     )}
-
                     <option
                       onClick={() => setIsSelected(false)}
                       value="ABUSIVE_LANGUAGE_OR_VIOLENCE"
@@ -203,43 +251,45 @@ const ReportModal = () => {
                   <textarea
                     value={content}
                     onChange={(e) =>
-                      e.target.value.length <= MAX_CONTENT_LENGTH &&
-                      setContent(e.target.value)
+                      convertWhiteSpace(e.target.value).length <=
+                        MAX_CONTENT_LENGTH && setContent(e.target.value)
                     }
                     className="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#bc5b39] focus:border-[#bc5b39] sm:text-sm"
                     placeholder="내용을 입력하세요"
                     style={{ height: "250px", resize: "none" }}
                   ></textarea>
                   <p className="text-xs text-gray-500 mt-1 mr-2 text-right">
-                    {content.length} / {MAX_CONTENT_LENGTH}
+                    {convertWhiteSpace(content).length} / {MAX_CONTENT_LENGTH}
                   </p>
                 </div>
+
                 <div className="mb-6">
                   <div className="flex items-center">
                     <div className="relative">
                       <input
                         type="file"
+                        accept="image/png, image/jpeg, image/jpg"
                         onChange={handleFileChange}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
-                      <div className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm text-center cursor-pointer hover:bg-[#C96442] text-sm">
-                        파일 선택
+                      <div className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm text-center cursor-pointer hover:bg-[#C96442] text-sm whitespace-nowrap">
+                        사진 선택
                       </div>
                     </div>
                     {!file && (
-                      <p className="ml-4 text-sm text-gray-500">
-                        첨부할 파일을 선택하세요 (1개만 가능)
+                      <p className="ml-4 flex-1 text-sm text-gray-500 w-[8vw]">
+                        첨부할 사진을 선택하세요
                       </p>
                     )}
                     {file && (
-                      <div className="ml-4 flex items-center">
-                        <p className="text-sm text-gray-500 mr-2 truncate max-w-md">
+                      <div className="ml-4 flex-1 flex items-center w-[8vw]">
+                        <p className="text-sm line-clamp-1 text-gray-500 mr-2">
                           {file.name}
                         </p>
                         <button
                           type="button"
                           onClick={handleFileCancel}
-                          className="py-1 px-2 hover:text-red-600 text-sm underline"
+                          className="py-1 px-2 hover:text-red-600 shrink-0 text-sm underline"
                         >
                           삭제
                         </button>
@@ -247,10 +297,14 @@ const ReportModal = () => {
                     )}
                   </div>
                 </div>
+
                 <div className="text-center">
                   <button
                     type="submit"
-                    className="py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm hover:bg-[#C96442] cursor-pointer"
+                    disabled={isSubmitting}
+                    className={`py-2 px-4 bg-[#bc5b39] text-white rounded-md shadow-sm hover:bg-[#C96442] cursor-pointer ${
+                      isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                   >
                     신고하기
                   </button>

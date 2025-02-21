@@ -60,7 +60,7 @@ export const addData = (data, objectStoreName) => {
         };
 
         request.onerror = (event) => {
-          console.error("Error adding item:", item, event.target.error);
+          // console.error("Error adding item:", item, event.target.error);
           reject("데이터 추가 실패: " + event.target.error);
         };
       });
@@ -89,4 +89,37 @@ export const closeAllConnections = () => {
     db.close();
     db = null;
   }
+};
+
+//5. 특정 필드에서 키워드 검색 (부분 일치 검색)
+export const searchData = (objectStoreName, fieldName, query) => {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(objectStoreName, "readonly");
+    const objectStore = transaction.objectStore(objectStoreName);
+    const results = [];
+
+    const request = objectStore.openCursor();
+    request.onsuccess = (event) => {
+      const cursor = event.target.result;
+      if (cursor) {
+        const value = cursor.value[fieldName];
+        if (
+          value &&
+          value.toString().toLowerCase().includes(query.toLowerCase())
+        ) {
+          results.push(cursor.value);
+        }
+        cursor.continue();
+      } else {
+        resolve(results); // 모든 검색이 끝난 후 결과 반환
+      }
+    };
+    request.onerror = (event) => {
+      reject("검색 실패: " + event.target.error);
+    };
+  });
+};
+
+export const clearDB = async () => {
+  await indexedDB.deleteDatabase("docs");
 };
