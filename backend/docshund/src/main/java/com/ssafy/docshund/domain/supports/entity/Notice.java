@@ -21,10 +21,10 @@ public class Notice extends BaseTimeEntityWithUpdatedAt {
 	@Column(name = "notice_id")
 	private Integer noticeId;
 
-	@Column(name = "title", nullable = false, length = 100)
+	@Column(name = "title", nullable = false, length = 200)
 	private String title;
 
-	@Column(name = "content", nullable = false)
+	@Column(name = "content", nullable = false, columnDefinition = "TEXT")
 	private String content;
 
 	public static Notice createNotice(NoticeRequestDto noticeRequestDto) {

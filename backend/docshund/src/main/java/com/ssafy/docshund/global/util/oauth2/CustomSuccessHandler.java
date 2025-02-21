@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import com.ssafy.docshund.domain.alerts.service.AlertsService;
 import com.ssafy.docshund.domain.users.dto.auth.CustomOAuth2User;
 import com.ssafy.docshund.global.util.jwt.JwtUtil;
 
@@ -21,7 +22,9 @@ import lombok.extern.slf4j.Slf4j;
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
 	private final JwtUtil jwtUtil;
-	private static final long TOKEN_EXPIRATION = 60L * 60L * 24L * 30L;
+	private static final long TOKEN_EXPIRATION = 60L * 60L * 24L * 365L;
+
+	private final AlertsService alertsService;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -31,6 +34,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 		String personalId = userDetails.getPersonalId();
 		Long userId = userDetails.getUserId();
+		log.info("받아온 userId: {}", userId);
 
 		String role = authentication.getAuthorities().stream()
 			.findFirst()
@@ -41,7 +45,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		log.info("Token: " + token);
 
 		//프론트엔드 URL로 리디렉트하면서 토큰을 전달
-		String redirectUrl = "http://localhost:5173?token=" + token;
+		String redirectUrl = "https://i12a703.p.ssafy.io/?token=" + token;
 		response.sendRedirect(redirectUrl);
 	}
 
