@@ -37,10 +37,10 @@ public class Article extends BaseTimeEntityWithUpdatedAt {
 	@JoinColumn(name = "docs_id", nullable = false)
 	private Document document;  // 문서 정보 (document 테이블과 연결)
 
-	@Column(name = "title", nullable = false, length = 50)
+	@Column(name = "title", nullable = false, length = 200)
 	private String title;  // 게시글 제목
 
-	@Column(name = "content", nullable = false, columnDefinition = "TEXT")
+	@Column(name = "content", nullable = false, columnDefinition = "MEDIUMTEXT")
 	private String content;  // 게시글 내용
 
 	@Column(name = "view_cnt", nullable = false)
@@ -81,5 +81,26 @@ public class Article extends BaseTimeEntityWithUpdatedAt {
 
 	public void modifyToInvisible() {
 		this.status = Status.INVISIBLE;
+	}
+
+	public void modifyStatus(Status status) {
+		this.status = status;
+	}
+
+	public void increaseViewCount() {
+		this.viewCount++;
+	}
+
+	public void increaseReportCount() {
+		this.reportCount++;
+	}
+
+	public void decreaseReportCount() {
+		this.reportCount--;
+	}
+
+	public void resetReportCount() {
+		this.reportCount = 0;
+		this.status = Status.VISIBLE;
 	}
 }

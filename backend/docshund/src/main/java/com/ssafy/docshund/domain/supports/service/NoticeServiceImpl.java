@@ -1,5 +1,8 @@
 package com.ssafy.docshund.domain.supports.service;
 
+import static com.ssafy.docshund.domain.supports.exception.notice.NoticeExceptionCode.NOTICE_NOT_FOUND;
+import static com.ssafy.docshund.domain.users.exception.auth.AuthExceptionCode.INVALID_MEMBER_ROLE;
+
 import java.util.Comparator;
 import java.util.List;
 
@@ -12,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ssafy.docshund.domain.supports.dto.notice.NoticeRequestDto;
 import com.ssafy.docshund.domain.supports.dto.notice.NoticeResponseDto;
 import com.ssafy.docshund.domain.supports.entity.Notice;
+import com.ssafy.docshund.domain.supports.exception.notice.NoticeException;
 import com.ssafy.docshund.domain.supports.repository.NoticeRepository;
+import com.ssafy.docshund.domain.users.exception.auth.AuthException;
 import com.ssafy.docshund.global.util.user.UserUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -79,13 +84,13 @@ public class NoticeServiceImpl implements NoticeService {
 
 	private void isAdminByNotice() {
 		if (!userUtil.isAdmin(userUtil.getUser())) {
-			throw new SecurityException("관리자가 아닙니다.");
+			throw new AuthException(INVALID_MEMBER_ROLE);
 		}
 	}
 
 	private Notice findNotice(Integer noticeId) {
 		return noticeRepository.findById(noticeId)
 			.orElseThrow(
-				() -> new RuntimeException("공지사항이 존재하지 않습니다."));
+				() -> new NoticeException(NOTICE_NOT_FOUND));
 	}
 }

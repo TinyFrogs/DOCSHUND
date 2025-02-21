@@ -20,8 +20,6 @@ import lombok.Getter;
 @Table(name = "user_info")
 public class UserInfo extends BaseTimeEntityWithUpdatedAt {
 
-	private static final String INTRODUCE_TEXT = "자기소개를 설정해주세요.";
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_info_id")
@@ -38,7 +36,7 @@ public class UserInfo extends BaseTimeEntityWithUpdatedAt {
 	@Column(name = "hobby", length = 30)
 	private Hobby hobby;
 
-	@Column(name = "introduce")
+	@Column(name = "introduce", length = 800)
 	private String introduce;
 
 	@Column(name = "report_count", nullable = false, columnDefinition = "INT DEFAULT 0")
@@ -48,7 +46,7 @@ public class UserInfo extends BaseTimeEntityWithUpdatedAt {
 		UserInfo userInfo = new UserInfo();
 		userInfo.user = user;
 		userInfo.isDarkmode = false;
-		userInfo.introduce = INTRODUCE_TEXT;
+		userInfo.introduce = "";
 
 		return userInfo;
 	}
@@ -57,6 +55,14 @@ public class UserInfo extends BaseTimeEntityWithUpdatedAt {
 		this.introduce = profileRequestDto.getIntroduce();
 		this.isDarkmode = profileRequestDto.getIsDarkmode();
 		this.hobby = profileRequestDto.getHobbyEnum();
+	}
+
+	public void increaseReportCount() {
+		this.reportCount++;
+	}
+
+	public void decreaseReportCount(int reportCount) {
+		this.reportCount = Math.max(0, this.reportCount - reportCount);
 	}
 
 }

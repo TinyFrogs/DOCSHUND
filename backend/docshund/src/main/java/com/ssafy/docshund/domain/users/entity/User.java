@@ -33,7 +33,7 @@ public class User extends BaseTimeEntityWithUpdatedAt {
 	@Column(name = "profile_image")
 	private String profileImage;
 
-	@Column(name = "nickname", length = 20, unique = true)
+	@Column(name = "nickname", length = 40, unique = true)
 	private String nickname;
 
 	@Enumerated(EnumType.STRING)
@@ -89,5 +89,9 @@ public class User extends BaseTimeEntityWithUpdatedAt {
 
 	public void changeUser() {
 		this.role = Role.ROLE_USER;
+	}
+
+	public void modifyStatus(Status status) {
+		this.status = status;
 	}
 }

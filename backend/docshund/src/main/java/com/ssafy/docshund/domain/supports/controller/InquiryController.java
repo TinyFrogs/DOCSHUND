@@ -1,5 +1,7 @@
 package com.ssafy.docshund.domain.supports.controller;
 
+import static com.ssafy.docshund.domain.users.exception.auth.AuthExceptionCode.INVALID_MEMBER_ROLE;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
@@ -19,8 +21,10 @@ import com.ssafy.docshund.domain.supports.dto.inquiry.InquiryRequestDto;
 import com.ssafy.docshund.domain.supports.dto.inquiry.page.InquiryAndAnswerDto;
 import com.ssafy.docshund.domain.supports.service.InquiryService;
 import com.ssafy.docshund.domain.users.entity.User;
+import com.ssafy.docshund.domain.users.exception.auth.AuthException;
 import com.ssafy.docshund.global.util.user.UserUtil;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +39,7 @@ public class InquiryController {
 
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> createInquiry(
-		@RequestPart("inquiry") InquiryRequestDto inquiryRequestDto,
+		@Valid @RequestPart("inquiry") InquiryRequestDto inquiryRequestDto,
 		@RequestPart(value = "file", required = false) MultipartFile file) {
 
 		inquiryServiceImpl.createInquiry(inquiryRequestDto, file);
@@ -45,11 +49,11 @@ public class InquiryController {
 
 	@PostMapping("/{inquiryId}/answer")
 	public ResponseEntity<?> respondToInquiry(@PathVariable Long inquiryId,
-		@RequestBody AnswerRequestDto answerRequestDto) {
+		@Valid @RequestBody AnswerRequestDto answerRequestDto) {
 
 		User user = userUtil.getUser();
 		if (user == null || !userUtil.isAdmin(user)) {
-			return ResponseEntity.badRequest().body("어드민이 아닙니다.");
+			throw new AuthException(INVALID_MEMBER_ROLE);
 		}
 
 		inquiryServiceImpl.respondToInquiry(inquiryId, answerRequestDto);

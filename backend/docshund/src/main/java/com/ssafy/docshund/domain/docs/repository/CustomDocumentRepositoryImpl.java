@@ -1,10 +1,10 @@
 package com.ssafy.docshund.domain.docs.repository;
 
-import static com.ssafy.docshund.domain.docs.entity.QDocument.*;
-import static com.ssafy.docshund.domain.docs.entity.QDocumentLike.*;
-import static com.ssafy.docshund.domain.docs.entity.QOriginDocument.*;
-import static com.ssafy.docshund.domain.docs.entity.QTranslatedDocument.*;
-import static com.ssafy.docshund.domain.docs.entity.QTranslatedDocumentLike.*;
+import static com.ssafy.docshund.domain.docs.entity.QDocument.document;
+import static com.ssafy.docshund.domain.docs.entity.QDocumentLike.documentLike;
+import static com.ssafy.docshund.domain.docs.entity.QOriginDocument.originDocument;
+import static com.ssafy.docshund.domain.docs.entity.QTranslatedDocument.translatedDocument;
+import static com.ssafy.docshund.domain.docs.entity.QTranslatedDocumentLike.translatedDocumentLike;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +18,7 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.docshund.domain.docs.dto.TranslatedDocumentDto;
 import com.ssafy.docshund.domain.docs.entity.Document;
+import com.ssafy.docshund.domain.docs.entity.Status;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -55,9 +56,10 @@ public class CustomDocumentRepositoryImpl implements CustomDocumentRepository {
 			.leftJoin(translatedDocumentLike)
 			.on(translatedDocument.transId.eq(translatedDocumentLike.translatedDocument.transId))
 			.join(translatedDocument.originDocument, originDocument)
-			.where(originDocument.document.docsId.eq(docsId))
+			.where(originDocument.document.docsId.eq(docsId).and(translatedDocument.status.eq(Status.VISIBLE)))
 			.groupBy(originDocument.originId, translatedDocument.transId)
-			.orderBy(originDocument.originId.asc(), translatedDocumentLike.translatedDocument.transId.count().desc())
+			.orderBy(originDocument.originId.asc(), translatedDocumentLike.translatedDocument.transId.count().desc(),
+				translatedDocument.createdAt.desc())
 			.fetch()
 			.stream()
 			.filter(tuple -> tuple.get(translatedDocument.transId) != null)
@@ -75,7 +77,8 @@ public class CustomDocumentRepositoryImpl implements CustomDocumentRepository {
 		// transId 기준으로 번역문 가져와서 pOrder 기준 정렬
 		return queryFactory
 			.selectFrom(translatedDocument)
-			.where(translatedDocument.transId.in(bestTransIds))
+			.where(translatedDocument.transId.in(bestTransIds)
+				.and(translatedDocument.status.eq(Status.VISIBLE)))
 			.orderBy(translatedDocument.originDocument.pOrder.asc())
 			.fetch()
 			.stream()
@@ -115,7 +118,8 @@ public class CustomDocumentRepositoryImpl implements CustomDocumentRepository {
 			.on(translatedDocument.transId.eq(translatedDocumentLike.translatedDocument.transId))
 			.join(translatedDocument.originDocument, originDocument)
 			.where(originDocument.document.docsId.eq(docsId)
-				.and(originDocument.originId.eq(originId)))
+				.and(originDocument.originId.eq(originId))
+				.and(translatedDocument.status.eq(Status.VISIBLE)))
 			.groupBy(translatedDocument.transId)
 			.orderBy(sortOrder)
 			.fetch()

@@ -31,17 +31,17 @@ public class Inquiry extends BaseTimeEntity {
 	@JoinColumn(name = "user_id")
 	private User user;  // 문의를 작성한 사용자 (user 테이블과 연결)
 
-	@Column(name = "email", nullable = false)
+	@Column(name = "email", nullable = false, length = 100)
 	private String email;  // 비회원인 경우 이메일로 처리
 
-	@Column(name = "title", nullable = false)
+	@Column(name = "title", nullable = false, length = 200)
 	private String title;  // 문의 제목
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "category", nullable = false)
 	private InquiryCategory category;  // 문의 카테고리 (문서 등록 요청, 회원 관련, 신고 관련)
 
-	@Column(name = "content", nullable = false)
+	@Column(name = "content", nullable = false, columnDefinition = "TEXT")
 	private String content;  // 문의 내용
 
 	@Column(name = "file")
