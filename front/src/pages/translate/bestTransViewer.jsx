@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigationType } from "react-router-dom";
+import { Virtuoso } from "react-virtuoso";
 import {
   initDB,
   addData,
@@ -11,9 +12,8 @@ import {
   fetchBestTranslate,
   fetchDocsList,
 } from "./services/translateGetService.jsx";
+
 // 컴포넌트 import
-import TranslateEditor from "./translateEditor.jsx";
-import TranslateArchive from "./translateArchive.jsx";
 import ToastViewer from "./components/toastViewer.jsx";
 
 //이미지 import
@@ -23,6 +23,8 @@ import loadingGif from "../../assets/loading.gif";
 import useModalStore from "../../store/translateStore/translateModalStore.jsx";
 import useDocsStore from "../../store/translateStore/docsStore.jsx";
 import useEditorStore from "../../store/translateStore/editorStore.jsx";
+import useDbStore from "../../store/translateStore/dbStore.jsx";
+import useSearchStore from "../../store/translateStore/searchStore.jsx";
 
 const BestTransViewer = () => {
   const navigationType = useNavigationType();
@@ -58,12 +60,24 @@ const BestTransViewer = () => {
 
   const { documentName, setDocumentName } = useDocsStore();
 
+  const { dbInitialized, activateDbInitialized, deactivateDbInitialized } =
+    useDbStore();
+
+  const {
+    virtuosoRef,
+    docDataLength,
+    highlightIndex,
+    setHighlightIndex,
+    clearHighlightIndex,
+  } = useSearchStore();
+
   const handleClose = () => {
     clearDocsPart();
     clearBestTrans();
     clearTempSave();
     clearSubmitData();
     clearCurrentUserText();
+    clearHighlightIndex();
   };
 
   const showCurrentDocumentName = async () => {
@@ -75,38 +89,6 @@ const BestTransViewer = () => {
       setDocumentName(currentDocs[0].documentName);
     } else {
       setDocumentName("");
-    }
-  };
-
-  // 문서 내용 전부 가져오기
-  const loadMore = async () => {
-    if (loading || !hasMore) return;
-    try {
-      setLoading(true);
-      // 인위적인 지연 추가 (개발용)
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      const data = docData.current;
-      if (!data || data.length === 0) {
-        // console.log("오류 발생 : 데이터 없음");
-        return;
-      }
-      const newChunk = data.slice(processedCount, processedCount + chunk_size);
-      if (!newChunk || newChunk.length === 0) {
-        setHasMore(false);
-        return;
-      }
-      //element.content가 null이나 undefined일 경우 ""로 대체 ==> React의 불변성 패턴
-      const processedChunk = newChunk.map((element) => ({
-        ...element,
-        content: element.content || "",
-      }));
-      //전개 연산자 사용 : 두 객체들을 쉽게 합칠 수 있음.
-      setDocParts((prev) => [...prev, ...processedChunk]);
-      setProcessedCount((prev) => prev + chunk_size);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -129,7 +111,9 @@ const BestTransViewer = () => {
     setHasMore(true);
     setCheckComplete(false);
     setIsDbInitialized(false); // 여기로 이동
+    deactivateDbInitialized();
     docData.current = [];
+    docDataLength.current = 0;
 
     const fetchData = async () => {
       const data = await fetchBestTranslate(docsId, "best");
@@ -141,59 +125,46 @@ const BestTransViewer = () => {
           key: element.originId,
         };
       });
-      // console.log(
-      //   "번역 전체 보기 데이터를 불러왔습니다.: ",
-      //   tmpBestTransList.current
-      // );
     };
-
-    // const processFetchedData = async () => {
-
-    // };
 
     async function checkDB() {
       if (!isMounted) return; // 컴포넌트가 언마운트되었습니다면 중단
       setLoading(true);
 
       try {
-        // console.log("Initializing DB for docsId:", docsId); // 디버깅용
         await initDB(dbName, objectStoreName);
         const loadedData = await loadData(objectStoreName);
-        // console.log("Loaded data from DB:", loadedData.length); // 디버깅용
-
         if (!isMounted) return; // 비동기 작업 후 마운트 상태 다시 확인
 
         if (!loadedData || loadedData.length === 0) {
-          // console.log("Fetching data from server for docsId:", docsId); // 디버깅용
           try {
             const data = await fetchTranslateData(docsId, false);
             if (!isMounted) return;
             if (data && Array.isArray(data)) {
               docData.current = data;
+              docDataLength.current = docData.current.length;
               await addData(data, objectStoreName);
-              // console.log("Server data saved, length:", data.length); // 디버깅용
+
               if (isMounted) {
                 setIsDbInitialized(true);
-                await loadMore(); // 여기서 바로 loadMore 실행
+                activateDbInitialized();
                 setCheckComplete(true);
               }
             } else {
               throw new Error("Invalid data format received from server");
             }
-          } catch (error) {
-            // console.error("Failed to fetch data from server:", error);
-          }
+          } catch (error) {}
         } else {
-          // console.log("Using cached data from IndexedDB"); // 디버깅용
           if (isMounted) {
             docData.current = loadedData;
+            docDataLength.current = docData.current.length;
             setIsDbInitialized(true);
-            await loadMore(); // 여기서도 바로 loadMore 실행
             setCheckComplete(true);
+            activateDbInitialized();
           }
         }
       } catch (error) {
-        // console.log("Error in checkDB:", error);
+        // console.log(error);
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -208,63 +179,54 @@ const BestTransViewer = () => {
     };
   }, [docsId]);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loading && checkComplete) {
-          loadMore();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (loadingRef.current) {
-      observer.observe(loadingRef.current);
-    }
-    return () => observer.disconnect();
-  }, [hasMore, loading, processedCount]);
-
   // Race Condition Prevention Pattern : useEffect에서 함수가 동시 실행되는 것을 방지
 
   return (
     <div className="h-screen w-[90vw] md:w-[60vw] bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-x-auto overflow-y-scroll p-6 flex flex-col z-[1000] mx-auto shadow-xl">
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 w-full h-[90vh]">
         <div className="h-[8vh]"></div>
-        {docParts.map((part, index) => (
-          <div key={index} className="paragraph flex flex-row gap-4 relative">
-            <div className="flex flex-col w-full p-1 rounded-sm text-[#424242]">
-              <div className="flex justify-between">
-                {tmpBestTransList.current[part.originId] ? (
-                  <ToastViewer
-                    content={
-                      tmpBestTransList.current[part.originId].element.content
-                    }
-                  />
-                ) : (
-                  <ToastViewer content={part.content} />
-                )}
+        <Virtuoso
+          ref={virtuosoRef}
+          style={{ height: "100%" }}
+          data={docData.current}
+          itemContent={(index) => (
+            <div
+              key={index}
+              className={`paragraph flex flex-row gap-4 w-ful transition-all duration-500 ${
+                highlightIndex === index ? "bg-[#E4DCD4] animate-pulse" : ""
+              }`}
+            >
+              <div className="flex flex-col w-full p-1 rounded-sm text-[#424242]">
+                <div className="flex justify-between">
+                  {tmpBestTransList.current[docData.current[index].originId] ? (
+                    <ToastViewer
+                      content={
+                        tmpBestTransList.current[
+                          docData.current[index].originId
+                        ].element.content
+                      }
+                    />
+                  ) : (
+                    <ToastViewer content={docData.current[index].content} />
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          )}
+        />
       </div>
-      <div ref={loadingRef} className="py-6 text-center">
-        {loading && (
+
+      {loading && (
+        <div ref={loadingRef} className="py-6 text-center">
           <div className="flex justify-center items-center" role="status">
             <img
               className="w-[250px] h-[250px]"
               src={loadingGif}
               alt="로딩 애니메이션"
             />
-          </div>
-        )}
-        {!hasMore && (
-          <div className="text-gray-600 font-medium">
-            모든 문서를 불러왔습니다.
-          </div>
-        )}
-      </div>
-      <TranslateEditor className="z-auto" />
-      <TranslateArchive className="z-auto" />
+          </div>{" "}
+        </div>
+      )}
     </div>
   );
 };

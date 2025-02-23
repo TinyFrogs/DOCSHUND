@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
+import { Virtuoso } from "react-virtuoso";
 import {
   initDB,
   addData,
@@ -29,7 +30,6 @@ import {
   Menu,
   Item,
   Separator,
-  Submenu,
   useContextMenu,
   contextMenu,
 } from "react-contexify";
@@ -41,7 +41,7 @@ import useDocsStore from "../../store/translateStore/docsStore.jsx";
 import useArchiveStore from "../../store/translateStore/archiveStore.jsx";
 import MemoStore from "../../store/../store/myPageStore/memoStore.jsx";
 import useDbStore from "../../store/translateStore/dbStore.jsx";
-// import useProgressStore from "../../store/translateStore/progressStore.jsx";
+import useSearchStore from "../../store/translateStore/searchStore.jsx";
 
 // 이미지 import
 import loadingGif from "../../assets/loading.gif";
@@ -107,14 +107,14 @@ const TranslateViewer = () => {
 
   const { dbInitialized, activateDbInitialized, deactivateDbInitialized } =
     useDbStore();
-  // const {
-  //   currentProgress,
-  //   totalData,
-  //   setTotalData,
-  //   clearTotalData,
-  //   setCurrentProgress,
-  //   resetCurrentProgress,
-  // } = useProgressStore();
+
+  const {
+    virtuosoRef,
+    docDataLength,
+    highlightIndex,
+    setHighlightIndex,
+    clearHighlightIndex,
+  } = useSearchStore();
 
   // 우클릭 또는 버튼 클릭 시 UI 상태 토글
 
@@ -138,40 +138,6 @@ const TranslateViewer = () => {
     }));
   };
 
-  // 문서 내용을 청크 단위로 불러오기
-  const loadMore = async () => {
-    if (loading || !hasMore) {
-      return;
-    }
-    try {
-      setLoading(true);
-      // 인위적인 지연 추가 (개발용)
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      const data = docData.current;
-      if (!data || data.length === 0) {
-        toast.error("원문 데이터가 없습니다.");
-        return;
-      }
-      const newChunk = data.slice(processedCount, processedCount + chunk_size);
-      if (!newChunk || newChunk.length === 0) {
-        setHasMore(false);
-        // setCurrentProgress(100);
-        return;
-      }
-      // element.content가 null 또는 undefined일 경우 ""로 대체
-      const processedChunk = newChunk.map((element) => ({
-        ...element,
-        content: element.content || "",
-      }));
-      setDocParts((prev) => [...prev, ...processedChunk]);
-      setProcessedCount((prev) => prev + chunk_size);
-      // setCurrentProgress((processedCount / totalData) * 100);
-    } catch (error) {
-      // console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
   // 주송 이동 예외 처리
   const handleClose = () => {
     clearDocsPart();
@@ -179,6 +145,7 @@ const TranslateViewer = () => {
     clearTempSave();
     clearSubmitData();
     clearCurrentUserText();
+    clearHighlightIndex();
   };
 
   const showCurrentDocumentName = async () => {
@@ -213,6 +180,8 @@ const TranslateViewer = () => {
     deactivateDbInitialized();
     MemoStore.setState({ memos: useMemoService.fetchMemos(userId) });
     docData.current = [];
+    docDataLength.current = 0;
+    setHighlightIndex(null);
 
     async function checkDB() {
       if (!isMounted) return;
@@ -237,13 +206,12 @@ const TranslateViewer = () => {
             if (!isMounted) return;
             if (data && Array.isArray(data)) {
               docData.current = data;
+              docDataLength.current = data.length;
               await addData(data, objectStoreName);
               toast.success("원문 데이터가 준비되었습니다.");
               if (isMounted) {
                 setIsDbInitialized(true);
                 activateDbInitialized();
-
-                await loadMore();
                 setCheckComplete(true);
               }
             } else {
@@ -256,9 +224,9 @@ const TranslateViewer = () => {
           toast.success("원문 데이터가 준비되었습니다.");
           if (isMounted) {
             docData.current = loadedData;
+            docDataLength.current = loadedData.length;
             setIsDbInitialized(true);
             activateDbInitialized();
-            await loadMore();
             setCheckComplete(true);
           }
         }
@@ -277,21 +245,6 @@ const TranslateViewer = () => {
       isMounted = false;
     };
   }, [location.pathname, docsId]);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loading && checkComplete) {
-          loadMore();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (loadingRef.current) {
-      observer.observe(loadingRef.current);
-    }
-    return () => observer.disconnect();
-  }, [hasMore, loading, processedCount]);
 
   const { show } = useContextMenu({
     id: "translate-menu",
@@ -348,82 +301,91 @@ const TranslateViewer = () => {
     >
       {createPortal(<SearchDB tableId={docsId} />, document.body)}
 
-      <div className="flex flex-col gap-2 w-full">
+      <div className="flex flex-col gap-2 w-full h-[90vh]">
         <div className="h-[8vh]"></div>
-        {docParts.map((part, index) => (
-          <div
-            key={index}
-            onContextMenu={async (e) => {
-              toggleDocpart(part.id, "rightClick");
-              if (!localStorage.getItem("token")) {
-                e.preventDefault();
-                return;
-              }
-              setContextMenuPorder(part.pOrder);
-              handleContextMenu(e, part);
-              const tmpTransList = await fetchBestTranslate(part.docsId, "");
-              setTransList(tmpTransList);
-              await generateUserList(tmpTransList);
-            }}
-            className="paragraph flex flex-row gap-4 w-ful"
-          >
+        <Virtuoso
+          ref={virtuosoRef}
+          style={{ height: "100%", width: "100%", padding: "0px" }}
+          data={docData.current}
+          itemContent={(index, part) => (
             <div
-              onClick={async (e) => {
-                e.stopPropagation();
-                contextMenu.hideAll();
-                clearSearchResults();
+              onContextMenu={async (e) => {
+                toggleDocpart(part.id, "rightClick");
+                if (!localStorage.getItem("token")) {
+                  e.preventDefault();
+                  return;
+                }
+                setContextMenuPorder(part.pOrder);
+                handleContextMenu(e, part);
                 const tmpTransList = await fetchBestTranslate(
-                  part.docsId,
-                  "best"
+                  docData.current[index].docsId,
+                  ""
                 );
                 setTransList(tmpTransList);
-
-                if (tmpTransList) {
-                  const filteredTranslations = tmpTransList.filter(
-                    (item) => item.originId === part.originId
+                await generateUserList(tmpTransList);
+              }}
+              className={`paragraph flex flex-row gap-4 w-ful transition-all duration-500 ${
+                highlightIndex === index ? "bg-[#E4DCD4] animate-pulse" : ""
+              }`}
+            >
+              <div
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  contextMenu.hideAll();
+                  clearSearchResults();
+                  const tmpTransList = await fetchBestTranslate(
+                    part.docsId,
+                    "best"
                   );
-                  if (filteredTranslations.length > 0) {
-                    setBestTrans(filteredTranslations[0].content);
+                  setTransList(tmpTransList);
 
-                    toggleDocpart(part.id, "leftClick");
+                  if (tmpTransList) {
+                    const filteredTranslations = tmpTransList.filter(
+                      (item) => item.originId === part.originId
+                    );
+                    if (filteredTranslations.length > 0) {
+                      setBestTrans(filteredTranslations[0].content);
+
+                      toggleDocpart(part.id, "leftClick");
+                    } else {
+                      setBestTrans("");
+                      toast.info("아직 등록된 변역이 없습니다.", {
+                        toastId: "no-trans",
+                      });
+                    }
                   } else {
                     setBestTrans("");
-                    toast.info("아직 등록된 변역이 없습니다.", {
-                      toastId: "no-trans",
-                    });
                   }
-                } else {
-                  setBestTrans("");
-                }
-              }}
-              className="flex flex-col w-full h-fit rounded-md p-2 text-[#424242] hover:shadow-[0px_0px_15px_0px_rgba(149,_157,_165,_0.3)] hover:border-gray-200 cursor-pointer transition-all duration-250 ease-in-out"
-            >
-              <div>
-                {!docpartStates[part.id] ? (
-                  <ToastViewer content={part.content} />
-                ) : (
-                  <div className="flex flex-col">
-                    {bestTrans !== "" && (
-                      <div className="flex justify-end">
-                        <p className="font-extrabold mr-2">BEST</p>
-                        <Trophy className="w-6 h-6 text-yellow-500" />
-                      </div>
-                    )}
-                    {bestTrans === "" ? (
-                      <ToastViewer content={part.content} />
-                    ) : (
-                      <ToastViewer content={bestTrans} />
-                    )}
-                  </div>
-                )}
+                }}
+                className="flex flex-col w-full h-fit rounded-md p-2 m-1 text-[#424242] hover:shadow-[0px_0px_15px_0px_rgba(149,_157,_165,_0.3)] hover:border-gray-200 cursor-pointer transition-all duration-250 ease-in-out"
+              >
+                <div>
+                  {!docpartStates[part.id] ? (
+                    <ToastViewer content={part.content} />
+                  ) : (
+                    <div className="flex flex-col">
+                      {bestTrans !== "" && (
+                        <div className="flex justify-end">
+                          <p className="font-extrabold mr-2">BEST</p>
+                          <Trophy className="w-6 h-6 text-yellow-500" />
+                        </div>
+                      )}
+                      {bestTrans === "" ? (
+                        <ToastViewer content={part.content} />
+                      ) : (
+                        <ToastViewer content={bestTrans} />
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          )}
+        />
       </div>
 
-      <div ref={loadingRef} className="py-6 text-center">
-        {loading && (
+      {loading && (
+        <div ref={loadingRef} className="py-6 text-center">
           <div className="flex justify-center items-center" role="status">
             <img
               className="w-[250px] h-[250px]"
@@ -431,13 +393,9 @@ const TranslateViewer = () => {
               alt="로딩 애니메이션"
             />
           </div>
-        )}
-        {!hasMore && (
-          <div className="text-gray-600 font-medium">
-            모든 문서를 불러왔습니다.
-          </div>
-        )}
-      </div>
+        </div>
+      )}
+
       {createPortal(<TranslateEditor />, document.body)}
       {createPortal(<TranslateArchive />, document.body)}
 

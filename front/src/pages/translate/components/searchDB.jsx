@@ -5,9 +5,16 @@ import ToastViewer from "./toastViewer";
 import { toast } from "react-toastify";
 import { Button, Spinner } from "flowbite-react";
 import useDocsStore from "../../../store/translateStore/docsStore";
-import Loading from "../../../assets/loading.gif";
+import useSearchStore from "../../../store/translateStore/searchStore";
+import { Virtuoso } from "react-virtuoso";
 
 const SearchDB = ({ tableId }) => {
+  const {
+    virtuosoRef,
+    highlightIndex,
+    setHighlightIndex,
+    clearHighlightIndex,
+  } = useSearchStore();
   const [loading, setLoading] = useState(false);
   const [db, setDb] = useState(null);
   const [query, setQuery] = useState("");
@@ -92,19 +99,32 @@ const SearchDB = ({ tableId }) => {
       />
 
       {searchResults.length > 0 && (
-        <ul className="mt-4 bg-white shadow-md rounded-lg p-2 max-h-[50vh] overflow-y-scroll overflow-x-hidden w-[45vw]">
-          <div>
-            {searchResults.map((item) => (
-              <li
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                key={item.id}
-                className="p-2 border-b last:border-none flex bg-[#FAF9F5]"
-              >
-                <ToastViewer content={item[searchField]} />
-              </li>
-            ))}
+        <ul className="mt-4 bg-white shadow-md rounded-lg p-2 h-[50vh] max-h-[50vh] overflow-y-scroll overflow-x-hidden w-[45vw]">
+          <div className="h-full w-full">
+            <Virtuoso
+              style={{ height: "100%" }}
+              data={searchResults}
+              itemContent={(index, item) => (
+                <li
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    virtuosoRef.current.scrollToIndex({
+                      index: item.id,
+                      align: "center",
+                      behavior: "auto",
+                    });
+                    setHighlightIndex(item.id - 1);
+                    setTimeout(() => {
+                      setHighlightIndex(null);
+                    }, 2000);
+                  }}
+                  key={item.id}
+                  className="p-2 h-fit w-full flex-col mb-1 border-1 flex bg-[#FAF9F5] hover:bg-slate-200 hover:text-white transition-all duration-200 cursor-pointer"
+                >
+                  <ToastViewer content={item[searchField]} />
+                </li>
+              )}
+            />
           </div>
         </ul>
       )}
