@@ -1,7 +1,7 @@
 import axios from "axios";
 import useAuthStore from "../store/authStore"; // authStore 임포트 (경로 확인)
 
-const BASE_URL = "https://i12a703.p.ssafy.io/api/v1/docshund/";
+const BASE_URL = "https://docshund.site/api/v1/docshund/";
 
 // JSON 요청용 Axios 인스턴스
 const axiosJsonInstance = axios.create({
