@@ -89,8 +89,8 @@ public class SecurityConfig {
 		configuration.setAllowedOrigins(Arrays.asList(
 			"http://localhost:5173",
 			"https://localhost:5173",
-			"http://i12a703.p.ssafy.io",
-			"https://i12a703.p.ssafy.io"
+			"http://docshund.site",
+			"https://docshund.site"
 		));
 		configuration.setAllowedMethods(Collections.singletonList("*"));
 		configuration.setAllowedHeaders(Collections.singletonList("*"));
