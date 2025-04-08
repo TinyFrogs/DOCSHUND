@@ -6,8 +6,6 @@
 
 <br>
 
-이 프로젝트는 2025년 1월부터 2월까지 진행된 `삼성 청년 소프트웨어 아카데미(Samsung Software Academy For Youth, SSAFY)` 12기 2학기 공통 프로젝트 산출물입니다.
-
 <br>
 
 ## 🎬 소개 영상

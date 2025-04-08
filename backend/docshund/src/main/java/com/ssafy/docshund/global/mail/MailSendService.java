@@ -39,9 +39,9 @@ public class MailSendService {
 	public void sendEmail(String sendEmail, String subject, String body, String imageUrl) {
 		try {
 			log.info("Validating email: " + sendEmail);
-			if (!isEmailValidWithHunter(sendEmail)) {
-				throw new MailException(MAIL_NOT_FOUND);
-			}
+			// if (!isEmailValidWithHunter(sendEmail)) {
+			// 	throw new MailException(MAIL_NOT_FOUND);
+			// }
 
 			log.info("Sending email to " + sendEmail);
 
@@ -60,7 +60,7 @@ public class MailSendService {
 			}
 
 			mailSender.send(message);
-		} catch (MessagingException | JsonProcessingException e) {
+		} catch (MessagingException /* | JsonProcessingException */ e) {
 			e.printStackTrace(); // 스택 트레이스 출력
 			throw new MailException(MAIL_NOT_SEND);
 		}
