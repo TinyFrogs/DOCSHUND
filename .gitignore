@@ -296,11 +296,10 @@ $RECYCLE.BIN/
 # IntelliJ 특정 파일
 *.iml
 *.ipr
-*.iws
 
 # 자동 생성 파일
 *.bin
 *.lock
 *.probe
-/backend/docshund/.gradle/
-/backend/docshund/.idea/
+
+/backend/docshund/src/main/resources/application-API-KEY.properties
